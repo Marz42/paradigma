@@ -4,12 +4,14 @@
 
 ## 核心原则
 
-| 原则 | 含义 | 反例 |
-|------|------|------|
-| **单一职责** | 每个函数/组件/模块只做一件事 | 一个 300 行的函数同时处理校验、数据库查询和邮件发送 |
-| **高内聚低耦合** | 相关逻辑放一起，模块间通过明确接口通信 | 模块 A 直接访问模块 B 的数据库表 |
-| **先跑通再优化** | MVP 阶段不做过早抽象和过度优化 | 为"未来可能的需求"写了一套插件系统 |
-| **约定优于配置** | 遵循项目现有模式，不要另起炉灶 | 已有 `useRequest` 封装却自己写原生 fetch |
+
+| 原则         | 含义                  | 反例                             |
+| ---------- | ------------------- | ------------------------------ |
+| **单一职责**   | 每个函数/组件/模块只做一件事     | 一个 300 行的函数同时处理校验、数据库查询和邮件发送   |
+| **高内聚低耦合** | 相关逻辑放一起，模块间通过明确接口通信 | 模块 A 直接访问模块 B 的数据库表            |
+| **先跑通再优化** | MVP 阶段不做过早抽象和过度优化   | 为"未来可能的需求"写了一套插件系统             |
+| **约定优于配置** | 遵循项目现有模式，不要另起炉灶     | 已有 `useRequest` 封装却自己写原生 fetch |
+
 
 ## 代码质量控制
 
@@ -24,15 +26,17 @@
 
 ## 通用规则
 
-| 场景 | 规范 | 示例 |
-|------|------|------|
-| 变量/函数 | camelCase | `userName`, `getOrderList()` |
-| 常量 | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT`, `API_BASE_URL` |
-| 类/接口/类型 | PascalCase | `UserService`, `OrderCreateInput` |
-| 文件名 | kebab-case | `user-service.ts`, `order-detail.vue` |
-| 布尔变量 | `is` / `has` / `can` / `should` 前缀 | `isActive`, `hasPermission`, `canEdit` |
-| 事件处理函数 | `handle` + 事件名 | `handleSubmit`, `handleRowClick` |
-| 回调 props | `on` + 事件名 | `@on-confirm`, `onUpdate:modelValue` |
+
+| 场景       | 规范                                 | 示例                                     |
+| -------- | ---------------------------------- | -------------------------------------- |
+| 变量/函数    | camelCase                          | `userName`, `getOrderList()`           |
+| 常量       | UPPER_SNAKE_CASE                   | `MAX_RETRY_COUNT`, `API_BASE_URL`      |
+| 类/接口/类型  | PascalCase                         | `UserService`, `OrderCreateInput`      |
+| 文件名      | kebab-case                         | `user-service.ts`, `order-detail.vue`  |
+| 布尔变量     | `is` / `has` / `can` / `should` 前缀 | `isActive`, `hasPermission`, `canEdit` |
+| 事件处理函数   | `handle` + 事件名                     | `handleSubmit`, `handleRowClick`       |
+| 回调 props | `on` + 事件名                         | `@on-confirm`, `onUpdate:modelValue`   |
+
 
 ## 禁止命名
 
@@ -186,15 +190,17 @@ async def get_current_user(
 [optional body]
 ```
 
-| Type | 含义 | 示例 |
-|------|------|------|
-| `feat` | 新功能 | `feat(auth): add JWT login endpoint` |
-| `fix` | Bug 修复 | `fix(order): correct total calculation` |
-| `refactor` | 重构（不改变功能） | `refactor(utils): extract date helpers` |
-| `docs` | 文档 | `docs(readme): update deployment guide` |
-| `style` | 格式（不影响代码运行） | `style: format with prettier` |
-| `test` | 测试 | `test(order): add edge case coverage` |
-| `chore` | 构建/工具/依赖 | `chore(deps): bump vite to 5.0` |
+
+| Type       | 含义          | 示例                                      |
+| ---------- | ----------- | --------------------------------------- |
+| `feat`     | 新功能         | `feat(auth): add JWT login endpoint`    |
+| `fix`      | Bug 修复      | `fix(order): correct total calculation` |
+| `refactor` | 重构（不改变功能）   | `refactor(utils): extract date helpers` |
+| `docs`     | 文档          | `docs(readme): update deployment guide` |
+| `style`    | 格式（不影响代码运行） | `style: format with prettier`           |
+| `test`     | 测试          | `test(order): add edge case coverage`   |
+| `chore`    | 构建/工具/依赖    | `chore(deps): bump vite to 5.0`         |
+
 
 ## 分支命名
 
@@ -222,11 +228,13 @@ MAJOR   . MINOR  . PATCH
 
 ## 递增规则（唯一需要记住的）
 
-| 场景 | 递增哪个 | 归零哪些 | 示例 |
-|------|----------|----------|------|
-| 🐛 向下兼容的 bug 修复 | PATCH (Z) | 无 | `1.2.3` → `1.2.4` |
-| ✨ 向下兼容的新功能、弃用旧 API | MINOR (Y) | PATCH 归零 | `1.2.3` → `1.3.0` |
-| 💥 不兼容的 API 变更 | MAJOR (X) | MINOR、PATCH 均归零 | `1.2.3` → `2.0.0` |
+
+| 场景                 | 递增哪个      | 归零哪些            | 示例                |
+| ------------------ | --------- | --------------- | ----------------- |
+| 🐛 向下兼容的 bug 修复    | PATCH (Z) | 无               | `1.2.3` → `1.2.4` |
+| ✨ 向下兼容的新功能、弃用旧 API | MINOR (Y) | PATCH 归零        | `1.2.3` → `1.3.0` |
+| 💥 不兼容的 API 变更     | MAJOR (X) | MINOR、PATCH 均归零 | `1.2.3` → `2.0.0` |
+
 
 ## 额外规则
 
