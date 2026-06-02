@@ -13,106 +13,49 @@
 
 通过将关键信息外化到结构化的文件中，Memory-Bank 确保 Agent 每次都能快速"上车"。
 
+
+---
+
+>本项目采用 MPL 2.0 协议。
+>简单来说：你可以自由使用本项目开发任何商业、闭源的项目。
+>只要你不修改本项目自身的源码，你的项目想怎么闭源都可以；
+>如果你修改了本模板库的源码，请将修改后的模板库代码开源回馈社区。
+
 ---
 
 ## 如何使用 / How To Use
 
-整个流程分三步：获取 → 设置 → 启动。你可以手动执行，也可以直接把步骤 2+3 交给 Agent 一键完成（使用 `INIT_PROMPT.md` 的模式 F）。
-
----
-
-### 步骤 1：获取基座
-
-**推荐方式** — 在 GitHub 上点击本仓库页面上的 **"Use this template"** 按钮，选择 "Create a new repository"。这样可以自动断连上游 remote，得到一个干净的独立 repo。
-
-**替代方式** — 手动 clone 然后断开上游：
+### 1. 克隆本项目作为开发基座
 
 ```bash
-git clone https://github.com/Marz42/paradigma.git my-new-project
+git clone <repo-url> my-new-project
 cd my-new-project
-git remote remove origin
-# 然后去 GitHub 创建新 repo，再关联：
-# git remote add origin https://github.com/<你的用户名>/my-new-project.git
 ```
 
----
+### 2. 激活 runtime 模板（重要！）
 
-### 步骤 2：初始化设置（机械操作，可由 Agent 完成）
-
-以下操作将模板项目转化为你自己的项目：
-
-**2a. 激活 runtime 模板**
-
-本项目只跟踪 `.template.md` 模板文件。将模板复制为正式文件：
+本项目只跟踪 `.template.md` 模板文件。实际使用时，需要将模板复制为正式文件：
 
 ```bash
-cd memory_bank
+# 在 memory_bank/ 目录下执行
 cp progress.template.md progress.md
 cp decisions.template.md decisions.md
 cp known-issues.template.md known-issues.md
 cp glossary.template.md glossary.md
 ```
 
-> 设计原因：`progress.md`、`decisions.md` 等会累积你项目的开发历史。`.template.md` 进 git，`.md` 由 `.gitignore` 排除，确保你 clone 到的始终是一套干净模板。
+> **为什么这样设计？** 显然这是因为Project Paradigma 也是一个项目，为了避免Agent出现记忆混淆，包含本项目开发历史的 `progress.md`、`decisions.md` 等运行时数据已通过 `.gitignore` 排除。
+> 你 clone 到的永远是一套干净的模板，不会带有上游项目的开发历史。
 
-**2b. 修改项目标识**
+### 3. 配置 IDE 适配器
 
-- **README.md**：将顶部标题 "Project Paradigma" 改为你的项目名，将副标题改为你的项目简介（Vibe Coding 基座相关说明可以保留或删除）
-- **.gitignore**：检查注释内容，将本项目特定的描述替换为你的项目名（或直接删除注释块）
-
-**2c. 连接你自己的 GitHub 仓库**
-
-如果在步骤 1 中用的是 `git clone` 方式，此时需要关联你自己的 remote：
-
-```bash
-git remote add origin https://github.com/<你的用户名>/<你的项目名>.git
-```
-
-**2d. 首次 commit — 保存干净的起点**
-
-```bash
-git add .
-git commit -m "chore: init from paradigma template"
-git push -u origin main
-```
-
----
-
-### 步骤 3：配置 IDE 适配器
-
-本项目已内置 Cursor 的 Rule 适配器（`.cursor/rules/memory-bank-protocol.mdc`），Cursor 用户无需额外操作。
+本项目已内置 Cursor 的 Rule 适配器（`.cursor/rules/memory-bank-protocol.mdc`）。
 
 如果你使用其他 IDE（Codex、Antigravity 等），请根据 `AGENT_RULES.md`（IDE 无关的协议原文）自行创建对应的规则文件。
 
----
+### 4. 启动第一个会话
 
-### 步骤 4：启动第一个会话
-
-打开 `INIT_PROMPT.md`，根据你的场景选择对应模式：
-
-| 你的情况 | 使用模式 | 位置 |
-|----------|----------|------|
-| 想让 Agent 帮忙完成步骤 2 的所有机械操作 | **模式 F** | `INIT_PROMPT.md` 第一部分 |
-| 全新项目，需要 Agent 填充 project-brief、architecture 等 | **模式 A** | `INIT_PROMPT.md` |
-| 已有项目续接，需要 Agent 审查现有文档 | **模式 B** | `INIT_PROMPT.md` |
-| 已有明确任务，直接让 Agent 干活 | **模式 C** | `INIT_PROMPT.md` |
-| 架构决策讨论 | **模式 D** | `INIT_PROMPT.md` |
-
-将对应模板中的 `{{PLACEHOLDER}}` 替换为实际内容后，粘贴到 IDE 对话框中。
-
----
-
-### 两种使用路径总结
-
-```
-路径 A — 手动+Agent 混合（新手推荐）：
-  步骤1(手动) → 步骤2(手动) → 步骤3(手动) → 步骤4模式A(Agent) → 开始写代码
-
-路径 B — Agent 接管（熟练用户）：
-  步骤1(手动) → 粘贴模式F(Agent帮你做完步骤2) → 粘贴模式A(Agent填充文档) → 开始写代码
-```
-
-**核心原则**：步骤 1（获取代码）永远是手动的（涉及 GitHub 权限）。步骤 2 的机械操作可以交给 Agent。步骤 4 的业务初始化（填充 project-brief 等）必须由 Agent 在理解了你的项目目标后完成。
+打开 `INIT_PROMPT.md`，根据你的场景选择对应的模板（模式 A：全新项目 / 模式 B：已有项目续接 / 模式 C：单任务突击 / 模式 D：架构决策讨论），将 `{{PLACEHOLDER}}` 替换后粘贴到 IDE 对话框中。
 
 ---
 
@@ -120,11 +63,13 @@ git push -u origin main
 
 Memory-Bank 内的文件按使用频率分为三个温度等级：
 
-| 温度 | 含义 | 图标 | 加载策略 |
-|------|------|------|----------|
-| 🔥 HOT | 每次对话必读 | 🔥 | Agent 启动时主动读取 |
-| 🌡️ WARM | 按需加载 | 🌡️ | 涉及相关模块时才读取 |
-| 🧊 COLD | 仅排查时读 | 🧊 | 遇到决策疑问或 Bug 时自行判断 |
+
+| 温度       | 含义     | 图标  | 加载策略              |
+| -------- | ------ | --- | ----------------- |
+| 🔥 HOT   | 每次对话必读 | 🔥  | Agent 启动时主动读取     |
+| 🌡️ WARM | 按需加载   | 🌡️ | 涉及相关模块时才读取        |
+| 🧊 COLD  | 仅排查时读  | 🧊  | 遇到决策疑问或 Bug 时自行判断 |
+
 
 ---
 
@@ -172,11 +117,13 @@ paradigma/
 
 本项目通过"一个源头 + 多个适配器"的策略适配不同 IDE：
 
-| 整合层级 | 文件 | IDE 支持 | 作用 |
-|----------|------|----------|------|
-| **Rule 层** | `.cursor/rules/memory-bank-protocol.mdc` | Cursor | 每个新会话自动加载协议 |
-| **用户入口层** | `INIT_PROMPT.md` | 所有 IDE | 用户手动复制粘贴，控制 Agent 起始任务方向 |
-| **协议源头** | `AGENT_RULES.md` | 所有 IDE | IDE 无关的规范原文，各适配器的同步依据 |
+
+| 整合层级       | 文件                                       | IDE 支持 | 作用                       |
+| ---------- | ---------------------------------------- | ------ | ------------------------ |
+| **Rule 层** | `.cursor/rules/memory-bank-protocol.mdc` | Cursor | 每个新会话自动加载协议              |
+| **用户入口层**  | `INIT_PROMPT.md`                         | 所有 IDE | 用户手动复制粘贴，控制 Agent 起始任务方向 |
+| **协议源头**   | `AGENT_RULES.md`                         | 所有 IDE | IDE 无关的规范原文，各适配器的同步依据    |
+
 
 ### 如何为新 IDE 创建适配器
 
@@ -193,7 +140,7 @@ paradigma/
 2. **冷热分离，不堆砌**：新增文档时明确其温度等级，避免 HOT 层过重导致 Agent 注意力涣散
 3. **实战驱动，持续迭代**：Memory-Bank 的内容应在实际项目中持续维护和演进，而不是一次性填满
 4. **模板与运行时分离**：
-   - 会累积项目特定数据的文件（progress, decisions, known-issues, glossary）使用 `.template.md` → `.md` 复制模式
-   - `.template.md` 进 git，`.md` 由 `.gitignore` 排除
-   - 纯模板/规范文件（conventions.md, project-brief.md 等）直接跟踪，不需要 `.template` 机制
-   - 如果某个文件同时包含"模板结构"和"本项目开发历史"，应拆分为 template + runtime
+  - 会累积项目特定数据的文件（progress, decisions, known-issues, glossary）使用 `.template.md` → `.md` 复制模式
+  - `.template.md` 进 git，`.md` 由 `.gitignore` 排除
+  - 纯模板/规范文件（conventions.md, project-brief.md 等）直接跟踪，不需要 `.template` 机制
+  - 如果某个文件同时包含"模板结构"和"本项目开发历史"，应拆分为 template + runtime
