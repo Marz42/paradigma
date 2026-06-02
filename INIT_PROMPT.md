@@ -2,23 +2,41 @@
 
 > **使用方式**：根据你的场景复制对应的模板，将 `{{PLACEHOLDER}}` 替换为实际内容后，粘贴到 IDE 对话框中。
 >
-> **前置条件**：确保已按照 README.md 中的步骤 2 激活了 runtime 模板（将 `.template.md` 复制为 `.md`）。
+> **前置条件**：确保已按照 README.md 完成步骤 1（获取基座、断开上游 git remote）。
 
 ---
 
-## 模式 E：Memory-Bank 模板激活（首次使用必做）
+## 模式 F：Project Setup & Bootstrap（一次性机械设置）
 
-如果还没有将 `.template.md` 复制为正式文件，可以先让 Agent 帮你做：
+> **适用场景**：刚 clone 了 paradigma，还没有做任何初始化设置。让 Agent 帮你完成所有机械操作。
 
 ```
-你好，请帮我激活 memory-bank 的 runtime 模板文件：
+你好，我刚从这个项目模板创建了我的新项目。
 
-1. 将 memory_bank/ 下的所有 .template.md 文件复制为对应的 .md 文件：
+【我的项目名】：{{项目名，例如 TodoTracker}}
+
+请先阅读 README.md 的"如何使用"部分，理解完整的设置流程。然后帮我按以下步骤操作：
+
+1. 激活 runtime 模板 — 将 memory_bank/ 下的所有 .template.md 复制为 .md：
    - progress.template.md → progress.md
    - decisions.template.md → decisions.md
    - known-issues.template.md → known-issues.md
    - glossary.template.md → glossary.md
-2. 完成复制后告诉我，我们开始正式工作。
+
+2. 修改项目标识：
+   - 将 README.md 的标题从 "Project Paradigma" 改为 "{{项目名}}"
+   - 将 README.md 的副标题从 "Vibe Coding 时代的项目开发基座" 改为适合我项目的简介
+   - 将 .gitignore 中的 paradigma 注释改为通用内容
+
+3. 检查 git remote：
+   - 如果 remote 仍指向 paradigma 上游，提醒我断开并关联自己的仓库
+   - 如果已经是我自己的仓库，跳过
+
+4. 将所有更改做首次 commit：
+   - 提交信息：chore: init from paradigma template
+   - 如果 remote 已配置且与我的仓库关联，同时 push
+
+5. 完成以上操作后，告诉我一切就绪，我们可以进入模式 A 填充项目文档，或者告诉我你想直接开始写代码。
 ```
 
 ---
@@ -43,7 +61,8 @@
 2. 作为架构师，帮我填充 project-brief.md（核心愿景、受众、功能边界）。
 3. 草拟 architecture.md（整体技术栈、顶层目录结构、前后端交互宏观流程）。
 4. 设计第一版 data-contracts.md（核心数据库表结构 ER 图、核心 API 的请求/响应格式）。
-5. 完成这些文档的初始化后，告诉我，我们再开始写第一行代码。
+5. 对于暂时无法确定的字段（如仓库地址、文档站点等），标记为 `TODO` 而不是编造。
+6. 完成这些文档的初始化后，告诉我，我们再开始写第一行代码。
 ```
 
 ---
