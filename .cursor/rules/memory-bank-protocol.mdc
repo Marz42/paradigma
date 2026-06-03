@@ -21,6 +21,7 @@ alwaysApply: true
 ### 🌡️ WARM — 按需加载
 涉及相关模块时才读取：
 - `memory-bank/roadmap.md`
+- `memory-bank/changelog.md`
 - `memory-bank/domains/*.md`
 
 ### 🧊 COLD — 排查时读取
@@ -46,6 +47,7 @@ alwaysApply: true
 - 改变了目录结构 → 更新 `architecture.md`
 - 做了架构决策 → 追加 `decisions.md`
 - 踩坑并解决 → 追加 `known-issues.md`
+- **版本号评估**：根据 `conventions.md` 的"主动版本管理"规则判断是否需要递增版本号。需要时更新根目录 `VERSION` 文件和 `memory_bank/changelog.md`
 - 结束时告知用户："Memory-bank 已更新完毕。本次更新了：[文件列表]"
 
 ## 防幻觉

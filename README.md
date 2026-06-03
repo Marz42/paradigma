@@ -27,9 +27,16 @@
 
 ### 1. 克隆本项目作为开发基座
 
+**推荐方式** — 在 GitHub 上点击本仓库的 "Use this template" 按钮创建新仓库（自动断连上游）。
+
+**替代方式** — 手动 clone：
+
 ```bash
-git clone <repo-url> my-new-project
+git clone https://github.com/Marz42/paradigma.git my-new-project
 cd my-new-project
+git remote remove origin
+# 去 GitHub 创建你自己的空仓库后：
+# git remote add origin https://github.com/<你的用户名>/my-new-project.git
 ```
 
 ### 2. 激活 runtime 模板（重要！）
@@ -42,15 +49,17 @@ cp progress.template.md progress.md
 cp decisions.template.md decisions.md
 cp known-issues.template.md known-issues.md
 cp glossary.template.md glossary.md
+cp changelog.template.md changelog.md
 ```
 
-复制完成后，打开 `.gitignore`，**移除以下 4 行**：
+复制完成后，打开 `.gitignore`，**移除以下 5 行**：
 
 ```
 memory_bank/progress.md
 memory_bank/decisions.md
 memory_bank/known-issues.md
 memory_bank/glossary.md
+memory_bank/changelog.md
 ```
 
 > **为什么要移除？** 这 4 行是 Project Paradigma 自己用的——它需要排除自身的开发历史以保持模板干净。但你的项目没有这个需求。反过来说，如果你不移除这些行，你的 `progress.md`（累积每次 AI 会话的摘要）、`decisions.md`（架构决策记录）等运行时数据将不会被 git 跟踪——你换一台机器 clone 你的项目时，这些文件会丢失，AI 将丢失所有历史记忆。**复制模板后立即取消忽略，让记忆可同步。**
@@ -70,7 +79,17 @@ memory_bank/glossary.md
 
 ### 4. 启动第一个会话
 
-打开 `INIT_PROMPT.md`，根据你的场景选择对应的模板（模式 A：全新项目 / 模式 B：已有项目续接 / 模式 C：单任务突击 / 模式 D：架构决策讨论），将 `{{PLACEHOLDER}}` 替换后粘贴到 IDE 对话框中。
+打开 `INIT_PROMPT.md`，根据你的场景选择对应的模式：
+
+| 你的情况 | 使用模式 | 说明 |
+|----------|----------|------|
+| 刚 clone，还没初始化 | **模式 F** | Agent 帮你完成所有机械设置 |
+| 全新项目，需填充文档 | **模式 A** | Agent 作为架构师填充 project-brief 等 |
+| 已有项目，需审查状态 | **模式 B** | Agent 审查 memory-bank 一致性 |
+| 已有明确任务 | **模式 C** | Agent 跳过审查直接干活 |
+| 架构决策讨论 | **模式 D** | Agent 分析方案并记录到 decisions.md |
+
+将对应模板中的 `{{PLACEHOLDER}}` 替换为实际内容后，粘贴到 IDE 对话框中。
 
 ---
 
@@ -95,6 +114,7 @@ paradigma/
 ├── 📄 README.md                              # 本文件
 ├── 📄 AGENT_RULES.md                         # 【源头】IDE 无关的协议原文
 ├── 📄 INIT_PROMPT.md                         # 【入口】多模式会话启动模板
+├── 📄 VERSION                                # 【版本号】项目当前版本（SemVer）
 ├── 📁 .cursor/rules/
 │   └── 📄 memory-bank-protocol.mdc           # 【Cursor适配器】自动加载的规则文件
 │
@@ -118,9 +138,11 @@ paradigma/
         ├── 📄 decisions.template.md          # 【架构决策】ADR 模板（复制为 decisions.md 使用）
         ├── 📄 known-issues.template.md       # 【已知坑位】问题记录模板（复制为 known-issues.md 使用）
         ├── 📄 glossary.template.md           # 【术语表】术语录入模板（复制为 glossary.md 使用）
+        ├── 📄 changelog.template.md          # 【变更日志】发布历史模板（复制为 changelog.md 使用）
         ├── 📄 decisions.md                   #   (gitignored — 你的项目实际决策记录)
         ├── 📄 known-issues.md                #   (gitignored — 你的项目实际坑位记录)
         ├── 📄 glossary.md                    #   (gitignored — 你的项目实际术语表)
+        ├── 📄 changelog.md                   #   (gitignored — 你的项目实际变更日志)
         └── 📁 manuals/                       # 【操作手册】部署运维与测试指南（模板，直接使用）
             ├── 📄 deploy.md                  #   部署与运维指南
             └── 📄 testing-guide.md           #   测试用例编写规范与测试账号
