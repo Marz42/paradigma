@@ -23,20 +23,30 @@
    - known-issues.template.md → known-issues.md
    - glossary.template.md → glossary.md
 
-2. 修改项目标识：
+2. **移除 .gitignore 中的 runtime 排除规则**（重要！否则远端开发记忆不同步）：
+   - 打开 .gitignore，找到并删除以下 4 行：
+     ```
+     memory_bank/progress.md
+     memory_bank/decisions.md
+     memory_bank/known-issues.md
+     memory_bank/glossary.md
+     ```
+   - 这样你的 progress.md、decisions.md 等就能正常 git 跟踪，换机器不会丢失会话历史和架构决策
+
+3. 修改项目标识：
    - 将 README.md 的标题从 "Project Paradigma" 改为 "{{项目名}}"
    - 将 README.md 的副标题从 "Vibe Coding 时代的项目开发基座" 改为适合我项目的简介
    - 将 .gitignore 中的 paradigma 注释改为通用内容
 
-3. 检查 git remote：
+4. 检查 git remote：
    - 如果 remote 仍指向 paradigma 上游，提醒我断开并关联自己的仓库
    - 如果已经是我自己的仓库，跳过
 
-4. 将所有更改做首次 commit：
+5. 将所有更改做首次 commit：
    - 提交信息：chore: init from paradigma template
    - 如果 remote 已配置且与我的仓库关联，同时 push
 
-5. 完成以上操作后，告诉我一切就绪，我们可以进入模式 A 填充项目文档，或者告诉我你想直接开始写代码。
+6. 完成以上操作后，告诉我一切就绪，我们可以进入模式 A 填充项目文档，或者告诉我你想直接开始写代码。
 ```
 
 ---

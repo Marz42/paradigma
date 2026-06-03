@@ -44,8 +44,23 @@ cp known-issues.template.md known-issues.md
 cp glossary.template.md glossary.md
 ```
 
-> **为什么这样设计？** 显然这是因为Project Paradigma 也是一个项目，为了避免Agent出现记忆混淆，包含本项目开发历史的 `progress.md`、`decisions.md` 等运行时数据已通过 `.gitignore` 排除。
-> 你 clone 到的永远是一套干净的模板，不会带有上游项目的开发历史。
+复制完成后，打开 `.gitignore`，**移除以下 4 行**：
+
+```
+memory_bank/progress.md
+memory_bank/decisions.md
+memory_bank/known-issues.md
+memory_bank/glossary.md
+```
+
+> **为什么要移除？** 这 4 行是 Project Paradigma 自己用的——它需要排除自身的开发历史以保持模板干净。但你的项目没有这个需求。反过来说，如果你不移除这些行，你的 `progress.md`（累积每次 AI 会话的摘要）、`decisions.md`（架构决策记录）等运行时数据将不会被 git 跟踪——你换一台机器 clone 你的项目时，这些文件会丢失，AI 将丢失所有历史记忆。**复制模板后立即取消忽略，让记忆可同步。**
+
+> #### 两种运行模式的区别
+>
+> | 文件 | Paradigma 模式（模板库） | 你的项目模式 |
+> |------|-------------------------|-------------|
+> | `.gitignore` | 排除 `progress.md` 等 4 个文件 | 不排除它们，正常跟踪 |
+> | 目的 | 保持模板干净，clone 者不拿到上游历史 | 跨机器同步开发记忆，团队共享上下文 |
 
 ### 3. 配置 IDE 适配器
 
