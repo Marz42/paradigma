@@ -44,31 +44,42 @@ git remote remove origin
 本项目只跟踪 `.template.md` 模板文件。实际使用时，需要将模板复制为正式文件：
 
 ```bash
-# 在 memory_bank/ 目录下执行
+# 在 memory-bank/ 目录下执行
 cp progress.template.md progress.md
+cp active-task.template.md active-task.md
+cp architecture.template.md architecture.md
+cp data-contracts.template.md data-contracts.md
+cp roadmap.template.md roadmap.md
 cp decisions.template.md decisions.md
 cp known-issues.template.md known-issues.md
 cp glossary.template.md glossary.md
 cp changelog.template.md changelog.md
+cp domains/module_1.template.md domains/module_1.md
 ```
 
-复制完成后，打开 `.gitignore`，**移除以下 5 行**：
+复制完成后，打开 `.gitignore`，**移除以下 11 行**：
 
 ```
-memory_bank/progress.md
-memory_bank/decisions.md
-memory_bank/known-issues.md
-memory_bank/glossary.md
-memory_bank/changelog.md
+memory-bank/progress.md
+memory-bank/active-task.md
+memory-bank/architecture.md
+memory-bank/data-contracts.md
+memory-bank/roadmap.md
+memory-bank/decisions.md
+memory-bank/known-issues.md
+memory-bank/glossary.md
+memory-bank/changelog.md
+memory-bank/domains/*.md
+!memory-bank/domains/*.template.md
 ```
 
-> **为什么要移除？** 这 4 行是 Project Paradigma 自己用的——它需要排除自身的开发历史以保持模板干净。但你的项目没有这个需求。反过来说，如果你不移除这些行，你的 `progress.md`（累积每次 AI 会话的摘要）、`decisions.md`（架构决策记录）等运行时数据将不会被 git 跟踪——你换一台机器 clone 你的项目时，这些文件会丢失，AI 将丢失所有历史记忆。**复制模板后立即取消忽略，让记忆可同步。**
+> **为什么要移除？** 这 11 行是 Project Paradigma 自己用的——它需要排除自身的开发历史以保持模板干净。但你的项目没有这个需求。反过来说，如果你不移除这些行，你的 `progress.md`（累积每次 AI 会话的摘要）、`decisions.md`（架构决策记录）等运行时数据将不会被 git 跟踪——你换一台机器 clone 你的项目时，这些文件会丢失，AI 将丢失所有历史记忆。**复制模板后立即取消忽略，让记忆可同步。**
 
 > #### 两种运行模式的区别
 >
 > | 文件 | Paradigma 模式（模板库） | 你的项目模式 |
 > |------|-------------------------|-------------|
-> | `.gitignore` | 排除 `progress.md` 等 4 个文件 | 不排除它们，正常跟踪 |
+> | `.gitignore` | 排除 runtime `.md` 等 11 条规则 | 不排除它们，正常跟踪 |
 > | 目的 | 保持模板干净，clone 者不拿到上游历史 | 跨机器同步开发记忆，团队共享上下文 |
 
 ### 3. 配置 IDE 适配器
@@ -118,34 +129,29 @@ paradigma/
 ├── 📁 .cursor/rules/
 │   └── 📄 memory-bank-protocol.mdc           # 【Cursor适配器】自动加载的规则文件
 │
-└── 📁 memory_bank/
+└── 📁 memory-bank/
     │
     ├── 🔥 HOT — 每次对话必读 ─────────────────────
-    ├── 📄 project-brief.md                   # 【定海神针】项目愿景、核心受众、功能边界
-    ├── 📄 architecture.md                    # 【系统蓝图】技术栈、顶层目录结构、前后端交互
-    ├── 📄 data-contracts.md                  # 【最高法律】数据库表结构、API 请求/响应格式
-    ├── 📄 conventions.md                     # 【肌肉记忆】代码规范、命名约定、错误处理规范
-    ├── 📄 active-task.md                     # 【当前焦点】正在执行的单个任务（Check-list 格式）
-    ├── 📄 progress.md                        # 【会话日志】历次会话摘要（gitignored — 从 progress.template.md 复制）
-    ├── 📄 progress.template.md               #   (跟踪 — 复制为 progress.md 使用)
+    ├── 📄 project-brief.md                   # 【定海神针】项目愿景、核心受众、功能边界（直接跟踪）
+    ├── 📄 conventions.md                     # 【肌肉记忆】代码规范、命名约定（直接跟踪）
+    ├── 📄 architecture.template.md           # 【系统蓝图】→ 复制为 architecture.md
+    ├── 📄 data-contracts.template.md         # 【最高法律】→ 复制为 data-contracts.md
+    ├── 📄 active-task.template.md            # 【当前焦点】→ 复制为 active-task.md
+    ├── 📄 progress.template.md               # 【会话日志】→ 复制为 progress.md
     │
     ├── 🌡️ WARM — 按需加载 ─────────────────────
-    ├── 📄 roadmap.md                         # 【宏观进度】已完成版本、当前目标、未来规划
+    ├── 📄 roadmap.template.md                # 【宏观进度】→ 复制为 roadmap.md
     ├── 📁 domains/                           # 【领域拆分】按模块拆分的设计文档
-    │   └── 📄 module_1.md                    #    (示例模块，按需创建更多)
+    │   └── 📄 module_1.template.md           #    → 复制为 module_1.md（按需创建更多）
     │
     └── 🧊 COLD — 排查时读取（.template.md 供复制，.md 由 .gitignore 排除）──
-        ├── 📄 decisions.template.md          # 【架构决策】ADR 模板（复制为 decisions.md 使用）
-        ├── 📄 known-issues.template.md       # 【已知坑位】问题记录模板（复制为 known-issues.md 使用）
-        ├── 📄 glossary.template.md           # 【术语表】术语录入模板（复制为 glossary.md 使用）
-        ├── 📄 changelog.template.md          # 【变更日志】发布历史模板（复制为 changelog.md 使用）
-        ├── 📄 decisions.md                   #   (gitignored — 你的项目实际决策记录)
-        ├── 📄 known-issues.md                #   (gitignored — 你的项目实际坑位记录)
-        ├── 📄 glossary.md                    #   (gitignored — 你的项目实际术语表)
-        ├── 📄 changelog.md                   #   (gitignored — 你的项目实际变更日志)
-        └── 📁 manuals/                       # 【操作手册】部署运维与测试指南（模板，直接使用）
-            ├── 📄 deploy.md                  #   部署与运维指南
-            └── 📄 testing-guide.md           #   测试用例编写规范与测试账号
+        ├── 📄 decisions.template.md          # 【架构决策】→ 复制为 decisions.md
+        ├── 📄 known-issues.template.md       # 【已知坑位】→ 复制为 known-issues.md
+        ├── 📄 glossary.template.md           # 【术语表】→ 复制为 glossary.md
+        ├── 📄 changelog.template.md          # 【变更日志】→ 复制为 changelog.md
+        └── 📁 manuals/                       # 【操作手册】部署运维与测试指南（直接跟踪）
+            ├── 📄 deploy.md
+            └── 📄 testing-guide.md
 ```
 
 ---
@@ -177,7 +183,7 @@ paradigma/
 2. **冷热分离，不堆砌**：新增文档时明确其温度等级，避免 HOT 层过重导致 Agent 注意力涣散
 3. **实战驱动，持续迭代**：Memory-Bank 的内容应在实际项目中持续维护和演进，而不是一次性填满
 4. **模板与运行时分离**：
-  - 会累积项目特定数据的文件（progress, decisions, known-issues, glossary）使用 `.template.md` → `.md` 复制模式
-  - `.template.md` 进 git，`.md` 由 `.gitignore` 排除
-  - 纯模板/规范文件（conventions.md, project-brief.md 等）直接跟踪，不需要 `.template` 机制
-  - 如果某个文件同时包含"模板结构"和"本项目开发历史"，应拆分为 template + runtime
+  - 会累积项目特定数据或需按项目填充的文件，统一使用 `.template.md` → `.md` 复制模式
+  - `.template.md` 进 git，运行时 `.md` 在 Paradigma 模板库模式下由 `.gitignore` 排除
+  - 纯规范文件（`conventions.md`、`project-brief.md`、`manuals/*.md`）直接跟踪，不需要 `.template` 机制
+  - Agent 读取时：若运行时 `.md` 不存在，回退读取对应 `.template.md`

@@ -10,6 +10,8 @@
 
 ## 模板
 
+> 版本发布日期格式为 `YYYY-MM-DD`（仅日期，仍须通过工具获取，见 `progress.template.md` 中的跨平台命令）。
+
 ```markdown
 ## [X.Y.Z] - YYYY-MM-DD
 

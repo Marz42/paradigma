@@ -11,7 +11,7 @@
 ```markdown
 ### ADR-000: [决策标题]
 
-**日期**: YYYY-MM-DD
+**日期**: YYYY-MM-DD HH:mm（格式见 `progress.template.md` 跨平台时间戳获取说明，禁止猜测）
 **状态**: [提议 / 已采纳 / 已废弃]
 
 **背景**

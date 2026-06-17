@@ -1,57 +1,83 @@
 ---
-description: Memory-Bank 工作流协议 — 定义知识温度体系和四阶段工作流。Agent 在每次对话开始时应据此加载 memory-bank。
+description: Memory-Bank 工作流协议 — 定义知识温度体系、模板机制和四阶段工作流。Agent 在每次对话开始时应据此加载 memory-bank。
 alwaysApply: true
 ---
 
 # Memory-Bank Protocol
 
+> **同步自 `AGENT_RULES.md`。** 协议变更时先改源头，再更新本文件。
+
 本项目使用 `memory-bank/` 目录作为外部记忆系统。你在每次对话开始时必须按温度等级加载知识。
+
+## 模板与运行时文件
+
+部分文件采用 `.template.md` → `.md` 复制模式：
+- **`.template.md`**：格式范例，纳入 git 跟踪
+- **`.md`**：项目运行时数据
+
+若 Read Phase 中某个运行时 `.md` 不存在（尚未激活模板），**读取对应的 `.template.md` 作为替代**。
 
 ## 知识温度体系
 
 ### 🔥 HOT — 每次对话必读
 对话开始后立即读取：
 - `memory-bank/project-brief.md` — 核心愿景、受众、功能边界
-- `memory-bank/architecture.md` — 技术栈、顶层目录结构
-- `memory-bank/data-contracts.md` — 数据库表结构、API 格式
+- `memory-bank/architecture.md` — 技术栈、顶层目录结构（模板：`architecture.template.md`）
+- `memory-bank/data-contracts.md` — 数据库表结构、API 格式（模板：`data-contracts.template.md`）
 - `memory-bank/conventions.md` — 代码规范、命名约定
-- `memory-bank/active-task.md` — 当前任务和限制
-- `memory-bank/progress.md` — 历次会话摘要
+- `memory-bank/active-task.md` — 当前任务和限制（模板：`active-task.template.md`）
+- `memory-bank/progress.md` — 历次会话摘要（模板：`progress.template.md`）
 
 ### 🌡️ WARM — 按需加载
 涉及相关模块时才读取：
-- `memory-bank/roadmap.md`
-- `memory-bank/changelog.md`
-- `memory-bank/domains/*.md`
+- `memory-bank/roadmap.md` — 宏观进度（模板：`roadmap.template.md`）
+- `memory-bank/changelog.md` — 版本发布历史（模板：`changelog.template.md`）
+- `memory-bank/domains/*.md` — 子模块设计文档（模板：`domains/*.template.md`）
 
 ### 🧊 COLD — 排查时读取
 遇到决策疑问或 Bug 时自行判断是否需要：
-- `memory-bank/decisions.md` — 架构决策记录
-- `memory-bank/known-issues.md` — 已知坑位与调试心得
-- `memory-bank/glossary.md` — 项目术语表
+- `memory-bank/decisions.md` — 架构决策记录（模板：`decisions.template.md`）
+- `memory-bank/known-issues.md` — 已知坑位与调试心得（模板：`known-issues.template.md`）
+- `memory-bank/glossary.md` — 项目术语表（模板：`glossary.template.md`）
+- `memory-bank/manuals/*.md` — 部署运维指南、测试规范等
+
+## 时间戳规范
+
+向 `progress.md`、`active-task.md`、`decisions.md`、`known-issues.md` 等写入带时间的记录时，**必须先调用 Shell 工具**获取当前时间，禁止凭记忆或训练数据猜测。
+
+| 平台 | 命令 | 输出格式 |
+|------|------|----------|
+| Linux / macOS | `date +"%Y-%m-%d %H:%M"` | `YYYY-MM-DD HH:mm` |
+| Windows PowerShell | `Get-Date -Format "yyyy-MM-dd HH:mm"` | `YYYY-MM-DD HH:mm` |
+
+**统一格式**:
+- 日志类记录：`YYYY-MM-DD HH:mm`（24 小时制，精确到分钟）
+- changelog 版本发布日期：`YYYY-MM-DD`（仅日期，仍须通过工具获取）
 
 ## 四阶段工作流
 
 ### 1. Read Phase
-首先读取所有 🔥 HOT 文件。如果任务涉及特定模块，读取对应 🌡️ WARM 文件。
+首先读取所有 🔥 HOT 文件；若运行时 `.md` 不存在，读取对应 `.template.md`。任务涉及相关模块时读取 🌡️ WARM 文件。
 
 ### 2. Plan Phase
 写代码前用中文描述修改思路。如果修改涉及数据库结构或跨模块 API，必须先征求用户同意。
 
 ### 3. Execution Phase
-遵循单一职责原则。遵循 conventions.md。不随意删除与当前任务无关的代码。注释解释"为什么"而非"做了什么"。
+遵循单一职责原则。遵循 `conventions.md`。不随意删除与当前任务无关的代码。注释解释"为什么"而非"做了什么"。
 
 ### 4. Update Phase（对话结束时必须执行）
-- **必须追加** `memory-bank/progress.md`（完成事项、踩坑记录、遗留问题、下一步建议）
+- **必须追加** `memory-bank/progress.md`（完成事项、踩坑记录、遗留问题、下一步建议），时间戳按上方规范通过工具获取
+- 更新 `active-task.md`：勾选 check-list，记录关键决策
 - 修改了数据结构/API → 更新 `data-contracts.md`
 - 改变了目录结构 → 更新 `architecture.md`
 - 做了架构决策 → 追加 `decisions.md`
 - 踩坑并解决 → 追加 `known-issues.md`
-- **版本号评估**：根据 `conventions.md` 的"主动版本管理"规则判断是否需要递增版本号。需要时更新根目录 `VERSION` 文件和 `memory_bank/changelog.md`
+- **版本号评估**：根据 `conventions.md` 的「主动版本管理」及「Paradigma 模板库自身维护」判断。需要时更新根目录 `VERSION` 和 `memory-bank/changelog.md`，在 `progress.md` 记录版本变更
 - 结束时告知用户："Memory-bank 已更新完毕。本次更新了：[文件列表]"
 
 ## 防幻觉
 - 不确定某个模块逻辑时不要猜测，要求提供代码或解释
 - 遇到复杂逻辑，优先写独立的工具函数
 - 发现大泥球代码时，先提议重构再添加功能
-- 遇到术语不清时查阅 glossary.md
+- 遇到术语不清时查阅 `glossary.md`
+- `known-issues.md` 有类似问题时参考已有方案

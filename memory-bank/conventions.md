@@ -262,9 +262,22 @@ Agent 在 Update Phase 必须根据本次修改的性质判断是否需要版本
 | ✨ 新功能（向下兼容） | 升 MINOR (Y) | 新增了功能或模块，旧 API 仍可用 |
 | 💥 不兼容的 API 变更 | 提议升 MAJOR (X)，等用户确认 | 改了已有接口签名、数据库 schema |
 
+### Paradigma 模板库自身维护
+
+当修改的是 **Project Paradigma 模板库本身**（即本仓库，而非从模板衍生的业务项目）时，**不受上表「纯文档不升版本」的豁免**——模板库的结构、协议、路径、规则变更均视为对模板产品的修改，必须遵循 SemVer 递增根目录 `VERSION`：
+
+| 修改类型 | 版本动作 | 示例 |
+|----------|----------|------|
+| 文档措辞润色、无结构影响 | 可不升版本 | 修正错别字 |
+| 模板结构优化、规则同步、路径统一 | 升 PATCH (Z) | 新增 `.template.md`、统一 `memory-bank` 命名 |
+| 新增模板能力或工作流阶段 | 升 MINOR (Y) | 新增知识温度等级、新 INIT 模式 |
+| 破坏衍生项目兼容性的变更 | 升 MAJOR (X)，须先告知用户 | 删除/重命名核心协议文件 |
+
+递增时须同步更新 `changelog.md` 并在 `progress.md` 记录版本变更。
+
 当版本号需要递增时，Agent 必须同时完成：
 1. 更新根目录 `VERSION` 文件
-2. 追加 `memory_bank/changelog.md`（按 Keep a Changelog 格式）
+2. 追加 `memory-bank/changelog.md`（按 Keep a Changelog 格式）
 3. 在 `progress.md` 的本次会话摘要中记录版本号变更
 
 > **为什么用 VERSION 文件而不是 git tag？** VERSION 文件是代码仓库内的唯一真实来源。Agent 可以直接读取它来确定当前版本。git tag 是发布时的操作，与日常开发中的版本评估是两个不同环节。Agent 评估版本 → 用户确认 → 合适的时机用户手动打 tag。

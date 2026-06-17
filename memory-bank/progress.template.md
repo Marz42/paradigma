@@ -6,10 +6,23 @@
 
 ---
 
+## 时间戳获取（跨平台）
+
+写入记录前，**必须**通过 Shell 工具执行以下命令之一获取当前时间，禁止凭记忆或训练数据猜测：
+
+| 平台 | 命令 | 输出格式 |
+|------|------|----------|
+| Linux / macOS | `date +"%Y-%m-%d %H:%M"` | `YYYY-MM-DD HH:mm` |
+| Windows PowerShell | `Get-Date -Format "yyyy-MM-dd HH:mm"` | `YYYY-MM-DD HH:mm` |
+
+**统一格式**: `YYYY-MM-DD HH:mm`（24 小时制，精确到分钟）
+
+---
+
 ## 会话记录格式
 
 ```markdown
-### [日期] - [简短标题]
+### YYYY-MM-DD HH:mm - [简短标题]
 
 **完成事项**:
 - [x] ...

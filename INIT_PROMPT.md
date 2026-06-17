@@ -17,21 +17,32 @@
 
 请先阅读 README.md 的"如何使用"部分，理解完整的设置流程。然后帮我按以下步骤操作：
 
-1. 激活 runtime 模板 — 将 memory_bank/ 下的所有 .template.md 复制为 .md：
+1. 激活 runtime 模板 — 将 memory-bank/ 下的所有 .template.md 复制为 .md：
    - progress.template.md → progress.md
+   - active-task.template.md → active-task.md
+   - architecture.template.md → architecture.md
+   - data-contracts.template.md → data-contracts.md
+   - roadmap.template.md → roadmap.md
    - decisions.template.md → decisions.md
    - known-issues.template.md → known-issues.md
    - glossary.template.md → glossary.md
    - changelog.template.md → changelog.md
+   - domains/module_1.template.md → domains/module_1.md
 
 2. **移除 .gitignore 中的 runtime 排除规则**（重要！否则远端开发记忆不同步）：
-   - 打开 .gitignore，找到并删除以下 5 行：
+   - 打开 .gitignore，找到并删除 Memory-Bank 运行时排除整段（共 11 行）：
      ```
-     memory_bank/progress.md
-     memory_bank/decisions.md
-     memory_bank/known-issues.md
-     memory_bank/glossary.md
-     memory_bank/changelog.md
+     memory-bank/progress.md
+     memory-bank/active-task.md
+     memory-bank/architecture.md
+     memory-bank/data-contracts.md
+     memory-bank/roadmap.md
+     memory-bank/decisions.md
+     memory-bank/known-issues.md
+     memory-bank/glossary.md
+     memory-bank/changelog.md
+     memory-bank/domains/*.md
+     !memory-bank/domains/*.template.md
      ```
    - 这样你的 progress.md、decisions.md、changelog.md 等就能正常 git 跟踪，换机器不会丢失会话历史和版本记录
 
@@ -73,10 +84,11 @@
 
 1. 读取 memory-bank 目录下的所有文件模板，理解这套工作规范。
 2. 作为架构师，帮我填充 project-brief.md（核心愿景、受众、功能边界）。
-3. 草拟 architecture.md（整体技术栈、顶层目录结构、前后端交互宏观流程）。
-4. 设计第一版 data-contracts.md（核心数据库表结构 ER 图、核心 API 的请求/响应格式）。
-5. 对于暂时无法确定的字段（如仓库地址、文档站点等），标记为 `TODO` 而不是编造。
-6. 完成这些文档的初始化后，告诉我，我们再开始写第一行代码。
+3. 基于 architecture.template.md 填充 architecture.md（整体技术栈、顶层目录结构、前后端交互宏观流程）。
+4. 基于 data-contracts.template.md 设计第一版 data-contracts.md（核心数据库表结构 ER 图、核心 API 的请求/响应格式）。
+5. 基于 active-task.template.md 创建第一个 active-task.md，定义 MVP 阶段的初始任务。
+6. 对于暂时无法确定的字段（如仓库地址、文档站点等），标记为 `TODO` 而不是编造。
+7. 完成这些文档的初始化后，告诉我，我们再开始写第一行代码。
 ```
 
 ---
