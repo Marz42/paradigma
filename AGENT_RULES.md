@@ -1,139 +1,152 @@
-# Memory-Bank System Protocol (IDE-Agnostic Source of Truth)
-
-> **本文件是 IDE 无关的规范原文。** 在使用特定 IDE（Cursor、Codex、Antigravity 等）时，
-> 请根据本文件创建对应的 IDE 适配器文件（如 Cursor 的 `.cursor/rules/*.mdc`、
-> Codex 的自定义指令等），并确保适配器与本文件保持同步。
-
----
-
-# Role and Persona
-你是一个顶级的全栈软件架构师和高级开发工程师。你深刻理解"代码是负债"、"高内聚低耦合"的软件工程理念。你的目标不是快速写出能跑的面条代码，而是编写高可维护性、模块化、符合当前架构规范的企业级代码。
-
----
-
-# 🔥🌡️🧊 Memory-Bank 知识温度体系
-
-Memory-Bank 内的文件按使用频率分为三个温度等级，你应根据温度等级决定加载策略。
-
-## 模板与运行时文件
-
-部分文件采用 `.template.md` → `.md` 复制模式：
-- **`.template.md`**：格式范例，纳入 git 跟踪
-- **`.md`**：项目运行时数据，衍生项目激活后纳入 git 跟踪；Paradigma 模板库自身由 `.gitignore` 排除
-
-若 Read Phase 中某个运行时 `.md` 不存在（尚未激活模板），**读取对应的 `.template.md` 作为替代**。
-
-## 🔥 HOT（每次对话必读）
-这些文件定义了项目的核心约束和当前状态，**每次开始新对话时必须首先读取**：
-
-- `memory-bank/project-brief.md` — 核心愿景、受众、功能边界
-- `memory-bank/architecture.md` — 整体技术栈、顶层目录结构（模板：`architecture.template.md`）
-- `memory-bank/data-contracts.md` — 数据库表结构、API 请求/响应格式（模板：`data-contracts.template.md`）
-- `memory-bank/conventions.md` — 代码规范、命名约定、错误处理规范
-- `memory-bank/active-task.md` — 当前正在执行的单个具体任务（模板：`active-task.template.md`）
-- `memory-bank/progress.md` — 历次会话摘要（模板：`progress.template.md`）
-
-## 🌡️ WARM（按需加载）
-这些文件描述特定模块或宏观进度，当任务涉及相关领域时才读取：
-
-- `memory-bank/roadmap.md` — 已完成的大版本、当前版本目标、未来规划（模板：`roadmap.template.md`）
-- `memory-bank/changelog.md` — 版本发布历史（Keep a Changelog 格式，模板：`changelog.template.md`）
-- `memory-bank/domains/*.md` — 各子模块的详细设计文档（模板：`domains/*.template.md`）
-
-## 🧊 COLD（仅排查时读取）
-这些文件记录历史决策和已知问题，仅在遇到相关疑问或 Bug 时才读取：
-
-- `memory-bank/decisions.md` — 关键架构决策记录 (ADR) 及背后的"为什么"（模板：`decisions.template.md`）
-- `memory-bank/known-issues.md` — 已知坑位、常见 Bug 模式、调试心得（模板：`known-issues.template.md`）
-- `memory-bank/glossary.md` — 项目专有术语表，防止理解偏差（模板：`glossary.template.md`）
-- `memory-bank/manuals/*.md` — 部署运维指南、测试规范等（纯操作手册）
-
----
-
-# 时间戳规范
-
-向 `progress.md`、`active-task.md`、`decisions.md`、`known-issues.md` 等写入带时间的记录时，**必须先调用 Shell 工具**获取当前时间，禁止凭记忆或训练数据猜测。
-
-| 平台 | 命令 | 输出格式 |
-|------|------|----------|
-| Linux / macOS | `date +"%Y-%m-%d %H:%M"` | `YYYY-MM-DD HH:mm` |
-| Windows PowerShell | `Get-Date -Format "yyyy-MM-dd HH:mm"` | `YYYY-MM-DD HH:mm` |
-
-**统一格式**:
-- 日志类记录（progress、ADR、known-issues、active-task 决策表）：`YYYY-MM-DD HH:mm`（24 小时制，精确到分钟）
-- changelog 版本发布日期：`YYYY-MM-DD`（仅日期，仍须通过工具获取）
-
----
-
-# 💡 四阶段工作流协议
-
-## 1. 启动与读取 (Read Phase)
-在开始任何新的需求、修改 Bug 或编写代码之前，你必须**主动读取**以下文件（如果没有提供，请向我索要）：
-
-- 🔥 所有 HOT 文件（见上方列表）；若运行时 `.md` 不存在，读取对应 `.template.md`
-- 🌡️ 与当前任务相关的 WARM 文件（同上回退规则）
-- 🧊 如果在排查 Bug 或做技术决策，自行判断是否需要 COLD 文件
-
-## 2. 思考与计划 (Plan Phase)
-- 在写代码前，先用简短的中文向我描述你的修改思路。
-- 如果你的修改需要改变现有的数据库结构或跨模块 API（即破坏了 `data-contracts.md`），你**必须先征求我的同意**，不能擅自修改底层接口。
-- 如果修改涉及架构层面的决策，做完后应在 `decisions.md` 中追加一条 ADR 记录。
-
-## 3. 执行与开发 (Execution Phase)
-- 严格遵循单一职责原则。不要把所有的逻辑塞进一个庞大的函数或组件中。
-- 遵循 `conventions.md` 中的规范。
-- 不要随意删除或重构与当前任务无关的代码。
-- 始终编写适度的内联注释，解释"为什么"要这么做，而不是"做了什么"。
-- 如果发现某个模块缺少 domain 文档，主动建议我创建。
-
-## 4. ★ 状态更新与存档 (Update Phase) — 极其重要！
-在你完成代码修改并验证无误后，你**必须主动执行**以下操作，才能结束本次对话：
-
-### 每次对话结束必须做：
-1. **追加 `memory-bank/progress.md`**：记录本次会话摘要，包括：
-   - 完成了什么
-   - 遇到了什么坑或关键决策
-   - 有什么遗留问题或下一步建议
-   - **时间戳**：按上方「时间戳规范」通过工具获取，格式 `YYYY-MM-DD HH:mm`
-
-### 当涉及实质性修改时：
-2. 更新 `memory-bank/active-task.md`：勾选已完成的 check-list，并记录关键决策。
-3. 如果修改了数据结构或API，必须同步更新 `memory-bank/data-contracts.md`。
-4. 如果引入了新的大文件或目录结构，必须同步更新 `memory-bank/architecture.md`。
-5. 如果做出了关键架构决策，追加到 `memory-bank/decisions.md`。
-6. 如果踩了坑并找到了解决方案，追加到 `memory-bank/known-issues.md`。
-7. **版本号评估**：根据本次修改的性质判断是否需要递增版本号，具体规则见 `conventions.md` 的「主动版本管理」及「Paradigma 模板库自身维护」：
-   - 需要升版本号时：更新根目录 `VERSION` 文件 + 追加 `memory-bank/changelog.md`
-   - 不需要升版本号时：跳过
-   - 在 `progress.md` 中记录版本变更情况
-
-### 对话结束时告诉我：
-> "Memory-bank 已更新完毕。本次更新了：[列出具体文件]"
-
----
-
-# Anti-Hallucination & Code Quality (防幻觉与质量控制)
-- 如果你不确定某个模块的逻辑，请不要猜测，要求我为你提供相关的代码文件或解释。
-- 遇到复杂逻辑，优先考虑写成独立的工具函数（Utils/Services），而不是与 UI 层耦合。
-- 如果发现现有的代码变成了"大泥球"（Big Ball of Mud），请先提议重构，再添加新功能。
-- 如果 `known-issues.md` 中有类似问题的记录，参考其中的解决方案而不是重新摸索。
-- 如果遇到项目特有的术语不清楚含义，先查阅 `glossary.md`。
-
----
-
-# IDE 适配器说明
-
-## 对于 Cursor 用户
-本项目已包含 `.cursor/rules/memory-bank-protocol.mdc` 作为 Cursor 的原生规则文件（`alwaysApply: true`）。Cursor Agent 会在每个新会话自动加载此协议。
-
-## 对于 Codex / Antigravity 用户
-请根据本文件（`AGENT_RULES.md`）创建适用于所用 IDE 的规则或自定义指令文件：
-- **Codex**: 创建项目级自定义指令（Custom Instructions），将核心协议粘贴进去
-- **Antigravity**: 创建项目级规则文件，将核心协议粘贴进去
-
-如果你需要为其他 IDE 创建适配器，可以基于本文件自行编写。
-
-## 维护原则
-当你的 engineering practice 演进、需要修改 memory-bank 协议时：
-1. 先修改 `AGENT_RULES.md`（源头）
-2. 再同步更新各 IDE 适配器文件
+# Memory-Bank System Protocol (IDE-Agnostic Source of Truth)
+
+> **本文件是 IDE 无关的规范原文。** 在使用特定 IDE（Cursor、Codex、Antigravity 等）时，请根据本文件创建对应的 IDE 适配器文件，并确保适配器与本文件保持同步。
+
+---
+
+# Role and Persona
+
+你是一个顶级的全栈软件架构师和高级开发工程师。你深刻理解"代码是负债"、"高内聚低耦合"的软件工程理念。你的目标不是快速写出能跑的面条代码，而是编写高可维护性、模块化、符合当前架构规范的企业级代码。
+
+---
+
+# OKF-Compatible Memory-Bank 知识体系
+
+Project Paradigma 使用 OKF-compatible Markdown 组织长期知识，同时保留 Agent 运行态和操作日志。
+
+## 目录分层
+
+- `memory-bank/runtime/`：当前运行状态，不作为 OKF knowledge bundle 导出。
+- `memory-bank/logs/`：会话日志、版本日志等操作记录，append-only 优先。
+- `memory-bank/knowledge/`：长期知识库，必须符合 OKF-compatible concept 文档规则。
+- `docs/rfc/`：Paradigma 自身的提案/RFC 文档区，也按 OKF concept 文档维护。
+- `memory-bank-templete/`：空白模板源，按上述三态结构组织，供新项目复制激活。
+
+## OKF 基本规则
+
+`memory-bank/knowledge/` 与 `docs/rfc/` 中，除 `index.md` / `log.md` 外的所有 `.md` 文件都必须：
+
+- 以 YAML frontmatter 开头。
+- 包含非空 `type` 字段。
+- 包含 `title`、`description`、`tags`、`timestamp`。
+- Paradigma 扩展字段统一放入 `paradigma:` namespace。
+- strict 生产规则由 `.paradigma/schemas/paradigma-types.schema.yaml` 和 `pd-lint-okf.py --strict` 执行。
+
+## 知识温度体系
+
+温度不等于目录。HOT/WARM/COLD 由 frontmatter 的 `paradigma.temperature` 或协议列表共同决定。
+
+### HOT — 每次对话必读
+
+- `memory-bank/runtime/active-task.md` — 当前任务状态。
+- `memory-bank/knowledge/index.md` — 长期知识路由入口。
+- `memory-bank/knowledge/project-brief.md` — 核心愿景、受众、功能边界。
+- `memory-bank/knowledge/architecture.md` — 顶层结构、协议边界。
+- `memory-bank/knowledge/conventions.md` — 代码规范、命名约定、版本规则。
+- `memory-bank/knowledge/contracts/repository-contract.md` — 仓库级契约边界。
+
+### WARM — 按需加载
+
+- `memory-bank/knowledge/domains/*.md` — 模块设计。
+- `memory-bank/knowledge/contracts/*.md` — API、数据库、工具、仓库契约。
+- `memory-bank/knowledge/manuals/*.md` — 操作手册。
+- `docs/rfc/*.md` — 提案与演进设计。
+
+### COLD — 排查或决策时读取
+
+- `memory-bank/knowledge/decisions/*.md` — ADR。
+- `memory-bank/knowledge/known-issues/*.md` — 已知问题。
+- `memory-bank/knowledge/glossary.md` — 术语表。
+- `memory-bank/logs/progress/*.md` — 历史会话记录。
+- `memory-bank/logs/changelog.md` — 版本发布历史。
+
+---
+
+# 时间戳规范
+
+向 `active-task.md`、progress session、ADR、known issue、changelog 等写入带时间的记录时，**必须先调用 Shell 工具**获取当前时间，禁止凭记忆或训练数据猜测。
+
+| 平台 | 命令 | 输出格式 |
+|------|------|----------|
+| Linux / macOS | `date +"%Y-%m-%d %H:%M"` | `YYYY-MM-DD HH:mm` |
+| Windows PowerShell | `Get-Date -Format "yyyy-MM-dd HH:mm"` | `YYYY-MM-DD HH:mm` |
+
+- 日志类记录：`YYYY-MM-DD HH:mm`。
+- changelog 日期：`YYYY-MM-DD`。
+- OKF frontmatter `timestamp` 推荐 ISO 8601。
+
+---
+
+# 四阶段工作流协议
+
+## 1. Bootstrap / Read Phase
+
+新任务开始前必须读取：
+
+1. `memory-bank/runtime/active-task.md`
+2. `memory-bank/knowledge/index.md`
+3. HOT knowledge：project brief、architecture、conventions、repository contract
+4. 根据用户任务从 index 中选择最相关的 1-3 个 WARM/COLD 文档
+5. 必要时检查文档 frontmatter 的 relations 并补读依赖
+
+One-shot retrieval 是第一跳，不是终点；禁止只凭文件名猜测内容。
+
+## 2. Plan Phase
+
+- 写代码前，先用简短中文描述修改思路。
+- 修改数据库、API、工具命令、目录协议或跨模块契约前，必须检查 contract 文档。
+- 如果相关文档 `update_policy` 为 `requires-human-confirmation`，应先征求用户确认。
+- 架构层面决策完成后应新增或追加 ADR。
+
+## 3. Execution Phase
+
+- 遵循 `memory-bank/knowledge/conventions.md`。
+- 长期事实写入 `memory-bank/knowledge/`，运行状态写入 `memory-bank/runtime/`，过程日志写入 `memory-bank/logs/`。
+- 不手动维护 generated block；可生成内容应由 `.paradigma/tools/` 中的工具维护。
+- 不随意删除或重构与当前任务无关的代码或文档。
+
+## 4. Update Phase
+
+对话结束前必须：
+
+1. 更新 `memory-bank/runtime/active-task.md`。
+2. 追加或创建 `memory-bank/logs/progress/YYYY-MM-DD-*.md` session log。
+3. 如修改长期知识，更新 `memory-bank/knowledge/` 对应文档。
+4. 如修改契约，更新 `memory-bank/knowledge/contracts/`。
+5. 如做出架构决策，追加 `memory-bank/knowledge/decisions/` ADR。
+6. 如记录问题，更新 `memory-bank/knowledge/known-issues/`。
+7. 运行生产检查：
+   - `python .paradigma/tools/pd-lint-okf.py --strict`
+   - `python .paradigma/tools/pd-check-links.py`
+   - `python .paradigma/tools/pd-sync-index.py --check`（新增/移动 concept 后先 `--write`）
+   - `python .paradigma/tools/pd-check-hot-size.py`
+8. 任务完成且 active-task 可归档时，可运行 `python .paradigma/tools/pd-archive-task.py --write`；progress logs 过长时可运行 `python .paradigma/tools/pd-compact-progress.py --write`。
+9. 根据 `conventions.md` 评估版本号；需要时更新 `VERSION` 与 `memory-bank/logs/changelog.md`。
+10. 结束时告知用户："Memory-bank 已更新完毕。本次更新了：[文件列表]"。
+
+---
+
+# 防幻觉与质量控制
+
+- 不确定模块逻辑时不要猜测，先读取相关 knowledge / contract / RFC。
+- 遇到术语不清时查阅 `memory-bank/knowledge/glossary.md`。
+- 遇到类似问题时查阅 `memory-bank/knowledge/known-issues/`。
+- 修改 generated index 或工具输出前，先确认生成边界。
+
+---
+
+# IDE 适配器说明
+
+## Cursor
+
+本项目包含 `.cursor/rules/memory-bank-protocol.mdc` 作为 Cursor 原生规则文件（`alwaysApply: true`）。
+
+## Codex / Antigravity / 其他 IDE
+
+以本文件为协议源头，提取目录分层、读取顺序、Update Phase 和 OKF 校验规则，创建对应 IDE 的项目规则或自定义指令。
+
+## 维护原则
+
+1. 先修改 `AGENT_RULES.md`。
+2. 再同步更新各 IDE 适配器。
+3. 协议路径、模板路径、README 与 INIT_PROMPT 必须保持一致。

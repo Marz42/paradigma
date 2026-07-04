@@ -1,0 +1,18 @@
+okf_version: "0.1"
+schema_version: "0.1"
+
+knowledge_roots:
+  - memory-bank/knowledge
+  - docs/rfc
+
+reserved_filenames:
+  - index.md
+  - log.md
+
+generated_markers:
+  begin: "<!-- BEGIN PARADIGMA AUTO-INDEX -->"
+  end: "<!-- END PARADIGMA AUTO-INDEX -->"
+
+runtime_root: memory-bank/runtime
+logs_root: memory-bank/logs
+template_root: memory-bank-templete

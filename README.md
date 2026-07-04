@@ -1,25 +1,33 @@
 # Project Paradigma
 
-*Vibe Coding 时代的项目开发基座*
+*OKF-compatible Agent Memory Runtime Framework*
+
+当前版本：`0.4.0`
 
 ## 核心理念
 
-本项目是一个 **IDE 无关的项目开发基座**，核心是一套 "Memory-Bank" 外部记忆系统。
-它的目标是解决 LLM 辅助编程中的三个核心痛点：
+Project Paradigma 是一个 IDE 无关的 Agent 外部记忆运行框架。它以 OKF-compatible Markdown 知识库为数据基础，以 Paradigma 语义模型定义文档角色，以 Agent Runtime Protocol 规定读取与维护行为，并通过确定性工具链防止记忆腐化。
 
-- **上下文腐化** — 会话变长后，Agent 逐渐遗忘早期的约定和决策
-- **注意力涣散** — Token 窗口塞入过多细节时，Agent 对架构约束的注意力被稀释
-- **会话间不连续性** — 每次新建对话时 Agent 从零开始，无法继承之前的上下文
+它解决 LLM 辅助编程中的三个核心痛点：
 
-通过将关键信息外化到结构化的文件中，Memory-Bank 确保 Agent 每次都能快速"上车"。
+- **上下文腐化**：会话变长后，Agent 逐渐遗忘早期约定和决策。
+- **注意力涣散**：Token 窗口塞入过多细节时，Agent 对架构约束的注意力被稀释。
+- **会话间不连续性**：每次新建对话时 Agent 从零开始，无法继承历史上下文。
 
+通过将长期知识、运行状态和操作日志外化到结构化文件中，Paradigma 让 Agent 每次都能快速、可验证地"上车"。
+
+## 当前能力
+
+- **三态 Memory-Bank**：用 `runtime/`、`logs/`、`knowledge/` 分离当前状态、过程记录和长期知识。
+- **OKF-compatible knowledge bundle**：`memory-bank/knowledge/` 与 `docs/rfc/` 中的 concept 文档使用 Markdown + YAML frontmatter。
+- **严格生产校验**：本地工具可检查 schema、section、timestamp、policy、relations、links、index checksum 和 HOT 文件体积。
+- **检索路由索引**：自动生成包含 hints、symbols、relations 的根索引和子目录索引，帮助 Agent 快速选择上下文。
+- **运行态维护工具**：支持 active task 归档和 progress summary 压缩，保留原始日志不丢失。
 
 ---
 
->本项目采用 MPL 2.0 协议。
->简单来说：你可以自由使用本项目开发任何商业、闭源的项目。
->只要你不修改本项目自身的源码，你的项目想怎么闭源都可以；
->如果你修改了本模板库的源码，请将修改后的模板库代码开源回馈社区。
+> 本项目采用 MPL 2.0 协议。
+> 你可以自由使用本项目开发商业或闭源项目；如果修改本模板库自身源码，请将修改后的模板库代码开源回馈社区。
 
 ---
 
@@ -27,163 +35,178 @@
 
 ### 1. 克隆本项目作为开发基座
 
-**推荐方式** — 在 GitHub 上点击本仓库的 "Use this template" 按钮创建新仓库（自动断连上游）。
+推荐方式：在 GitHub 上点击本仓库的 "Use this template" 按钮创建新仓库。
 
-**替代方式** — 手动 clone：
+替代方式：手动 clone：
 
 ```bash
 git clone https://github.com/Marz42/paradigma.git my-new-project
 cd my-new-project
 git remote remove origin
-# 去 GitHub 创建你自己的空仓库后：
 # git remote add origin https://github.com/<你的用户名>/my-new-project.git
 ```
 
-### 2. 激活 runtime 模板（重要！）
+### 2. 激活 Memory-Bank 模板
 
-本项目只跟踪 `.template.md` 模板文件。实际使用时，需要将模板复制为正式文件：
+本项目使用三态 Memory-Bank：
+
+- `memory-bank/runtime/`：当前运行状态，例如 active task。
+- `memory-bank/logs/`：会话日志和版本日志。
+- `memory-bank/knowledge/`：长期知识库，遵循 OKF-compatible Markdown + YAML frontmatter。
+- `memory-bank-templete/`：空白模板源，按同样结构组织。
+
+实际使用时，将模板复制到运行目录：
+
+macOS / Linux / Git Bash:
 
 ```bash
-# 在 memory-bank/ 目录下执行
-cp progress.template.md progress.md
-cp active-task.template.md active-task.md
-cp architecture.template.md architecture.md
-cp data-contracts.template.md data-contracts.md
-cp roadmap.template.md roadmap.md
-cp decisions.template.md decisions.md
-cp known-issues.template.md known-issues.md
-cp glossary.template.md glossary.md
-cp changelog.template.md changelog.md
-cp domains/module_1.template.md domains/module_1.md
+mkdir -p memory-bank/runtime memory-bank/logs memory-bank/knowledge
+cp -r memory-bank-templete/runtime/* memory-bank/runtime/
+cp -r memory-bank-templete/logs/* memory-bank/logs/
+cp -r memory-bank-templete/knowledge/* memory-bank/knowledge/
 ```
 
-复制完成后，打开 `.gitignore`，**移除以下 11 行**：
+Windows PowerShell:
 
-```
-memory-bank/progress.md
-memory-bank/active-task.md
-memory-bank/architecture.md
-memory-bank/data-contracts.md
-memory-bank/roadmap.md
-memory-bank/decisions.md
-memory-bank/known-issues.md
-memory-bank/glossary.md
-memory-bank/changelog.md
-memory-bank/domains/*.md
-!memory-bank/domains/*.template.md
+```powershell
+New-Item -ItemType Directory -Force memory-bank/runtime, memory-bank/logs, memory-bank/knowledge
+Copy-Item -Recurse -Force memory-bank-templete/runtime/* memory-bank/runtime/
+Copy-Item -Recurse -Force memory-bank-templete/logs/* memory-bank/logs/
+Copy-Item -Recurse -Force memory-bank-templete/knowledge/* memory-bank/knowledge/
 ```
 
-> **为什么要移除？** 这 11 行是 Project Paradigma 自己用的——它需要排除自身的开发历史以保持模板干净。但你的项目没有这个需求。反过来说，如果你不移除这些行，你的 `progress.md`（累积每次 AI 会话的摘要）、`decisions.md`（架构决策记录）等运行时数据将不会被 git 跟踪——你换一台机器 clone 你的项目时，这些文件会丢失，AI 将丢失所有历史记忆。**复制模板后立即取消忽略，让记忆可同步。**
+然后运行本地检查：
 
-> #### 两种运行模式的区别
->
-> | 文件 | Paradigma 模式（模板库） | 你的项目模式 |
-> |------|-------------------------|-------------|
-> | `.gitignore` | 排除 runtime `.md` 等 11 条规则 | 不排除它们，正常跟踪 |
-> | 目的 | 保持模板干净，clone 者不拿到上游历史 | 跨机器同步开发记忆，团队共享上下文 |
+```bash
+python .paradigma/tools/pd-lint-okf.py --strict
+python .paradigma/tools/pd-check-links.py
+python .paradigma/tools/pd-sync-index.py --write
+python .paradigma/tools/pd-check-hot-size.py
+```
+
+复制完成后，`memory-bank/` 中的 `.md` 文件就是你的项目记忆，应随代码一起提交。
 
 ### 3. 配置 IDE 适配器
 
-本项目已内置 Cursor 的 Rule 适配器（`.cursor/rules/memory-bank-protocol.mdc`）。
+本项目已内置 Cursor Rule 适配器：`.cursor/rules/memory-bank-protocol.mdc`。
 
-如果你使用其他 IDE（Codex、Antigravity 等），请根据 `AGENT_RULES.md`（IDE 无关的协议原文）自行创建对应的规则文件。
+其他 IDE 可根据 `AGENT_RULES.md` 创建对应规则或自定义指令。
 
 ### 4. 启动第一个会话
 
-打开 `INIT_PROMPT.md`，根据你的场景选择对应的模式：
+打开 `INIT_PROMPT.md`，根据场景选择模式：
 
 | 你的情况 | 使用模式 | 说明 |
 |----------|----------|------|
-| 刚 clone，还没初始化 | **模式 F** | Agent 帮你完成所有机械设置 |
-| 全新项目，需填充文档 | **模式 A** | Agent 作为架构师填充 project-brief 等 |
-| 已有项目，需审查状态 | **模式 B** | Agent 审查 memory-bank 一致性 |
-| 已有明确任务 | **模式 C** | Agent 跳过审查直接干活 |
-| 架构决策讨论 | **模式 D** | Agent 分析方案并记录到 decisions.md |
-
-将对应模板中的 `{{PLACEHOLDER}}` 替换为实际内容后，粘贴到 IDE 对话框中。
+| 刚 clone，还没初始化 | 模式 F | Agent 帮你完成机械设置 |
+| 全新项目，需填充文档 | 模式 A | Agent 作为架构师填充 knowledge |
+| 已有项目，需审查状态 | 模式 B | Agent 审查 Memory-Bank 一致性 |
+| 已有明确任务 | 模式 C | Agent 跳过审查直接干活 |
+| 架构决策讨论 | 模式 D | Agent 分析方案并记录 ADR |
 
 ---
 
-## 文件温度体系
+## OKF-Compatible Memory-Bank
 
-Memory-Bank 内的文件按使用频率分为三个温度等级：
+`memory-bank/knowledge/` 与 `docs/rfc/` 中，除 `index.md` / `log.md` 外的 `.md` 文件都是 OKF concept 文档，必须包含 YAML frontmatter 和非空 `type`。
 
+```mermaid
+flowchart TD
+    repoRoot["Project Paradigma"] --> docs["docs/rfc"]
+    repoRoot --> memoryBank["memory-bank"]
+    memoryBank --> runtime["runtime"]
+    memoryBank --> logs["logs"]
+    memoryBank --> knowledge["knowledge"]
+    repoRoot --> templates["memory-bank-templete"]
+    repoRoot --> tooling[".paradigma"]
+```
 
-| 温度       | 含义     | 图标  | 加载策略              |
-| -------- | ------ | --- | ----------------- |
-| 🔥 HOT   | 每次对话必读 | 🔥  | Agent 启动时主动读取     |
-| 🌡️ WARM | 按需加载   | 🌡️ | 涉及相关模块时才读取        |
-| 🧊 COLD  | 仅排查时读  | 🧊  | 遇到决策疑问或 Bug 时自行判断 |
+### Agent 读取顺序
 
+1. `memory-bank/runtime/active-task.md`
+2. `memory-bank/knowledge/index.md`
+3. HOT knowledge：project brief、architecture、conventions、repository contract
+4. 根据 index 读取 WARM/COLD 文档
+5. 根据 relations 补读必要依赖
+
+### 推荐检查顺序
+
+```bash
+python .paradigma/tools/pd-lint-okf.py --strict
+python .paradigma/tools/pd-check-links.py
+python .paradigma/tools/pd-sync-index.py --check
+python .paradigma/tools/pd-check-hot-size.py
+```
+
+常用维护命令：
+
+| 命令 | 用途 |
+|------|------|
+| `python .paradigma/tools/pd-lint-okf.py --strict` | 校验 OKF frontmatter、schema、section、timestamp、policy 和 generated block checksum |
+| `python .paradigma/tools/pd-check-links.py` | 校验 Markdown links、frontmatter relations 和 index entries |
+| `python .paradigma/tools/pd-sync-index.py --write` | 生成根 index 和子目录 index 的高信息密度 generated block |
+| `python .paradigma/tools/pd-check-hot-size.py` | 检查 active-task、HOT knowledge 和 progress index 体积 |
+| `python .paradigma/tools/pd-archive-task.py --write` | 将已完成 active task 归档成 session log 并重置 active-task |
+| `python .paradigma/tools/pd-compact-progress.py --write` | 生成 progress summary，不删除原始 session logs |
 
 ---
 
 ## 完整目录结构
 
-```
+```text
 paradigma/
-├── 📄 README.md                              # 本文件
-├── 📄 AGENT_RULES.md                         # 【源头】IDE 无关的协议原文
-├── 📄 INIT_PROMPT.md                         # 【入口】多模式会话启动模板
-├── 📄 VERSION                                # 【版本号】项目当前版本（SemVer）
-├── 📁 .cursor/rules/
-│   └── 📄 memory-bank-protocol.mdc           # 【Cursor适配器】自动加载的规则文件
-│
-└── 📁 memory-bank/
-    │
-    ├── 🔥 HOT — 每次对话必读 ─────────────────────
-    ├── 📄 project-brief.md                   # 【定海神针】项目愿景、核心受众、功能边界（直接跟踪）
-    ├── 📄 conventions.md                     # 【肌肉记忆】代码规范、命名约定（直接跟踪）
-    ├── 📄 architecture.template.md           # 【系统蓝图】→ 复制为 architecture.md
-    ├── 📄 data-contracts.template.md         # 【最高法律】→ 复制为 data-contracts.md
-    ├── 📄 active-task.template.md            # 【当前焦点】→ 复制为 active-task.md
-    ├── 📄 progress.template.md               # 【会话日志】→ 复制为 progress.md
-    │
-    ├── 🌡️ WARM — 按需加载 ─────────────────────
-    ├── 📄 roadmap.template.md                # 【宏观进度】→ 复制为 roadmap.md
-    ├── 📁 domains/                           # 【领域拆分】按模块拆分的设计文档
-    │   └── 📄 module_1.template.md           #    → 复制为 module_1.md（按需创建更多）
-    │
-    └── 🧊 COLD — 排查时读取（.template.md 供复制，.md 由 .gitignore 排除）──
-        ├── 📄 decisions.template.md          # 【架构决策】→ 复制为 decisions.md
-        ├── 📄 known-issues.template.md       # 【已知坑位】→ 复制为 known-issues.md
-        ├── 📄 glossary.template.md           # 【术语表】→ 复制为 glossary.md
-        ├── 📄 changelog.template.md          # 【变更日志】→ 复制为 changelog.md
-        └── 📁 manuals/                       # 【操作手册】部署运维与测试指南（直接跟踪）
-            ├── 📄 deploy.md
-            └── 📄 testing-guide.md
+├── README.md
+├── AGENT_RULES.md
+├── INIT_PROMPT.md
+├── VERSION
+├── docs/
+│   └── rfc/
+│       ├── index.md
+│       └── paradigma-okf-compatible-runtime.md
+├── .cursor/
+│   └── rules/
+│       └── memory-bank-protocol.mdc
+├── .paradigma/
+│   ├── config.yaml
+│   ├── schemas/
+│   └── tools/
+│       ├── pd-lint-okf.py
+│       ├── pd-check-links.py
+│       ├── pd-sync-index.py
+│       ├── pd-check-hot-size.py
+│       ├── pd-archive-task.py
+│       └── pd-compact-progress.py
+├── memory-bank-templete/
+│   ├── runtime/
+│   ├── logs/
+│   └── knowledge/
+└── memory-bank/
+    ├── runtime/
+    │   └── active-task.md
+    ├── logs/
+    │   ├── changelog.md
+    │   └── progress/
+    │       └── index.md
+    └── knowledge/
+        ├── index.md
+        ├── project-brief.md
+        ├── architecture.md
+        ├── conventions.md
+        ├── glossary.md
+        ├── contracts/
+        ├── domains/
+        ├── manuals/
+        ├── decisions/
+        └── known-issues/
 ```
-
----
-
-## IDE 生态整合
-
-本项目通过"一个源头 + 多个适配器"的策略适配不同 IDE：
-
-
-| 整合层级       | 文件                                       | IDE 支持 | 作用                       |
-| ---------- | ---------------------------------------- | ------ | ------------------------ |
-| **Rule 层** | `.cursor/rules/memory-bank-protocol.mdc` | Cursor | 每个新会话自动加载协议              |
-| **用户入口层**  | `INIT_PROMPT.md`                         | 所有 IDE | 用户手动复制粘贴，控制 Agent 起始任务方向 |
-| **协议源头**   | `AGENT_RULES.md`                         | 所有 IDE | IDE 无关的规范原文，各适配器的同步依据    |
-
-
-### 如何为新 IDE 创建适配器
-
-1. 阅读 `AGENT_RULES.md` 了解完整协议
-2. 在你的 IDE 中创建对应的规则/自定义指令文件
-3. 将核心协议（温度体系 + 四阶段工作流）提取到适配器文件中
-4. 确保适配器与本项目 `AGENT_RULES.md` 保持同步更新
 
 ---
 
 ## 维护原则
 
-1. **先改源头，后改适配器**：协议变更先更新 `AGENT_RULES.md`，再同步到各 IDE 适配器
-2. **冷热分离，不堆砌**：新增文档时明确其温度等级，避免 HOT 层过重导致 Agent 注意力涣散
-3. **实战驱动，持续迭代**：Memory-Bank 的内容应在实际项目中持续维护和演进，而不是一次性填满
-4. **模板与运行时分离**：
-  - 会累积项目特定数据或需按项目填充的文件，统一使用 `.template.md` → `.md` 复制模式
-  - `.template.md` 进 git，运行时 `.md` 在 Paradigma 模板库模式下由 `.gitignore` 排除
-  - 纯规范文件（`conventions.md`、`project-brief.md`、`manuals/*.md`）直接跟踪，不需要 `.template` 机制
-  - Agent 读取时：若运行时 `.md` 不存在，回退读取对应 `.template.md`
+1. **协议源头优先**：协议变更先更新 `AGENT_RULES.md`，再同步 IDE 适配器。
+2. **三态分离**：长期知识、运行状态、操作日志不要混写。
+3. **OKF 严格合规**：knowledge 与 RFC concept 文档应通过 `pd-lint-okf.py --strict`。
+4. **关系可检查**：Markdown links、frontmatter relations、index entries 应通过 `pd-check-links.py`。
+5. **工具生成优先**：index、checksum、summary 等可生成内容由 `.paradigma/tools/` 维护。
+6. **版本管理**：模板库结构、协议、路径、规则变更按 `conventions.md` 评估 SemVer。

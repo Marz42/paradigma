@@ -1,25 +1,14 @@
 # ============================================================
-# Memory-Bank 运行时数据
-# 这些文件会累积项目特定的开发历史
-# 使用者应从 .template.md 复制后开始自己的项目
-# ============================================================
-memory-bank/progress.md
-memory-bank/active-task.md
-memory-bank/architecture.md
-memory-bank/data-contracts.md
-memory-bank/roadmap.md
-memory-bank/decisions.md
-memory-bank/known-issues.md
-memory-bank/glossary.md
-memory-bank/changelog.md
-memory-bank/domains/*.md
-!memory-bank/domains/*.template.md
-
-# ============================================================
 # IDE
 # ============================================================
 .vscode/
 .idea/
+
+# ============================================================
+# Python
+# ============================================================
+__pycache__/
+*.pyc
 
 # ============================================================
 # OS
