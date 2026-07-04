@@ -43,7 +43,7 @@ This contract defines the externally meaningful repository boundaries for Projec
 | `memory-bank/logs/` | Operational logs and changelog; append-first history |
 | `memory-bank/knowledge/` | OKF-compatible long-lived knowledge bundle |
 | `docs/rfc/` | OKF-compatible proposal/RFC documents |
-| `memory-bank-templete/` | Blank templates for derived projects |
+| `memory-bank-template/` | Blank templates for derived projects |
 | `.paradigma/tools/` | Deterministic local tooling |
 
 ## Tool Commands

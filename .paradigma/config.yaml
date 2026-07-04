@@ -15,4 +15,4 @@ generated_markers:
 
 runtime_root: memory-bank/runtime
 logs_root: memory-bank/logs
-template_root: memory-bank-templete
+template_root: memory-bank-template

@@ -13,7 +13,7 @@ alwaysApply: true
 - `memory-bank/logs/`：会话日志和版本日志。
 - `memory-bank/knowledge/`：长期知识库，非 `index.md` / `log.md` 文档必须有 YAML frontmatter、非空 `type`，并通过 strict OKF lint。
 - `docs/rfc/`：Paradigma 自身 RFC 文档区，也按 OKF concept 文档维护。
-- `memory-bank-templete/`：空白模板源。
+- `memory-bank-template/`：空白模板源。
 
 ## Read Phase
 

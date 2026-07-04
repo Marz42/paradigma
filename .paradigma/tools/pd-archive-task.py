@@ -12,7 +12,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 ACTIVE_TASK = ROOT / "memory-bank" / "runtime" / "active-task.md"
-ACTIVE_TASK_TEMPLATE = ROOT / "memory-bank-templete" / "runtime" / "active-task.template.md"
+ACTIVE_TASK_TEMPLATE = ROOT / "memory-bank-template" / "runtime" / "active-task.template.md"
 PROGRESS_ROOT = ROOT / "memory-bank" / "logs" / "progress"
 TASK_ID_PATTERN = re.compile(r"^## Task ID\s*$", re.MULTILINE)
 

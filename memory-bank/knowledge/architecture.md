@@ -58,7 +58,7 @@ paradigma/
 │   ├── config.yaml
 │   ├── schemas/
 │   └── tools/
-├── memory-bank-templete/
+├── memory-bank-template/
 │   ├── runtime/
 │   ├── logs/
 │   └── knowledge/
@@ -79,7 +79,7 @@ paradigma/
 | Operational logs | Progress sessions and changelog | `memory-bank/logs/` |
 | Knowledge bundle | Long-lived OKF-compatible knowledge | `memory-bank/knowledge/` |
 | RFC docs | Paradigma proposals and design drafts | `docs/rfc/` |
-| Template source | Blank templates for derived projects | `memory-bank-templete/` |
+| Template source | Blank templates for derived projects | `memory-bank-template/` |
 | Deterministic tools | Lint and index utilities | `.paradigma/tools/` |
 
 # Data Flow

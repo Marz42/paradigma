@@ -50,7 +50,7 @@ Implement the approved OKF iteration plan: move the OKF draft into `docs/rfc/`, 
 - `memory-bank/runtime/*`
 - `memory-bank/logs/*`
 - `memory-bank/knowledge/*`
-- `memory-bank-templete/*`
+- `memory-bank-template/*`
 
 ## Decisions Accepted
 

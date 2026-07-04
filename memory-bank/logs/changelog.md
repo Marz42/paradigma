@@ -35,7 +35,7 @@
 ## [0.2.2] - 2026-07-04
 
 ### Changed
-- 将空白 `.template.md` 文件从 `memory-bank/` 迁移到 `memory-bank-templete/`，与项目运行记忆分离。
+- 将空白 `.template.md` 文件从 `memory-bank/` 迁移到 `memory-bank-template/`，与项目运行记忆分离。
 - 更新 `AGENT_RULES.md`、Cursor rule、`INIT_PROMPT.md` 和 README 中的模板回退与项目初始化路径。
 - 移除 `.gitignore` 中对 `memory-bank/*.md` 运行时文件的排除规则，使 Paradigma 自身开发记忆可直接被版本控制追踪。
 

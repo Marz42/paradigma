@@ -18,9 +18,9 @@
 请先阅读 README.md 的"如何使用"部分，理解完整设置流程。然后帮我按以下步骤操作：
 
 1. 激活 OKF-compatible Memory-Bank 模板：
-   - 从 memory-bank-templete/runtime/ 复制到 memory-bank/runtime/
-   - 从 memory-bank-templete/logs/ 复制到 memory-bank/logs/
-   - 从 memory-bank-templete/knowledge/ 复制到 memory-bank/knowledge/
+   - 从 memory-bank-template/runtime/ 复制到 memory-bank/runtime/
+   - 从 memory-bank-template/logs/ 复制到 memory-bank/logs/
+   - 从 memory-bank-template/knowledge/ 复制到 memory-bank/knowledge/
 
 2. 确认 runtime/logs/knowledge 三态结构存在：
    - memory-bank/runtime/active-task.md

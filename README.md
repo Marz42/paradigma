@@ -53,7 +53,7 @@ git remote remove origin
 - `memory-bank/runtime/`：当前运行状态，例如 active task。
 - `memory-bank/logs/`：会话日志和版本日志。
 - `memory-bank/knowledge/`：长期知识库，遵循 OKF-compatible Markdown + YAML frontmatter。
-- `memory-bank-templete/`：空白模板源，按同样结构组织。
+- `memory-bank-template/`：空白模板源，按同样结构组织。
 
 实际使用时，将模板复制到运行目录：
 
@@ -61,18 +61,18 @@ macOS / Linux / Git Bash:
 
 ```bash
 mkdir -p memory-bank/runtime memory-bank/logs memory-bank/knowledge
-cp -r memory-bank-templete/runtime/* memory-bank/runtime/
-cp -r memory-bank-templete/logs/* memory-bank/logs/
-cp -r memory-bank-templete/knowledge/* memory-bank/knowledge/
+cp -r memory-bank-template/runtime/* memory-bank/runtime/
+cp -r memory-bank-template/logs/* memory-bank/logs/
+cp -r memory-bank-template/knowledge/* memory-bank/knowledge/
 ```
 
 Windows PowerShell:
 
 ```powershell
 New-Item -ItemType Directory -Force memory-bank/runtime, memory-bank/logs, memory-bank/knowledge
-Copy-Item -Recurse -Force memory-bank-templete/runtime/* memory-bank/runtime/
-Copy-Item -Recurse -Force memory-bank-templete/logs/* memory-bank/logs/
-Copy-Item -Recurse -Force memory-bank-templete/knowledge/* memory-bank/knowledge/
+Copy-Item -Recurse -Force memory-bank-template/runtime/* memory-bank/runtime/
+Copy-Item -Recurse -Force memory-bank-template/logs/* memory-bank/logs/
+Copy-Item -Recurse -Force memory-bank-template/knowledge/* memory-bank/knowledge/
 ```
 
 然后运行本地检查：
@@ -117,7 +117,7 @@ flowchart TD
     memoryBank --> runtime["runtime"]
     memoryBank --> logs["logs"]
     memoryBank --> knowledge["knowledge"]
-    repoRoot --> templates["memory-bank-templete"]
+    repoRoot --> templates["memory-bank-template"]
     repoRoot --> tooling[".paradigma"]
 ```
 
@@ -176,7 +176,7 @@ paradigma/
 │       ├── pd-check-hot-size.py
 │       ├── pd-archive-task.py
 │       └── pd-compact-progress.py
-├── memory-bank-templete/
+├── memory-bank-template/
 │   ├── runtime/
 │   ├── logs/
 │   └── knowledge/

@@ -31,7 +31,7 @@ Project Paradigma originally mixed blank `.template.md` files with the repositor
 
 # Decision
 
-Move blank templates into `memory-bank-templete/` while reserving `memory-bank/` for actual project memory. Runtime files are copied from templates during bootstrap instead of being mixed with template sources.
+Move blank templates into `memory-bank-template/` while reserving `memory-bank/` for actual project memory. Runtime files are copied from templates during bootstrap instead of being mixed with template sources.
 
 # Consequences
 
@@ -42,7 +42,7 @@ Move blank templates into `memory-bank-templete/` while reserving `memory-bank/`
 # Alternatives Considered
 
 - Keep templates and runtime memory together: lowest migration cost, but bootstrap remains noisy.
-- Move templates into a generic `templates/memory-bank/` path: clearer spelling, but it did not match the user-requested `memory-bank-templete` directory.
+- Move templates into a generic `templates/memory-bank/` path: clearer spelling, but it did not match the user-requested `memory-bank-template` directory.
 
 # Status
 

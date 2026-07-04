@@ -51,7 +51,7 @@
 ### 2026-07-04 22:18 - Memory-Bank 模板目录拆分（v0.2.2）
 
 **完成事项**:
-- [x] 将空白 `.template.md` 模板从 `memory-bank/` 迁移到 `memory-bank-templete/`
+- [x] 将空白 `.template.md` 模板从 `memory-bank/` 迁移到 `memory-bank-template/`
 - [x] 移除 `.gitignore` 中对 `memory-bank/*.md` 运行时文件的排除规则
 - [x] 同步更新 `AGENT_RULES.md`、`.cursor/rules/memory-bank-protocol.mdc`、`INIT_PROMPT.md` 和 README 的模板回退路径
 - [x] 新增 Paradigma 自身的 `architecture.md`、`data-contracts.md`、`decisions.md`、`active-task.md`、`changelog.md`
