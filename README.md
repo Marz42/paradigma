@@ -2,7 +2,7 @@
 
 *OKF-compatible Agent Memory Runtime Framework*
 
-当前版本：`0.4.0`
+当前版本：`0.4.2`
 
 ## 核心理念
 
@@ -78,10 +78,8 @@ Copy-Item -Recurse -Force memory-bank-template/knowledge/* memory-bank/knowledge
 然后运行本地检查：
 
 ```bash
-python .paradigma/tools/pd-lint-okf.py --strict
-python .paradigma/tools/pd-check-links.py
+python .paradigma/tools/pd-check-all.py
 python .paradigma/tools/pd-sync-index.py --write
-python .paradigma/tools/pd-check-hot-size.py
 ```
 
 复制完成后，`memory-bank/` 中的 `.md` 文件就是你的项目记忆，应随代码一起提交。
@@ -132,20 +130,15 @@ flowchart TD
 ### 推荐检查顺序
 
 ```bash
-python .paradigma/tools/pd-lint-okf.py --strict
-python .paradigma/tools/pd-check-links.py
-python .paradigma/tools/pd-sync-index.py --check
-python .paradigma/tools/pd-check-hot-size.py
+python .paradigma/tools/pd-check-all.py
 ```
 
 常用维护命令：
 
 | 命令 | 用途 |
 |------|------|
-| `python .paradigma/tools/pd-lint-okf.py --strict` | 校验 OKF frontmatter、schema、section、timestamp、policy 和 generated block checksum |
-| `python .paradigma/tools/pd-check-links.py` | 校验 Markdown links、frontmatter relations 和 index entries |
+| `python .paradigma/tools/pd-check-all.py` | 聚合运行严格 lint、link check、index check 和 hot-size check |
 | `python .paradigma/tools/pd-sync-index.py --write` | 生成根 index 和子目录 index 的高信息密度 generated block |
-| `python .paradigma/tools/pd-check-hot-size.py` | 检查 active-task、HOT knowledge 和 progress index 体积 |
 | `python .paradigma/tools/pd-archive-task.py --write` | 将已完成 active task 归档成 session log 并重置 active-task |
 | `python .paradigma/tools/pd-compact-progress.py --write` | 生成 progress summary，不删除原始 session logs |
 
@@ -170,12 +163,16 @@ paradigma/
 │   ├── config.yaml
 │   ├── schemas/
 │   └── tools/
+│       ├── pd-check-all.py
 │       ├── pd-lint-okf.py
 │       ├── pd-check-links.py
 │       ├── pd-sync-index.py
 │       ├── pd-check-hot-size.py
 │       ├── pd-archive-task.py
 │       └── pd-compact-progress.py
+├── .github/
+│   └── workflows/
+│       └── check.yml
 ├── memory-bank-template/
 │   ├── runtime/
 │   ├── logs/

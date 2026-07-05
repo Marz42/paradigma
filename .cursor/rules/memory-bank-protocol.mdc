@@ -53,7 +53,6 @@ alwaysApply: true
 - 修改契约时更新 `memory-bank/knowledge/contracts/`
 - 做架构决策时追加 `memory-bank/knowledge/decisions/`
 - 运行 `python .paradigma/tools/pd-check-all.py`
-- 运行 `python .paradigma/tools/pd-sync-index.py --check`；新增/移动 concept 后先运行 `--write`
 - 任务完成且 active-task 可归档时，可运行 `python .paradigma/tools/pd-archive-task.py --write`
 - progress logs 过长时，可运行 `python .paradigma/tools/pd-compact-progress.py --write`
 - 按 `conventions.md` 评估版本号，必要时更新 `VERSION` 和 `memory-bank/logs/changelog.md`

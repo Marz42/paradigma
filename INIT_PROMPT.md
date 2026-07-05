@@ -41,7 +41,7 @@
    - 如果 remote 仍指向 Marz42/paradigma，执行 `git remote remove origin`
    - 然后告诉我你的 GitHub 仓库 URL，我帮你关联 `git remote add origin <你的仓库URL>`
 
-5. 运行 `python .paradigma/tools/pd-lint-okf.py --strict`、`python .paradigma/tools/pd-check-links.py`、`python .paradigma/tools/pd-sync-index.py --check` 和 `python .paradigma/tools/pd-check-hot-size.py` 验证 Memory-Bank 状态。
+5. 运行 `python .paradigma/tools/pd-check-all.py` 和 `python .paradigma/tools/pd-sync-index.py --write` 验证 Memory-Bank 状态。
 
 6. 将所有更改做首次 commit：
    - 提交信息：chore: init from paradigma template
@@ -74,7 +74,7 @@
 4. 基于 memory-bank/knowledge/contracts/repository-contract.md 设计第一版契约边界；如涉及 API/数据库，新增 contracts 文档。
 5. 基于 memory-bank/runtime/active-task.md 创建第一个 MVP 任务。
 6. 对暂时无法确定的字段标记为 `TODO`，不要编造。
-7. 运行 `python .paradigma/tools/pd-lint-okf.py --strict`、`python .paradigma/tools/pd-check-links.py`、`python .paradigma/tools/pd-sync-index.py --write` 和 `python .paradigma/tools/pd-check-hot-size.py`。
+7. 运行 `python .paradigma/tools/pd-check-all.py` 和 `python .paradigma/tools/pd-sync-index.py --write`。
 8. 完成文档初始化后告诉我，我们再开始写第一行代码。
 ```
 
@@ -106,7 +106,7 @@
 2. 根据任务从 index 选择必要的 WARM/COLD 文档。
 3. 理解当前项目状态后，直接开始执行任务：
    {{具体任务描述}}
-4. 执行完成后，按照 AGENT_RULES.md 的 Update Phase 更新 runtime/logs/knowledge，并运行 lint、link check、index check 和 hot-size check。
+4. 执行完成后，按照 AGENT_RULES.md 的 Update Phase 更新 runtime/logs/knowledge，并运行 `python .paradigma/tools/pd-check-all.py`。
 ```
 
 ---
@@ -135,4 +135,4 @@
 
 - 始终让 Agent 先读 runtime active task、knowledge index 和 HOT knowledge。
 - 明确告诉 Agent 你期望的输出，是填充知识、写代码还是做决策。
-- 约定好会话结束时的交付物，并要求执行 Update Phase：strict lint、link check、index sync/check、hot-size check、必要时 archive/compact。
+- 约定好会话结束时的交付物，并要求执行 Update Phase：`python .paradigma/tools/pd-check-all.py`，必要时 archive/compact。

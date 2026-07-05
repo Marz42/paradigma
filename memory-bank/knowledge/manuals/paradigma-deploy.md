@@ -45,10 +45,9 @@ This manual records Paradigma-specific release preparation steps. It is **not** 
 
 # Verification
 
-- `python .paradigma/tools/pd-lint-okf.py --strict`
-- `python .paradigma/tools/pd-check-links.py`
-- `python .paradigma/tools/pd-sync-index.py --check`
-- `python .paradigma/tools/pd-check-hot-size.py`
+```bash
+python .paradigma/tools/pd-check-all.py
+```
 
 # Rollback
 

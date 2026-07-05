@@ -3,7 +3,7 @@ type: paradigma-glossary
 title: Project Glossary
 description: Glossary of project-specific terms and abbreviations.
 tags: [glossary, terminology]
-timestamp: 2026-07-04T22:33:00+08:00
+timestamp: YYYY-MM-DDTHH:mm:ssZ
 paradigma:
   schema_version: "0.1"
   temperature: cold

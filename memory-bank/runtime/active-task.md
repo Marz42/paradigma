@@ -3,7 +3,7 @@ type: paradigma-runtime-state
 title: Active Task
 description: Current active task state for the Agent session.
 tags: [runtime, active-task]
-timestamp: 2026-07-05T12:19:00+08:00
+timestamp: 2026-07-05T12:43:00+08:00
 paradigma:
   layer: runtime
   temperature: hot
@@ -17,13 +17,11 @@ paradigma:
 
 ## Task ID
 
-2026-07-05-tooling-fix-and-ci
+2026-07-05-protocol-sync
 
 ## User Request
 
-1. P2-1: 修复 pd-check-links.py 排除 fenced/inline/indented code blocks 中的假阳性链接。
-2. P2-2: 创建 pd-check-all.py 聚合校验脚本 + GitHub Actions workflow。
-3. P3: glossary 按需增补（本次跳过）。
+对 AGENT_RULES 和 INIT_PROMPT 进行全量回归模拟，修复所有协议同步问题。
 
 ## Current Status
 
@@ -31,21 +29,24 @@ Completed.
 
 ## Checklist
 
-- [x] pd-check-links.py: 新增 strip_code_content() — 排除 fenced (```)、inline (`)、indented (4+ spaces/tab) code
-- [x] 恢复 known-issues/fstring-escape-in-compact.md 的 Workaround 代码块为真实 Python 代码
-- [x] 验证 code-stripping：`[{rel}]({rel})` 在 fence block 内不再触发假阳性
-- [x] 创建 pd-check-all.py 聚合工具（顺序运行 4 个校验，支持 --keep-going）
-- [x] 创建 .github/workflows/check.yml（push main + PR 触发）
-- [x] 更新 AGENT_RULES.md、Cursor rule、conventions.md、paradigma-baseline-test.md、repository-contract.md、domains/tooling.md
+- [x] 读取 AGENT_RULES.md、INIT_PROMPT.md、README.md 全量规范
+- [x] 逐条比对所有协议路径、命令引用、版本号
+- [x] C1: README.md 版本号 0.4.0 → 0.4.2
+- [x] C2: glossary.template.md 时间戳 2026-07-04 → YYYY-MM-DDTHH:mm:ssZ
+- [x] P1-P2: README.md 两处 4 条单独命令 → pd-check-all.py + pd-sync-index.py --write
+- [x] R1: README.md 目录树补充 pd-check-all.py 和 .github/workflows/check.yml
+- [x] P3-P6: INIT_PROMPT.md 模式F/A/C 和自定义提示 → pd-check-all.py
+- [x] P7: paradigma-deploy.md Verification → pd-check-all.py
+- [x] D1: cursor rule 删除多余的独立 pd-sync-index.py --check 行
 - [x] 运行 pd-check-all.py 全部 4 checks passed
-- [x] 版本 0.4.1 → 0.4.2 (PATCH: bugfix + new aggregation tool)
+- [x] 版本保持 0.4.2（本次为文档同步，不涉及功能或协议变更）
 
 ## Relevant Knowledge
 
-- /memory-bank/knowledge/architecture.md
+- /AGENT_RULES.md
+- /INIT_PROMPT.md
 - /memory-bank/knowledge/contracts/repository-contract.md
-- /memory-bank/knowledge/domains/tooling.md
-- /memory-bank/knowledge/manuals/paradigma-baseline-test.md
+- /memory-bank/knowledge/conventions.md
 
 ## Blockers
 
@@ -53,6 +54,4 @@ None.
 
 ## Notes
 
-版本升至 0.4.2：link check code-block 假阳性修复属 bugfix (PATCH)，pd-check-all.py 是新增工具 (可按 PATCH 对待，无破坏性变更)。
-GitHub Actions workflow 使用 ubuntu-latest + Python 3.11，与项目要求一致。
-代码块剥离策略：fence block 整块移除、inline code 正则替换、indented code 行级清空 — 对列表嵌套缩进有极小误伤风险但 Paradigma knowledge 不会遇到此场景。
+本次为纯协议同步：README、INIT_PROMPT、cursor rule、paradigma-deploy.md 统一将 Update Phase 的 4 条单独命令替换为 pd-check-all.py。glossary.template.md 修复了一个 C2 级 bug（模板带真实时间戳会导致衍生项目 strict lint 失败）。版本保持 0.4.2，无功能或协议变更。
