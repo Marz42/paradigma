@@ -1,9 +1,9 @@
 ---
 type: paradigma-manual
-title: Deployment Manual
-description: Deployment and operations notes for projects based on Paradigma.
-tags: [manual, deploy, operations]
-timestamp: 2026-07-04T22:50:00+08:00
+title: Paradigma Release Preparation
+description: Pre-release validation and deployment notes specific to the Paradigma repository itself.
+tags: [manual, deploy, operations, paradigma]
+timestamp: 2026-07-05T12:02:00+08:00
 paradigma:
   schema_version: "0.1"
   temperature: cold
@@ -12,11 +12,13 @@ paradigma:
   epistemic_status: confirmed
   retrieval_hints:
     zh:
-      - 部署
+      - Paradigma 发布
+      - 部署前校验
       - 运维
       - 回滚
     en:
-      - deployment
+      - paradigma release
+      - pre-release validation
       - operations
       - rollback
   relations:
@@ -26,7 +28,7 @@ paradigma:
 
 # Purpose
 
-This manual records deployment and operations notes for projects that use Paradigma. Paradigma itself is currently a documentation/template/tooling repository and does not publish a hosted runtime.
+This manual records Paradigma-specific release preparation steps. It is **not** a general-purpose deploy guide for derived projects — it documents how the Paradigma repository itself reaches a releasable state. Derived projects should write their own deploy manual under `manuals/`.
 
 # Preconditions
 
@@ -35,8 +37,6 @@ This manual records deployment and operations notes for projects that use Paradi
 - Production credentials or secrets are never stored in Memory-Bank files.
 
 # Steps
-
-For the Paradigma repository, deployment means preparing a releasable repository state:
 
 1. Run OKF lint and link checks.
 2. Sync indexes after knowledge changes.

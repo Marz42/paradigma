@@ -1,12 +1,17 @@
 # Domains Index
 
-No domain documents have been created yet. Add module documents here as the project evolves.
+Paradigma internal domain documents covering the tooling, protocol, and memory layers.
+
+* [Tooling Domain](tooling.md) - Deterministic tooling layer for lint, link check, index sync, and runtime maintenance.
+* [Protocol Domain](protocol.md) - Agent Runtime Protocol sources, IDE adapters, and bootstrap prompts.
 
 <!-- BEGIN PARADIGMA AUTO-INDEX -->
-<!-- checksum: 5d8248578ade2e93 -->
+<!-- checksum: e45b05389f751035 -->
 <!-- generated_by: pd-sync-index.py -->
 
 | Path | Type | Title | Hints | Symbols | Relations |
 |------|------|-------|-------|---------|-----------|
+| [protocol.md](protocol.md) | `paradigma-domain` | Protocol Domain | 协议<br>Agent<br>规则 ... | AGENT_RULES.md<br>INIT_PROMPT.md<br>memory-bank-protocol.mdc | depends_on:/architecture.md<br>related_to:/contracts/repository-contract.md |
+| [tooling.md](tooling.md) | `paradigma-domain` | Tooling Domain | 工具<br>lint<br>link check ... | pd-lint-okf.py<br>pd-check-links.py<br>pd-sync-index.py ... | depends_on:/architecture.md<br>constrains:/contracts/repository-contract.md<br>related_to:/manuals/paradigma-baseline-test.md |
 
 <!-- END PARADIGMA AUTO-INDEX -->

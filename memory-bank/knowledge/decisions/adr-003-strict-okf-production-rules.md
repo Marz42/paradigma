@@ -66,4 +66,4 @@ Accepted.
 - `docs/rfc/paradigma-okf-compatible-runtime.md`
 - `memory-bank/knowledge/architecture.md`
 - `memory-bank/knowledge/contracts/repository-contract.md`
-- `memory-bank/knowledge/manuals/testing-guide.md`
+- `memory-bank/knowledge/manuals/paradigma-baseline-test.md`

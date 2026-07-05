@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Synchronize Paradigma knowledge indexes with retrieval-oriented metadata."""
+"""Synchronize Paradigma knowledge indexes with retrieval-oriented metadata.
+
+Reads knowledge_roots from .paradigma/config.yaml and generates an index.md for
+each root and each subdirectory that contains concept documents.
+"""
 
 from __future__ import annotations
 
@@ -11,12 +15,11 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parents[2]
-KNOWLEDGE_ROOT = ROOT / "memory-bank" / "knowledge"
+CONFIG_PATH = ROOT / ".paradigma" / "config.yaml"
 RESERVED_FILENAMES = {"index.md", "log.md"}
 BEGIN_MARKER = "<!-- BEGIN PARADIGMA AUTO-INDEX -->"
 END_MARKER = "<!-- END PARADIGMA AUTO-INDEX -->"
 GENERATED_BY = "<!-- generated_by: pd-sync-index.py -->"
-SUBDIRECTORY_INDEXES = ["contracts", "manuals", "decisions", "known-issues", "domains"]
 
 
 @dataclass
@@ -65,6 +68,23 @@ def parse_yaml_subset(text: str) -> dict[str, str | list[str]]:
     return data
 
 
+def read_yaml_file(path: Path) -> dict[str, str | list[str]]:
+    return parse_yaml_subset(path.read_text(encoding="utf-8-sig")) if path.exists() else {}
+
+
+def get_list(data: dict[str, str | list[str]], key: str) -> list[str]:
+    value = data.get(key, [])
+    if isinstance(value, list):
+        return [str(item) for item in value]
+    return [str(value)] if value else []
+
+
+def knowledge_roots() -> list[Path]:
+    config = read_yaml_file(CONFIG_PATH)
+    roots = get_list(config, "knowledge_roots") or ["memory-bank/knowledge"]
+    return [(ROOT / root_text).resolve() for root_text in roots]
+
+
 def parse_frontmatter(path: Path) -> dict[str, str | list[str]]:
     text = path.read_text(encoding="utf-8-sig")
     if not text.startswith("---"):
@@ -83,13 +103,6 @@ def parse_frontmatter(path: Path) -> dict[str, str | list[str]]:
 def get_scalar(metadata: dict[str, str | list[str]], key: str, default: str = "") -> str:
     value = metadata.get(key, default)
     return "" if isinstance(value, list) else str(value).strip()
-
-
-def get_list(metadata: dict[str, str | list[str]], key: str) -> list[str]:
-    value = metadata.get(key, [])
-    if isinstance(value, list):
-        return [str(item).strip() for item in value if str(item).strip()]
-    return [str(value).strip()] if str(value).strip() else []
 
 
 def relation_summary(metadata: dict[str, str | list[str]]) -> list[str]:
@@ -144,15 +157,16 @@ def summarize(values: list[str], limit: int = 3) -> str:
     return "<br>".join(escape_cell(value) for value in clipped) + suffix
 
 
-def relative_link(target: Path, index_path: Path) -> str:
-    return target.relative_to(index_path.parent).as_posix() if target.parent == index_path.parent else target.relative_to(index_path.parent).as_posix()
-
-
 def safe_relative_link(target: Path, index_path: Path) -> str:
     try:
         return target.relative_to(index_path.parent).as_posix()
     except ValueError:
-        return target.relative_to(KNOWLEDGE_ROOT).as_posix()
+        for root in knowledge_roots():
+            try:
+                return target.relative_to(root).as_posix()
+            except ValueError:
+                continue
+        return target.name
 
 
 def render_inner(concepts: list[Concept], index_path: Path) -> list[str]:
@@ -199,12 +213,26 @@ def desired_index_content(index_path: Path, concepts: list[Concept], title: str)
     return replace_generated_block(existing, render_generated_block(concepts, index_path))
 
 
+def subdirectories(knowledge_root: Path) -> list[str]:
+    if not knowledge_root.exists():
+        return []
+    dirs = []
+    for sub in sorted(knowledge_root.iterdir()):
+        if sub.is_dir() and any(sub.rglob("*.md")):
+            dirs.append(sub.name)
+    return dirs
+
+
 def index_targets() -> list[tuple[Path, Path, str]]:
-    targets = [(KNOWLEDGE_ROOT, KNOWLEDGE_ROOT / "index.md", "Paradigma Knowledge Index")]
-    for directory in SUBDIRECTORY_INDEXES:
-        scope = KNOWLEDGE_ROOT / directory
-        if scope.exists():
-            targets.append((scope, scope / "index.md", f"{directory.title()} Index"))
+    targets: list[tuple[Path, Path, str]] = []
+    for root in knowledge_roots():
+        if not root.exists():
+            continue
+        root_title = root.name.title() + " Index"
+        targets.append((root, root / "index.md", root_title))
+        for sub in subdirectories(root):
+            scope = root / sub
+            targets.append((scope, scope / "index.md", f"{sub.title()} Index"))
     return targets
 
 
@@ -236,11 +264,14 @@ def check_indexes() -> int:
 
 
 def print_inventory() -> None:
-    concepts = collect_concepts(KNOWLEDGE_ROOT)
-    for concept in concepts:
-        rel = concept.path.relative_to(KNOWLEDGE_ROOT).as_posix()
-        print(f"{rel}\t{concept.document_type}\t{concept.title}\t{summarize(concept.hints)}")
-    print(f"Found {len(concepts)} concept(s). Use --write to update indexes or --check to verify them.")
+    total = 0
+    for root in knowledge_roots():
+        concepts = collect_concepts(root)
+        total += len(concepts)
+        for concept in concepts:
+            rel = concept.path.relative_to(root).as_posix()
+            print(f"{root.name}/{rel}\t{concept.document_type}\t{concept.title}\t{summarize(concept.hints)}")
+    print(f"Found {total} concept(s) across {len(knowledge_roots())} knowledge root(s). Use --write to update indexes or --check to verify them.")
 
 
 def main() -> int:

@@ -229,8 +229,8 @@ paradigma/
         │   └── payment-api.md
         ├── manuals/
         │   ├── index.md
-        │   ├── deploy.md
-        │   └── testing-guide.md
+        │   ├── paradigma-deploy.md
+        │   └── paradigma-baseline-test.md
         ├── decisions/
         │   ├── index.md
         │   └── adr-0001-auth-strategy.md
@@ -1492,7 +1492,8 @@ paradigma:
     constrains:
       - /domains/payment.md
     related_to:
-      - /manuals/deploy.md
+      - /manuals/paradigma-deploy.md
+      - /manuals/paradigma-baseline-test.md
     supersedes:
       - /decisions/adr-0001-old-auth.md
     affected_by:
@@ -1906,7 +1907,7 @@ paradigma:
     constrains:
       - /domains/payment.md
     related_to:
-      - /manuals/testing-guide.md
+      - /manuals/paradigma-baseline-test.md
 ---
 
 # Scope

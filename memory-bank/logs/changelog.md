@@ -6,6 +6,22 @@
 
 ---
 
+## [0.4.1] - 2026-07-05
+
+### Changed
+- `deploy.md` 和 `testing-guide.md` 重命名为 `paradigma-deploy.md` (cold) 和 `paradigma-baseline-test.md` (warm)，避免与衍生项目自身 deploy/test 文档歧义。
+- `pd-sync-index.py` 从 `.paradigma/config.yaml` 读取 `knowledge_roots` 配置，对每个 root 及其子目录自动生成索引（包括 `docs/rfc/`）。
+- `pd-archive-task.py` 和 `pd-compact-progress.py` 状态从 Experimental 升级为 Stable。
+
+### Added
+- 新增 `domains/tooling.md` 和 `domains/protocol.md` 域文档。
+- 新增 `known-issues/fstring-escape-in-compact.md` 和 `known-issues/stale-section-structure-in-adr001.md`。
+- 扩充 `glossary.md` 至 20+ 核心术语。
+- `docs/rfc/index.md` 补全 OKF frontmatter 并加入自动索引。
+
+### Fixed
+- 更新 `architecture.md` Open Questions 以反映 0.4.0 已实现工具。
+
 ## [0.4.0] - 2026-07-04
 
 ### Added

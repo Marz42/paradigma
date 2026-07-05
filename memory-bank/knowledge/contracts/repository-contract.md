@@ -3,7 +3,7 @@ type: paradigma-contract
 title: Repository Contract
 description: Current repository-level contract boundaries for APIs, databases, tools, and versioning.
 tags: [contract, repository, tooling]
-timestamp: 2026-07-04T22:38:00+08:00
+timestamp: 2026-07-05T11:45:00+08:00
 paradigma:
   schema_version: "0.1"
   temperature: hot
@@ -54,8 +54,8 @@ This contract defines the externally meaningful repository boundaries for Projec
 | `python .paradigma/tools/pd-check-links.py` | Stable | Checks Markdown links, frontmatter relations, and generated index entries |
 | `python .paradigma/tools/pd-sync-index.py --write` | Stable | Scans concepts and updates root and subdirectory generated index blocks |
 | `python .paradigma/tools/pd-check-hot-size.py` | Stable | Reports active-task, HOT knowledge, and progress index size status |
-| `python .paradigma/tools/pd-archive-task.py --write` | Experimental | Archives completed active task into session logs and resets active task |
-| `python .paradigma/tools/pd-compact-progress.py --write` | Experimental | Writes a compact progress summary without deleting source logs |
+| `python .paradigma/tools/pd-archive-task.py --write` | Stable | Archives completed active task into session logs and resets active task |
+| `python .paradigma/tools/pd-compact-progress.py --write` | Stable | Writes a compact progress summary without deleting source logs |
 
 # Request Schema
 

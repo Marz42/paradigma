@@ -1,22 +1,22 @@
 ---
 type: paradigma-manual
-title: Testing Guide
-description: Testing guidance for projects based on Paradigma.
-tags: [manual, testing, quality]
-timestamp: 2026-07-04T22:50:00+08:00
+title: Paradigma Baseline Validation
+description: Baseline validation sequence for Paradigma knowledge quality, deterministic tooling, and release readiness.
+tags: [manual, testing, quality, paradigma]
+timestamp: 2026-07-05T12:02:00+08:00
 paradigma:
   schema_version: "0.1"
-  temperature: cold
+  temperature: warm
   lifecycle: evolving
   update_policy: agent-editable
   epistemic_status: confirmed
   retrieval_hints:
     zh:
-      - 测试
+      - Paradigma 基线校验
       - 校验命令
       - 质量门禁
     en:
-      - testing
+      - paradigma baseline
       - validation commands
       - quality gate
   relations:
@@ -27,7 +27,7 @@ paradigma:
 
 # Purpose
 
-This guide defines the local validation sequence for Paradigma changes. It focuses on repository knowledge quality, deterministic tooling, and release readiness.
+This guide defines the local validation sequence for Paradigma changes. It is **not** a general-purpose testing guide for derived projects — it documents the baseline quality gates that the Paradigma repository itself must pass. Derived projects should write their own testing guide under `manuals/`.
 
 # Preconditions
 

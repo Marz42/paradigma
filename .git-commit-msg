@@ -1,0 +1,10 @@
+chore: complete knowledge base and upgrade tooling to config-driven index sync (v0.4.1)
+
+- Rename deploy.md → paradigma-deploy.md (cold) and testing-guide.md →
+  paradigma-baseline-test.md (warm) to avoid ambiguity with derived-project docs.
+- Upgrade pd-sync-index.py to read knowledge_roots from .paradigma/config.yaml,
+  auto-detect subdirectory indexes, and generate indexes for docs/rfc/.
+- Upgrade pd-archive-task.py and pd-compact-progress.py status to Stable.
+- Complete glossary.md to 20+ core terms.
+- Add domains/tooling.md, domains/protocol.md, and two known-issue records.
+- Bump version from 0.4.0 to 0.4.1.

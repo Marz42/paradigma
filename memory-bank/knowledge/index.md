@@ -21,20 +21,24 @@ Agent 路由指南：先读取 runtime active task，再读取本 index，根据
 * [Known Issues](known-issues/) - Debugging notes and recurring issues.
 
 <!-- BEGIN PARADIGMA AUTO-INDEX -->
-<!-- checksum: dd733e190f99daf4 -->
+<!-- checksum: 79ae7debd2526002 -->
 <!-- generated_by: pd-sync-index.py -->
 
 | Path | Type | Title | Hints | Symbols | Relations |
 |------|------|-------|-------|---------|-----------|
 | [architecture.md](architecture.md) | `paradigma-architecture` | System Architecture | 总体架构<br>三态记忆结构<br>工具链边界 ... | AGENT_RULES.md<br>memory-bank/runtime<br>memory-bank/knowledge | related_to:/contracts/repository-contract.md<br>related_to:/decisions/adr-002-okf-compatible-memory-runtime.md |
 | [contracts/repository-contract.md](contracts/repository-contract.md) | `paradigma-contract` | Repository Contract | 仓库契约<br>工具命令<br>兼容策略 ... | pd-lint-okf.py<br>pd-sync-index.py<br>VERSION | depends_on:/architecture.md |
-| [conventions.md](conventions.md) | `paradigma-convention` | Coding and Collaboration Conventions | 代码规范<br>版本规则<br>文档约定 ... | SemVer<br>VERSION<br>Update Phase | constrains:/contracts/repository-contract.md<br>constrains:/manuals/testing-guide.md |
+| [conventions.md](conventions.md) | `paradigma-convention` | Coding and Collaboration Conventions | 代码规范<br>版本规则<br>文档约定 ... | SemVer<br>VERSION<br>Update Phase | constrains:/contracts/repository-contract.md<br>constrains:/manuals/paradigma-baseline-test.md |
 | [decisions/adr-001-template-runtime-split.md](decisions/adr-001-template-runtime-split.md) | `paradigma-decision` | ADR-001 Split Template Source and Runtime Memory | 模板拆分<br>运行记忆<br>初始化流程 ... | - | superseded_by:/decisions/adr-002-okf-compatible-memory-runtime.md |
 | [decisions/adr-002-okf-compatible-memory-runtime.md](decisions/adr-002-okf-compatible-memory-runtime.md) | `paradigma-decision` | ADR-002 Adopt OKF-Compatible Memory Runtime Structure | OKF 迁移<br>runtime logs knowledge<br>三态结构 ... | - | constrains:/architecture.md<br>constrains:/contracts/repository-contract.md |
 | [decisions/adr-003-strict-okf-production-rules.md](decisions/adr-003-strict-okf-production-rules.md) | `paradigma-decision` | ADR-003 Adopt Strict OKF Production Rules | strict lint<br>link check<br>index checksum ... | - | constrains:/architecture.md<br>constrains:/contracts/repository-contract.md<br>follows:/decisions/adr-002-okf-compatible-memory-runtime.md |
+| [domains/protocol.md](domains/protocol.md) | `paradigma-domain` | Protocol Domain | 协议<br>Agent<br>规则 ... | AGENT_RULES.md<br>INIT_PROMPT.md<br>memory-bank-protocol.mdc | depends_on:/architecture.md<br>related_to:/contracts/repository-contract.md |
+| [domains/tooling.md](domains/tooling.md) | `paradigma-domain` | Tooling Domain | 工具<br>lint<br>link check ... | pd-lint-okf.py<br>pd-check-links.py<br>pd-sync-index.py ... | depends_on:/architecture.md<br>constrains:/contracts/repository-contract.md<br>related_to:/manuals/paradigma-baseline-test.md |
 | [glossary.md](glossary.md) | `paradigma-glossary` | Project Glossary | 术语<br>缩写<br>OKF ... | OKF<br>Memory-Bank | related_to:/project-brief.md |
-| [manuals/deploy.md](manuals/deploy.md) | `paradigma-manual` | Deployment Manual | 部署<br>运维<br>回滚 ... | - | related_to:/architecture.md |
-| [manuals/testing-guide.md](manuals/testing-guide.md) | `paradigma-manual` | Testing Guide | 测试<br>校验命令<br>质量门禁 ... | - | related_to:/conventions.md<br>related_to:/contracts/repository-contract.md |
+| [known-issues/fstring-escape-in-compact.md](known-issues/fstring-escape-in-compact.md) | `paradigma-known-issue` | f-string backslash escape in pd-compact-progress.py | f-string<br>转义<br>语法错误 ... | - | related_to:/domains/tooling.md |
+| [known-issues/stale-section-structure-in-adr001.md](known-issues/stale-section-structure-in-adr001.md) | `paradigma-known-issue` | Stale section structure in ADR-001 and manuals after OKF hardening | schema registry<br>section<br>结构 ... | - | related_to:/decisions/adr-003-strict-okf-production-rules.md<br>related_to:/domains/tooling.md |
+| [manuals/paradigma-baseline-test.md](manuals/paradigma-baseline-test.md) | `paradigma-manual` | Paradigma Baseline Validation | Paradigma 基线校验<br>校验命令<br>质量门禁 ... | - | related_to:/conventions.md<br>related_to:/contracts/repository-contract.md |
+| [manuals/paradigma-deploy.md](manuals/paradigma-deploy.md) | `paradigma-manual` | Paradigma Release Preparation | Paradigma 发布<br>部署前校验<br>运维 ... | - | related_to:/architecture.md |
 | [project-brief.md](project-brief.md) | `paradigma-project-brief` | Project Brief | 项目愿景<br>适用范围<br>Agent 外部记忆 ... | Project Paradigma<br>Memory-Bank<br>OKF | informs:/architecture.md<br>informs:/contracts/repository-contract.md |
 
 <!-- END PARADIGMA AUTO-INDEX -->

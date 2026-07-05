@@ -28,7 +28,7 @@ paradigma:
   relations:
     constrains:
       - /contracts/repository-contract.md
-      - /manuals/testing-guide.md
+      - /manuals/paradigma-baseline-test.md
 ---
 
 # Naming

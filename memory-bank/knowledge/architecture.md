@@ -3,7 +3,7 @@ type: paradigma-architecture
 title: System Architecture
 description: Top-level OKF-compatible architecture and protocol boundaries for Project Paradigma.
 tags: [architecture, okf, memory-bank]
-timestamp: 2026-07-04T22:38:00+08:00
+timestamp: 2026-07-05T11:45:00+08:00
 paradigma:
   schema_version: "0.1"
   temperature: hot
@@ -106,8 +106,9 @@ flowchart TD
 
 # Open Questions
 
-- 是否在下一阶段把 `pd-check-links.py`、`pd-check-hot-size.py`、`pd-archive-task.py` 纳入 MVP 后续版本。
 - 是否将 schema 从轻量 YAML 说明升级为可执行 JSON Schema / YAML Schema。
+- 是否在 `docs/rfc/` 也生成自动索引，与 `knowledge/` 的索引机制保持一致。
+- 是否添加 CI wiring 以在 PR/merge 前自动运行 strict lint + link check + index check 序列。
 
 # Citations
 
