@@ -5,3 +5,4 @@
 - [2026-07-04 OKF Hardening](2026-07-04-okf-hardening.md)
 - [2026-07-05 Knowledge Review](2026-07-05-knowledge-review.md)
 - [2026-07-05 Rename Manuals and Config-Driven Index](2026-07-05-rename-and-config-index.md)
+- [2026-07-05 Code Block Fix and CI](2026-07-05-tooling-fix-and-ci.md)

@@ -42,9 +42,9 @@ Python f-strings do not allow bare backslashes inside `{...}` expressions. The c
 
 Precompute the escaped value before the f-string:
 
-```
+```python
 escaped_signal = signal.replace("|", "\\|")
-lines.append(f"| " + f"[{rel}]" + f"({rel})" + " | " + title + " | " + escaped_signal + " |")
+lines.append(f"| [{rel}]({rel}) | {title} | {escaped_signal} |")
 ```
 
 # Permanent Fix

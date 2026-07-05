@@ -6,6 +6,18 @@
 
 ---
 
+## [0.4.2] - 2026-07-05
+
+### Added
+- 新增 `pd-check-all.py`，聚合 lint、link check、index check、hot-size 为单一质量门禁。
+- 新增 `.github/workflows/check.yml`，在 push main 和 PR 上自动运行 `pd-check-all.py`。
+
+### Fixed
+- `pd-check-links.py` 现在排除 fenced/inline/indented code blocks 中的链接模式，避免 `[{rel}]({rel})` 等代码示例产生假阳性 ERROR。
+
+### Changed
+- 更新 `AGENT_RULES.md`、Cursor rule、`conventions.md`、`paradigma-baseline-test.md` 和 `repository-contract.md`，Update Phase 统一使用 `pd-check-all.py`。
+
 ## [0.4.1] - 2026-07-05
 
 ### Changed

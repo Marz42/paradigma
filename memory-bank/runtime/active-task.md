@@ -3,7 +3,7 @@ type: paradigma-runtime-state
 title: Active Task
 description: Current active task state for the Agent session.
 tags: [runtime, active-task]
-timestamp: 2026-07-05T12:02:00+08:00
+timestamp: 2026-07-05T12:19:00+08:00
 paradigma:
   layer: runtime
   temperature: hot
@@ -17,12 +17,13 @@ paradigma:
 
 ## Task ID
 
-2026-07-05-knowledge-review
+2026-07-05-tooling-fix-and-ci
 
 ## User Request
 
-审查 memory-bank 并补全信息不足/过时的文档，升级工具状态，重新评估项目状态。
-Follow-up: 重命名 manuals 文件以减少歧义；升级 pd-sync-index.py 为 config-driven；提交并升版本。
+1. P2-1: 修复 pd-check-links.py 排除 fenced/inline/indented code blocks 中的假阳性链接。
+2. P2-2: 创建 pd-check-all.py 聚合校验脚本 + GitHub Actions workflow。
+3. P3: glossary 按需增补（本次跳过）。
 
 ## Current Status
 
@@ -30,25 +31,21 @@ Completed.
 
 ## Checklist
 
-- [x] 补全 glossary.md — 添加 20+ 核心术语定义
-- [x] 创建 domains/tooling.md 和 domains/protocol.md
-- [x] 创建 known-issues/fstring-escape-in-compact.md 和 stale-section-structure-in-adr001.md
-- [x] 更新 architecture.md Open Questions，反映 0.4.0 已实现工具
-- [x] 补全 docs/rfc/index.md OKF frontmatter
-- [x] 测试并升级 pd-archive-task.py、pd-compact-progress.py → Stable
-- [x] 修复 link check 错误
-- [x] 重命名 deploy.md → paradigma-deploy.md (cold)、testing-guide.md → paradigma-baseline-test.md (warm)
-- [x] 升级 pd-sync-index.py 从 config.yaml 读取 knowledge_roots，为 docs/rfc 生成自动索引
-- [x] 运行完整工具链验证 0 error/warning
-- [x] 版本 0.4.0 → 0.4.1 (PATCH: manual 重命名 + 工具 config-driven 行为变更)
+- [x] pd-check-links.py: 新增 strip_code_content() — 排除 fenced (```)、inline (`)、indented (4+ spaces/tab) code
+- [x] 恢复 known-issues/fstring-escape-in-compact.md 的 Workaround 代码块为真实 Python 代码
+- [x] 验证 code-stripping：`[{rel}]({rel})` 在 fence block 内不再触发假阳性
+- [x] 创建 pd-check-all.py 聚合工具（顺序运行 4 个校验，支持 --keep-going）
+- [x] 创建 .github/workflows/check.yml（push main + PR 触发）
+- [x] 更新 AGENT_RULES.md、Cursor rule、conventions.md、paradigma-baseline-test.md、repository-contract.md、domains/tooling.md
+- [x] 运行 pd-check-all.py 全部 4 checks passed
+- [x] 版本 0.4.1 → 0.4.2 (PATCH: bugfix + new aggregation tool)
 
 ## Relevant Knowledge
 
 - /memory-bank/knowledge/architecture.md
 - /memory-bank/knowledge/contracts/repository-contract.md
 - /memory-bank/knowledge/domains/tooling.md
-- /memory-bank/knowledge/domains/protocol.md
-- /memory-bank/knowledge/decisions/adr-003-strict-okf-production-rules.md
+- /memory-bank/knowledge/manuals/paradigma-baseline-test.md
 
 ## Blockers
 
@@ -56,4 +53,6 @@ None.
 
 ## Notes
 
-版本升至 0.4.1：manual 重命名避免与衍生项目歧义；pd-sync-index.py 现在通过 config.yaml 统一使用 knowledge_roots 配置，与 pd-lint-okf.py 保持一致。docs/rfc/index.md 首次进入自动索引体系。
+版本升至 0.4.2：link check code-block 假阳性修复属 bugfix (PATCH)，pd-check-all.py 是新增工具 (可按 PATCH 对待，无破坏性变更)。
+GitHub Actions workflow 使用 ubuntu-latest + Python 3.11，与项目要求一致。
+代码块剥离策略：fence block 整块移除、inline code 正则替换、indented code 行级清空 — 对列表嵌套缩进有极小误伤风险但 Paradigma knowledge 不会遇到此场景。

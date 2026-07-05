@@ -60,8 +60,7 @@ Avoid pinyin, ambiguous abbreviations, and generic names such as `data`, `info`,
 
 # Testing Conventions
 
-- Run `python .paradigma/tools/pd-lint-okf.py --strict` after knowledge/RFC edits.
-- Run `python .paradigma/tools/pd-check-links.py` after link, relation, or index edits.
+- Run `python .paradigma/tools/pd-check-all.py` after knowledge/RFC edits (aggregates lint, links, index, hot-size).
 - Run `python .paradigma/tools/pd-sync-index.py --write` after adding/removing concept documents.
 - Run `python .paradigma/tools/pd-check-hot-size.py` before ending substantial sessions.
 - Compile Python tools with `python -m py_compile` when tool code changes, then remove or ignore `__pycache__` outputs.

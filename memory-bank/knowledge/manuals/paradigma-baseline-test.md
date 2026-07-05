@@ -48,11 +48,10 @@ This guide defines the local validation sequence for Paradigma changes. It is **
 Recommended command sequence:
 
 ```powershell
-python .paradigma/tools/pd-lint-okf.py --strict
-python .paradigma/tools/pd-check-links.py
-python .paradigma/tools/pd-sync-index.py --check
-python .paradigma/tools/pd-check-hot-size.py
+python .paradigma/tools/pd-check-all.py
 ```
+
+Individual tools can also be run separately:
 
 # Rollback
 

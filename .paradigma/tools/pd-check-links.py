@@ -156,6 +156,28 @@ def relation_targets(metadata: dict[str, str | list[str]]) -> list[tuple[str, st
     return targets
 
 
+def strip_code_content(text: str) -> str:
+    """Strip fenced code blocks, inline code spans, and indented code blocks.
+
+    Returns text with code regions blanked so that Markdown link patterns
+    inside code are not flagged as false-positive links.
+    """
+    # 1. Fenced code blocks: ``` ... ```
+    text = re.sub(r"```[\s\S]*?```", "", text)
+    # 2. Inline code spans: `...`
+    text = re.sub(r"`[^`\n]+`", "", text)
+    # 3. Indented code blocks: lines starting with 4+ spaces or a tab
+    #    are blanked to avoid matching links in indented verbatim blocks.
+    lines = text.splitlines()
+    cleaned: list[str] = []
+    for line in lines:
+        if line.startswith("    ") or line.startswith("\t"):
+            cleaned.append("")
+        else:
+            cleaned.append(line)
+    return "\n".join(cleaned)
+
+
 def markdown_targets(body: str) -> list[str]:
     targets: list[str] = []
     for match in MARKDOWN_LINK_PATTERN.finditer(body):
@@ -171,7 +193,7 @@ def check_file(path: Path, roots: list[Path]) -> list[LinkIssue]:
     metadata, body = split_frontmatter(text)
     issues: list[LinkIssue] = []
 
-    targets = [("markdown", target) for target in markdown_targets(body)]
+    targets = [("markdown", target) for target in markdown_targets(strip_code_content(body))]
     targets.extend(relation_targets(metadata))
 
     for kind, target in targets:
