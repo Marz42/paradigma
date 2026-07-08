@@ -6,6 +6,36 @@
 
 ---
 
+## [0.5.0] - 2026-07-08
+
+### Added
+- **Phase checkpoints**：在 Plan Phase 和 Execution Phase 中新增 checkpoint 提醒，Agent 在每个阶段关键边界被提示检查是否需要更新 Memory-Bank 文档（ADRs、contracts、conventions、known-issues）。
+- **DESIGN.md 集成**：新增 `paradigma-design-system` 类型，支持项目根目录 `DESIGN.md` 作为可选的前端视觉设计规范。Agent 在涉及前端/UI 任务时将其作为 WARM 参考。`pd-check-all.py` 新增第 5 步（DESIGN.md 基本格式校验，文件不存在时静默跳过）。
+- **INIT_PROMPT 模式 G（设计器模式）**：通过问答形式引导用户创建符合 `google-labs-code/design.md` 规范的 DESIGN.md 文件。4 阶段流程：发现 → 逐段构建 → 校验 → 集成。
+- **`pd-diagnose.py`**：Paradigma Harness 诊断工具。对比衍生项目与上游在结构、工具、Schema、配置、协议五个维度的差异，生成人类可读或 JSON 格式的诊断报告。支持 `--check-version` 快速版本检查。
+- **INIT_PROMPT 模式 H（结构迁移）**：Agent 引导的 pre-OKF flat 结构到 OKF 三态结构的迁移向导。5 阶段流程：诊断 → 基础设施 → 知识迁移（含 OKF frontmatter 映射表）→ 校验 → 清理。
+- **`paradigma_harness_version`**：在 `.paradigma/config.yaml` 中新增版本追踪字段，衍生项目记录当前使用的 Paradigma 版本。
+- **Mid-term plans 层**：新增 `paradigma-plan` 类型（`knowledge/plans/`）。三层 planning 架构（vision → plans → active-task），填补了项目愿景和当前任务之间的中期规划空白。temperature 随 status 切换：`in-progress` → WARM，`completed` → COLD。
+- 新增 domain 文档：`design-system.md`、`migration-flows.md`、`plans.md`。
+- 新增 manual 文档：`paradigma-design-wizard.md`、`paradigma-harness-update.md`。
+- 新增已知问题：`session-context-fragmentation.md`（active-task 完成后上下文断裂的根因分析与三层次修复方案）。
+
+### Changed
+- `pd-check-all.py` 现在运行 5 项检查（lint / links / index / hot-size / design）；links check 使用 `--allow-warnings` 以容忍 planned relations 目标。
+- `AGENT_RULES.md` Read Phase 新增步骤 5（DESIGN.md 前端任务引导）和步骤 6（relations 补读依赖）。
+- `AGENT_RULES.md` WARM 列表新增 `DESIGN.md`、`knowledge/plans/*.md`。
+- `AGENT_RULES.md` Update Phase 新增可选步骤 9（DESIGN.md 一致性检查）。
+- `AGENT_RULES.md` 防幻觉节新增 `pd-diagnose.py --check-version` 指引。
+- `architecture.md` Open Questions 从 3 条扩展为 22 条，按四类组织（协议/运行时、工具链、语义模型、用户体验）。
+- `architecture.md` Data Flow 加入 plan context 节点，Key Constraints 加入 plan 温度切换规则。
+- `glossary.md` 新增 DESIGN.md、设计器模式、Harness 诊断器、结构迁移、中期计划 5 个词条。
+
+### Fixed
+- 归档 `memory_bank/` 旧 flat 目录中的历史内容：changelog (v0.1.0-pre, v0.2.0-pre) 追加到当前 changelog；旧 ADR-002 作为附录追加到 adr-001；progress.md 拆分为 5 个独立 session log 文件。
+
+### Removed
+- 删除遗留的 `memory_bank/` 目录（12 个 flat/模板文件，已被三态结构取代）。
+
 ## [0.4.2] - 2026-07-05
 
 ### Added

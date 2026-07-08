@@ -6,10 +6,10 @@ tags: [plan, roadmap, paradigma, v0.5.0]
 timestamp: 2026-07-08T16:40:00+08:00
 paradigma:
   schema_version: "0.1"
-  temperature: warm
+  temperature: cold
   lifecycle: evolving
   update_policy: agent-editable
-  epistemic_status: decision
+  epistemic_status: confirmed
   retrieval_hints:
     zh:
       - 路线图
@@ -59,9 +59,9 @@ paradigma:
 - [x] G-1: 创建本 plan 文档（paradigma-plan 类型，temperature: warm）
 - [x] G-2: 编写 `known-issues/session-context-fragmentation.md`（PD-01）
 - [x] G-3: 更新 `architecture.md` Open Questions（PD-02）
-- [ ] G-4: 版本 bump 到 0.5.0 + 更新 changelog（PD-04）
-- [ ] G-5: 更新本 plan 状态为 completed，temperature 切换为 cold
+- [x] G-4: 版本 bump 到 0.5.0 + 更新 changelog（PD-04）
+- [x] G-5: 更新本 plan 状态为 completed，temperature 切换为 cold
 
 # Status
 
-**in-progress**
+**completed**
