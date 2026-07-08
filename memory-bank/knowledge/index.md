@@ -21,7 +21,7 @@ Agent 路由指南：先读取 runtime active task，再读取本 index，根据
 * [Known Issues](known-issues/) - Debugging notes and recurring issues.
 
 <!-- BEGIN PARADIGMA AUTO-INDEX -->
-<!-- checksum: 3c063c171406e560 -->
+<!-- checksum: 2bba004480ce2b20 -->
 <!-- generated_by: pd-sync-index.py -->
 
 | Path | Type | Title | Hints | Symbols | Relations |
@@ -41,6 +41,7 @@ Agent 路由指南：先读取 runtime active task，再读取本 index，根据
 | [manuals/paradigma-baseline-test.md](manuals/paradigma-baseline-test.md) | `paradigma-manual` | Paradigma Baseline Validation | Paradigma 基线校验<br>校验命令<br>质量门禁 ... | - | related_to:/conventions.md<br>related_to:/contracts/repository-contract.md |
 | [manuals/paradigma-deploy.md](manuals/paradigma-deploy.md) | `paradigma-manual` | Paradigma Release Preparation | Paradigma 发布<br>部署前校验<br>运维 ... | - | related_to:/architecture.md |
 | [manuals/paradigma-design-wizard.md](manuals/paradigma-design-wizard.md) | `paradigma-manual` | Paradigma Design Wizard | 设计器<br>设计向导<br>视觉设计 ... | INIT_PROMPT<br>mode G<br>DESIGN.md | related_to:/domains/design-system.md<br>related_to:/manuals/paradigma-baseline-test.md |
+| [manuals/paradigma-harness-update.md](manuals/paradigma-harness-update.md) | `paradigma-manual` | Paradigma Harness Update | 套件更新<br>结构迁移<br>诊断 ... | pd-diagnose.py<br>paradigma_harness_version<br>INIT_PROMPT mode H | related_to:/domains/design-system.md<br>related_to:/manuals/paradigma-design-wizard.md<br>related_to:/manuals/paradigma-baseline-test.md |
 | [project-brief.md](project-brief.md) | `paradigma-project-brief` | Project Brief | 项目愿景<br>适用范围<br>Agent 外部记忆 ... | Project Paradigma<br>Memory-Bank<br>OKF | informs:/architecture.md<br>informs:/contracts/repository-contract.md |
 
 <!-- END PARADIGMA AUTO-INDEX -->

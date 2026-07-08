@@ -16,3 +16,8 @@ generated_markers:
 runtime_root: memory-bank/runtime
 logs_root: memory-bank/logs
 template_root: memory-bank-template
+
+# Paradigma Harness 版本追踪。
+# 记录当前项目使用的 Paradigma 模板库版本号。
+# 运行 pd-diagnose.py 可以检查是否有更新。
+paradigma_harness_version: "0.4.2"

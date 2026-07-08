@@ -57,6 +57,7 @@ This contract defines the externally meaningful repository boundaries for Projec
 | `python .paradigma/tools/pd-check-hot-size.py` | Stable | Reports active-task, HOT knowledge, and progress index size status |
 | `python .paradigma/tools/pd-archive-task.py --write` | Stable | Archives completed active task into session logs and resets active task |
 | `python .paradigma/tools/pd-compact-progress.py --write` | Stable | Writes a compact progress summary without deleting source logs |
+| `python .paradigma/tools/pd-diagnose.py --upstream <path>` | Experimental | Compares project harness against upstream Paradigma; reports gaps across structure, tools, schema, config, and protocol |
 
 # Request Schema
 

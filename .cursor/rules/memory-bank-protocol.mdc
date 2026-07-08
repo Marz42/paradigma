@@ -81,3 +81,4 @@ alwaysApply: true
 - 术语不清时读 glossary。
 - 类似问题先查 known issues。
 - 不手动维护 generated block。
+- 怀疑 Paradigma 版本过旧时运行 `pd-diagnose.py --check-version --upstream <path>`。

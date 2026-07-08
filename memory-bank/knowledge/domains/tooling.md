@@ -55,6 +55,7 @@ The tooling domain covers the L4 Deterministic Tooling Layer of Paradigma. All t
 | `pd-check-hot-size.py` | `python .paradigma/tools/pd-check-hot-size.py` | Reports active-task, HOT knowledge, and progress index size status |
 | `pd-archive-task.py` | `python .paradigma/tools/pd-archive-task.py --write` | Archives completed active task into session logs and resets active task |
 | `pd-compact-progress.py` | `python .paradigma/tools/pd-compact-progress.py --write` | Writes a compact progress summary without deleting source logs |
+| `pd-diagnose.py` | `python .paradigma/tools/pd-diagnose.py --upstream <path>` | Compares project harness against upstream; reports gaps in structure/tools/schema/config/protocol |
 
 # Internal Flow
 

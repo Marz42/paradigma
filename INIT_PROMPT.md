@@ -186,6 +186,88 @@
 16. 如果要修改设计规范，可以直接编辑 DESIGN.md 或再次使用本模式 G 重新生成。
 ```
 
+
+
+---
+
+## 模式 H：Paradigma 结构迁移（pre-OKF → 三态结构）
+
+> **适用场景**：旧项目使用 pre-OKF 的 flat `memory_bank/` 或 `memory-bank/` flat 结构，需要迁移到 OKF-compatible 的 `memory-bank/runtime|logs|knowledge/` 三态结构。
+> **前置条件**：项目根目录存在旧版 `memory_bank/`（下划线）或 `memory-bank/` flat 结构（无 runtime/logs/knowledge 子目录）。本地有 Paradigma 最新版本的源目录。
+
+```
+你好，我的项目需要从旧版 Paradigma 迁移到 OKF-compatible 三态 Memory-Bank 结构。
+
+【Paradigma 源路径】：{{最新 Paradigma 的本地路径，如 D:\Repos\paradigma}}
+
+请按以下步骤操作：
+
+———— Phase 1：诊断 ————
+
+1. 运行 python .paradigma/tools/pd-diagnose.py --upstream {{Paradigma 源路径}} --json
+   查看当前项目与最新 Paradigma 的差距。打印报告让我确认。
+
+———— Phase 2：基础设施 ————
+
+2. 创建新目录结构（保留旧目录不动，迁移完成后我会手动清理）：
+   - memory-bank/runtime/
+   - memory-bank/logs/progress/
+   - memory-bank/knowledge/domains/
+   - memory-bank/knowledge/contracts/
+   - memory-bank/knowledge/manuals/
+   - memory-bank/knowledge/decisions/
+   - memory-bank/knowledge/known-issues/
+   - memory-bank-template/
+
+3. 从 {{Paradigma 源路径}} 安全复制基础设施文件：
+   - .paradigma/tools/*.py          → .paradigma/tools/
+   - .paradigma/schemas/*.yaml      → .paradigma/schemas/
+   - .paradigma/config.yaml         → .paradigma/config.yaml
+   - memory-bank-template/*         → memory-bank-template/
+   - AGENT_RULES.md                 → AGENT_RULES.md（⚠ 先备份旧版为 AGENT_RULES.md.bak）
+   - INIT_PROMPT.md                 → INIT_PROMPT.md（⚠ 同上备份）
+   - .cursor/rules/*.mdc            → .cursor/rules/
+
+———— Phase 3：知识迁移（逐文件，每文件确认后再继续）————
+
+4. 迁移 active-task.md：
+   - 从旧目录（memory_bank/ 或 memory-bank/）复制到 memory-bank/runtime/active-task.md
+   - 添加 OKF frontmatter（type: paradigma-runtime-state, ...）
+
+5. 迁移 progress.md：
+   - 读取旧 progress.md，拆分为独立 session log（每个会话一个文件）
+   - 写入 memory-bank/logs/progress/YYYY-MM-DD-*.md
+   - 每个文件添加 OKF frontmatter（type: paradigma-session-log）
+
+6. 迁移 changelog.md → memory-bank/logs/changelog.md
+
+7. 迁移长期知识文档（project-brief, architecture, conventions, glossary 等）：
+   - 每个文件复制到 memory-bank/knowledge/ 对应子目录
+   - 为每个文件添加完整 OKF frontmatter：
+     * type/title/description/tags/timestamp
+     * paradigma: schema_version, temperature, lifecycle, update_policy, epistemic_status
+     * retrieval_hints (zh/en)
+   - 文件类型映射：
+     * project-brief.md → paradigma-project-brief
+     * architecture.md → paradigma-architecture
+     * conventions.md → paradigma-convention
+     * glossary.md → paradigma-glossary
+     * decisions.md → 拆分为独立 paradigma-decision 文件（adr-0001-xxx.md）
+     * known-issues.md → 拆分为独立 paradigma-known-issue 文件
+     * manuals/*.md → paradigma-manual
+     * domains/*.md → paradigma-domain
+   - 对无法确定的内容标记为 TODO，不要编造。
+
+———— Phase 4：校验与清理 ————
+
+8. 运行 python .paradigma/tools/pd-sync-index.py --write
+9. 运行 python .paradigma/tools/pd-check-all.py
+10. 如有 lint 错误，逐一修复。
+11. 更新 .paradigma/config.yaml 的 paradigma_harness_version 为最新版本。
+12. 全部通过后告诉我，我会手动删除旧 memory_bank/ 或 memory-bank/ flat 结构。
+13. 提醒我 git add + commit：chore: migrate to Paradigma OKF three-state structure
+```
+
 ---
 
 ## 自定义提示
