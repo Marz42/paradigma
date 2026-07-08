@@ -136,3 +136,4 @@
 - 始终让 Agent 先读 runtime active task、knowledge index 和 HOT knowledge。
 - 明确告诉 Agent 你期望的输出，是填充知识、写代码还是做决策。
 - 约定好会话结束时的交付物，并要求执行 Update Phase：`python .paradigma/tools/pd-check-all.py`，必要时 archive/compact。
+- 大任务拆分为阶段（Plan → Execution），每个阶段结束时提醒 Agent 检查是否需要更新相关 Memory-Bank 文档（ADRs、contracts、domains、conventions、known-issues）。
