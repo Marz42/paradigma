@@ -50,6 +50,7 @@ paradigma:
 | ADR | Architecture Decision Record | Stored under `knowledge/decisions/`; append-only, accepted decisions constrain future work. |
 | Active Task | Current task state in `memory-bank/runtime/active-task.md` | Single focus; archived to session log on completion. |
 | DESIGN.md | 项目根目录的视觉设计规范文件 | 遵循 google-labs-code/design.md 格式，包含 colors/typography/spacing/components 等结构化设计 tokens。可选——无前端需求的项目无需创建。Agent 在涉及前端/UI 任务时将其作为 WARM 参考。 |
+| 设计器模式 | DESIGN.md 的 Agent 辅助创建流程 | 即 INIT_PROMPT 模式 G。通过问答形式引导用户定义视觉风格，Agent 逐段构建符合 design.md 规范的 DESIGN.md 文件。详见 `manuals/paradigma-design-wizard.md`。 |
 
 # Abbreviations
 

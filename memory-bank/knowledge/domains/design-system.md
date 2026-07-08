@@ -32,7 +32,6 @@ paradigma:
       - /architecture.md
     related_to:
       - /contracts/repository-contract.md
-    planned:
       - /manuals/paradigma-design-wizard.md
 ---
 
