@@ -87,3 +87,40 @@
 ### Changed
 - 统一 `memory-bank` 目录命名（原 `memory_bank`）。
 - 日志时间戳须通过工具获取，精确到分钟。
+
+---
+
+> 📜 **Pre-history（从 pre-OKF 时代的 `memory_bank/changelog.md` 归档恢复）**
+> 
+> 以下条目记载了 Paradigma 项目最早期的发布历史。版本号在早期尚未严格遵循 SemVer，可能与本 changelog 中同版本号条目不完全一致。此处保留原始措辞以供历史参考。
+
+## [0.2.0-pre] - 2026-06-03
+
+### Added
+- 版本管理体系：`VERSION` 文件作为版本号唯一真实来源，`changelog.md` 记录发布历史
+- `conventions.md` 新增"主动版本管理"规则块，含修改类型 vs 版本动作决策表
+- `AGENT_RULES.md` Update Phase 新增步骤 7：版本号评估
+- `project-brief.md` 身份卡片新增"当前版本"字段
+
+### Fixed
+- README 步骤 1 缺少手动路径的"断开上游 git remote"说明
+- README 步骤 4 模式列表缺少模式 F，导致新用户跳过 setup
+- INIT_PROMPT 模式 F 步骤 4 不够主动（原为被动检查，改为主动执行 `git remote remove`）
+- `.cursor/rules/memory-bank-protocol.mdc` 与 `AGENT_RULES.md` 不同步（缺少 version step、changelog、glossary）
+
+## [0.1.0-pre] - 2026-06-02
+
+### Added
+- 设计 memory-bank 目录结构和知识温度体系（HOT / WARM / COLD）
+- 创建 `AGENT_RULES.md` — IDE 无关的四阶段工作流协议
+- 创建 `INIT_PROMPT.md` — 六种会话启动模式（F / A / B / C / D / 自定义）
+- 创建 `conventions.md` — 编码规范（通用原则、命名约定、文件组织、前后端规范、类型安全、Git 提交、SemVer 摘要、测试规范、审查清单）
+- 创建 `project-brief.md` — 九板块可填写模板
+- 创建 `.cursor/rules/memory-bank-protocol.mdc` — Cursor 自动加载规则
+- 创建 `.gitignore` — 模板与运行时分离机制
+- 创建 `manuals/` 目录 — 部署运维和测试指南模板
+- 创建 `changelog.md` — Keep a Changelog 格式发布日志
+- 创建 `VERSION` — 版本号唯一真实源头
+- 创建 `LICENSE` — MPL-2.0 文件级 copyleft 许可证
+- 补充 conventions.md 中的 SemVer 操作摘要和 Agent 行为约定
+- 补充 INIT_PROMPT.md 中的模式 F（Project Setup & Bootstrap）
