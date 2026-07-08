@@ -49,6 +49,7 @@ paradigma:
 | Session Log | Progress log under `logs/progress/` | Records one Agent session: goal, actions, files, decisions, follow-ups. |
 | ADR | Architecture Decision Record | Stored under `knowledge/decisions/`; append-only, accepted decisions constrain future work. |
 | Active Task | Current task state in `memory-bank/runtime/active-task.md` | Single focus; archived to session log on completion. |
+| DESIGN.md | 项目根目录的视觉设计规范文件 | 遵循 google-labs-code/design.md 格式，包含 colors/typography/spacing/components 等结构化设计 tokens。可选——无前端需求的项目无需创建。Agent 在涉及前端/UI 任务时将其作为 WARM 参考。 |
 
 # Abbreviations
 

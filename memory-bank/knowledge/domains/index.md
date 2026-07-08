@@ -6,11 +6,12 @@ Paradigma internal domain documents covering the tooling, protocol, and memory l
 * [Protocol Domain](protocol.md) - Agent Runtime Protocol sources, IDE adapters, and bootstrap prompts.
 
 <!-- BEGIN PARADIGMA AUTO-INDEX -->
-<!-- checksum: e45b05389f751035 -->
+<!-- checksum: 6e5f5b5f0fa42f17 -->
 <!-- generated_by: pd-sync-index.py -->
 
 | Path | Type | Title | Hints | Symbols | Relations |
 |------|------|-------|-------|---------|-----------|
+| [design-system.md](design-system.md) | `paradigma-domain` | Design System Domain | 设计系统<br>视觉规范<br>前端设计 ... | DESIGN.md<br>design.md<br>design-system | depends_on:/architecture.md<br>related_to:/contracts/repository-contract.md<br>planned:/manuals/paradigma-design-wizard.md |
 | [protocol.md](protocol.md) | `paradigma-domain` | Protocol Domain | 协议<br>Agent<br>规则 ... | AGENT_RULES.md<br>INIT_PROMPT.md<br>memory-bank-protocol.mdc | depends_on:/architecture.md<br>related_to:/contracts/repository-contract.md |
 | [tooling.md](tooling.md) | `paradigma-domain` | Tooling Domain | 工具<br>lint<br>link check ... | pd-lint-okf.py<br>pd-check-links.py<br>pd-sync-index.py ... | depends_on:/architecture.md<br>constrains:/contracts/repository-contract.md<br>related_to:/manuals/paradigma-baseline-test.md |
 

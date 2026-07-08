@@ -48,7 +48,7 @@ The tooling domain covers the L4 Deterministic Tooling Layer of Paradigma. All t
 
 | Tool | Command | Purpose |
 |------|---------|---------|
-| `pd-check-all.py` | `python .paradigma/tools/pd-check-all.py` | Aggregates lint, link check, index check, and hot-size into a single quality gate |
+| `pd-check-all.py` | `python .paradigma/tools/pd-check-all.py` | Aggregates lint, link check, index check, hot-size, and DESIGN.md basic validation into a single quality gate |
 | `pd-lint-okf.py` | `python .paradigma/tools/pd-lint-okf.py --strict` | Validates concept documents against schema, sections, timestamps, policies, and generated blocks |
 | `pd-check-links.py` | `python .paradigma/tools/pd-check-links.py` | Checks Markdown links, frontmatter relations, and generated index entries |
 | `pd-sync-index.py` | `python .paradigma/tools/pd-sync-index.py --write` | Scans concepts and generates root/subdirectory index blocks with checksums |

@@ -147,3 +147,11 @@ types:
     default_temperature: warm
     required_sections:
       - Citations
+  paradigma-design-system:
+    layer: knowledge
+    default_temperature: warm
+    required_sections:
+      - Responsibility
+      - Public Interfaces
+      - Dependencies
+      - Known Risks

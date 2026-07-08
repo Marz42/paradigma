@@ -50,7 +50,7 @@ This contract defines the externally meaningful repository boundaries for Projec
 
 | Command | Status | Contract |
 |---------|--------|----------|
-| `python .paradigma/tools/pd-check-all.py` | Stable | Aggregates lint, link check, index check, and hot-size into a single quality gate |
+| `python .paradigma/tools/pd-check-all.py` | Stable | Aggregates lint, link check, index check, hot-size, and DESIGN.md basic validation into a single quality gate |
 | `python .paradigma/tools/pd-lint-okf.py --strict` | Stable | Checks concept documents against schema, sections, timestamps, policies, and generated blocks |
 | `python .paradigma/tools/pd-check-links.py` | Stable | Checks Markdown links, frontmatter relations, and generated index entries |
 | `python .paradigma/tools/pd-sync-index.py --write` | Stable | Scans concepts and updates root and subdirectory generated index blocks |

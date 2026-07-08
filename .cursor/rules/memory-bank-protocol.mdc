@@ -27,11 +27,12 @@ alwaysApply: true
    - `memory-bank/knowledge/conventions.md`
    - `memory-bank/knowledge/contracts/repository-contract.md`
 4. 根据任务从 index 选择最相关的 WARM/COLD 文档。
-5. 必要时根据 relations 补读依赖。
+5. 若任务涉及前端/UI 且项目存在 `DESIGN.md`，将其和 `domains/design-system.md` 加入读取列表。
+6. 必要时根据 relations 补读依赖。
 
 ## WARM / COLD
 
-- WARM：`memory-bank/knowledge/domains/*.md`、`memory-bank/knowledge/contracts/*.md`、`memory-bank/knowledge/manuals/*.md`、`docs/rfc/*.md`
+- WARM：`memory-bank/knowledge/domains/*.md`、`memory-bank/knowledge/contracts/*.md`、`memory-bank/knowledge/manuals/*.md`、`docs/rfc/*.md`、`DESIGN.md`（项目根目录，若存在）
 - COLD：`memory-bank/knowledge/decisions/*.md`、`memory-bank/knowledge/known-issues/*.md`、`memory-bank/knowledge/glossary.md`、`memory-bank/logs/**`
 
 ## Plan Phase Checkpoint
