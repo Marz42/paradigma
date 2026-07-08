@@ -53,6 +53,7 @@ paradigma:
 | 设计器模式 | DESIGN.md 的 Agent 辅助创建流程 | 即 INIT_PROMPT 模式 G。通过问答形式引导用户定义视觉风格，Agent 逐段构建符合 design.md 规范的 DESIGN.md 文件。详见 `manuals/paradigma-design-wizard.md`。 |
 | Harness 诊断器 | Paradigma 版本差距检测工具 | 即 `pd-diagnose.py`。对比项目与上游 Paradigma 在结构、工具、Schema、配置、协议五个维度的差异，生成可操作的迁移建议。 |
 | 结构迁移 | pre-OKF flat 结构到 OKF 三态结构的升级过程 | 即 INIT_PROMPT 模式 H。由 Agent 主导：创建 runtime/logs/knowledge 目录，为知识文档添加 OKF frontmatter，拆分组合文件为独立 concept 文档。 |
+| 中期计划 (Plan) | 介于项目愿景和当前任务之间的多会话实施路径 | `paradigma-plan` 类型文档，存放于 `knowledge/plans/`。含 Goal、Scope、Approach、Tasks、Status。执行中为 WARM，完成后自动降为 COLD。 |
 
 # Abbreviations
 

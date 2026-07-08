@@ -21,7 +21,7 @@ Agent 路由指南：先读取 runtime active task，再读取本 index，根据
 * [Known Issues](known-issues/) - Debugging notes and recurring issues.
 
 <!-- BEGIN PARADIGMA AUTO-INDEX -->
-<!-- checksum: 99d3b754b61ee02f -->
+<!-- checksum: 1a8da69619426ecb -->
 <!-- generated_by: pd-sync-index.py -->
 
 | Path | Type | Title | Hints | Symbols | Relations |
@@ -34,6 +34,7 @@ Agent 路由指南：先读取 runtime active task，再读取本 index，根据
 | [decisions/adr-003-strict-okf-production-rules.md](decisions/adr-003-strict-okf-production-rules.md) | `paradigma-decision` | ADR-003 Adopt Strict OKF Production Rules | strict lint<br>link check<br>index checksum ... | - | constrains:/architecture.md<br>constrains:/contracts/repository-contract.md<br>follows:/decisions/adr-002-okf-compatible-memory-runtime.md |
 | [domains/design-system.md](domains/design-system.md) | `paradigma-domain` | Design System Domain | 设计系统<br>视觉规范<br>前端设计 ... | DESIGN.md<br>design.md<br>design-system | depends_on:/architecture.md<br>related_to:/contracts/repository-contract.md<br>related_to:/manuals/paradigma-design-wizard.md |
 | [domains/migration-flows.md](domains/migration-flows.md) | `paradigma-domain` | Paradigma Migration Flows | 迁移流程<br>升级路径<br>结构迁移 ... | pd-diagnose.py<br>paradigma_harness_version<br>INIT_PROMPT mode H ... | related_to:/manuals/paradigma-harness-update.md<br>related_to:/manuals/paradigma-baseline-test.md<br>related_to:/contracts/repository-contract.md |
+| [domains/plans.md](domains/plans.md) | `paradigma-domain` | Plans Domain | 计划<br>中期规划<br>实施路径 ... | paradigma-plan<br>knowledge/plans | depends_on:/architecture.md<br>depends_on:/domains/protocol.md<br>related_to:/contracts/repository-contract.md |
 | [domains/protocol.md](domains/protocol.md) | `paradigma-domain` | Protocol Domain | 协议<br>Agent<br>规则 ... | AGENT_RULES.md<br>INIT_PROMPT.md<br>memory-bank-protocol.mdc | depends_on:/architecture.md<br>related_to:/contracts/repository-contract.md |
 | [domains/tooling.md](domains/tooling.md) | `paradigma-domain` | Tooling Domain | 工具<br>lint<br>link check ... | pd-lint-okf.py<br>pd-check-links.py<br>pd-sync-index.py ... | depends_on:/architecture.md<br>constrains:/contracts/repository-contract.md<br>related_to:/manuals/paradigma-baseline-test.md |
 | [glossary.md](glossary.md) | `paradigma-glossary` | Project Glossary | 术语<br>缩写<br>OKF ... | OKF<br>Memory-Bank | related_to:/project-brief.md |

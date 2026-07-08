@@ -32,7 +32,7 @@ alwaysApply: true
 
 ## WARM / COLD
 
-- WARM：`memory-bank/knowledge/domains/*.md`、`memory-bank/knowledge/contracts/*.md`、`memory-bank/knowledge/manuals/*.md`、`docs/rfc/*.md`、`DESIGN.md`（项目根目录，若存在）
+- WARM：`memory-bank/knowledge/domains/*.md`、`memory-bank/knowledge/plans/*.md`、`memory-bank/knowledge/contracts/*.md`、`memory-bank/knowledge/manuals/*.md`、`docs/rfc/*.md`、`DESIGN.md`（项目根目录，若存在）
 - COLD：`memory-bank/knowledge/decisions/*.md`、`memory-bank/knowledge/known-issues/*.md`、`memory-bank/knowledge/glossary.md`、`memory-bank/logs/**`
 
 ## Plan Phase Checkpoint

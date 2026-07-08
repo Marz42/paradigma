@@ -76,6 +76,7 @@ paradigma/
 | Cursor adapter | Cursor-specific always-on rule | `.cursor/rules/memory-bank-protocol.mdc` |
 | User entry prompts | Bootstrap and work-mode prompts | `INIT_PROMPT.md` |
 | Runtime state | Current active task and ephemeral state | `memory-bank/runtime/` |
+| Mid-term plans | Multi-session, multi-task plans bridging vision and execution | `memory-bank/knowledge/plans/` |
 | Operational logs | Progress sessions and changelog | `memory-bank/logs/` |
 | Knowledge bundle | Long-lived OKF-compatible knowledge | `memory-bank/knowledge/` |
 | RFC docs | Paradigma proposals and design drafts | `docs/rfc/` |
@@ -87,7 +88,11 @@ paradigma/
 ```mermaid
 flowchart TD
     userRequest["User Request"] --> activeTask["runtime/active-task.md"]
-    activeTask --> knowledgeIndex["knowledge/index.md"]
+    activeTask --> planContext{"plan exists?"}
+    planContext -->|yes| plans["knowledge/plans/*.md"]
+    planContext -->|no| knowledgeIndex
+    plans --> knowledgeIndex["knowledge/index.md"]
+    activeTask --> knowledgeIndex
     knowledgeIndex --> hotKnowledge["HOT Knowledge"]
     knowledgeIndex --> routedDocs["Routed WARM/COLD Docs"]
     routedDocs --> implementation["Implementation or Docs Update"]
@@ -100,6 +105,7 @@ flowchart TD
 
 - `memory-bank/knowledge/` 和 `docs/rfc/` 中的 concept 文档必须保持 OKF 基本合规。
 - `memory-bank/runtime/` 不进入 OKF knowledge bundle，避免短生命周期状态污染长期知识。
+- `memory-bank/knowledge/plans/` 中的计划文档按状态切换温度：`in-progress` → WARM，`completed` → COLD。
 - `memory-bank/logs/` 以追加为主，不替代 decisions、known issues 或 contracts。
 - `index.md` 的 generated block 只能由工具更新，Agent 不应手工编辑 generated block。
 - 修改协议源头时必须同步 Cursor rule、README、INIT_PROMPT 和模板目录。

@@ -155,3 +155,12 @@ types:
       - Public Interfaces
       - Dependencies
       - Known Risks
+  paradigma-plan:
+    layer: knowledge
+    default_temperature: warm
+    required_sections:
+      - Goal
+      - Scope
+      - Approach
+      - Tasks
+      - Status
