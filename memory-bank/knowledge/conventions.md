@@ -92,6 +92,67 @@ When bumping versions, update:
 3. A progress session in `memory-bank/logs/progress/`
 4. ADR when the change is architectural
 
+## Document Size Limits
+
+HOT 文档（`project-brief.md`、`architecture.md`、`conventions.md`、`repository-contract.md`）每次会话都会被完整读入 Agent 上下文。为控制 token 消耗，应遵守以下阈值：
+
+| 文档类型 | WARN | ERROR | 超出后操作 |
+|----------|------|-------|-----------|
+| HOT knowledge 文档 | 260 行 | 420 行 | 拆分 |
+| `active-task.md` | 160 行 | 260 行 | 归档 |
+| Progress index | 160 行 | 260 行 | 压缩 |
+
+### architecture.md 拆分策略
+
+当 `architecture.md` 超过 260 行时，按模块拆分为核心 + 细节：
+
+```text
+architecture.md                   ← HOT, 核心骨架 (~100–150 行)
+  保留: Overview, Technology Stack, Module Boundaries, Key Constraints,
+        Open Questions, Citations
+  移出: 每模块的技术选型理由、数据流细节、trade-off 讨论
+
+domains/architecture/             ← WARM, 模块级架构细节
+├── payment-architecture.md
+├── auth-architecture.md
+└── frontend-architecture.md
+```
+
+拆分后，`architecture.md` 的 Module Boundaries 表应包含指向细节文档的路径：
+
+```markdown
+| Module | Responsibility | Architecture Detail |
+|--------|----------------|---------------------|
+| Payment | 支付回调与订单生命周期 | domains/architecture/payment-architecture.md |
+```
+
+### contracts/ 拆分策略
+
+当单个 `paradigma-contract` 文档超过 200 行时，按 `contract_kind` 拆分为独立业务域文件：
+
+```text
+contracts/
+├── index.md                     ← auto-generated
+├── repository-contract.md       ← HOT, Paradigma 专用
+├── api/                         ← contract_kind: api
+│   ├── payment-api.md
+│   └── auth-api.md
+├── database/                    ← contract_kind: database
+│   ├── user-schema.md
+│   └── order-schema.md
+└── events/                      ← contract_kind: event
+    └── order-events.md
+```
+
+每个拆分文件保持独立的 OKF frontmatter（独立的 hints/symbols/relations），让 Agent 通过 index 精确路由到相关 contract，避免一次性加载所有 contract。
+
+### 拆分原则
+
+- **按业务域拆分**：同一业务域的 API + DB + Events 放在不同子目录。
+- **保持独立可读性**：每个拆分文件应包含完整的 context（Scope / Contract / Schema / Compatibility），Agent 不需要读原文件即可理解。
+- **temperature 差异化**：频繁变动的 contract 设为 `warm`，基础设施级 contract 保留 `hot`。
+- **拆分后更新 relations**：拆分出的子文件应在 `depends_on` 中引用 `architecture.md`，原文件涉及的跨文档关系应在子文件中重新声明。
+
 # Prohibited Patterns
 
 - Do not write long-lived facts into `memory-bank/runtime/active-task.md`.
