@@ -3,7 +3,7 @@ type: paradigma-architecture
 title: System Architecture
 description: Top-level OKF-compatible architecture and protocol boundaries for Project Paradigma.
 tags: [architecture, okf, memory-bank]
-timestamp: 2026-07-23T00:04:40+08:00
+timestamp: 2026-07-23T00:14:11+08:00
 paradigma:
   schema_version: "0.1"
   temperature: hot
@@ -78,6 +78,7 @@ paradigma/
 | Cursor adapter | Cursor-specific always-on rule | `.cursor/rules/memory-bank-protocol.mdc` |
 | User entry prompts | Bootstrap and work-mode prompts | `INIT_PROMPT.md` |
 | Runtime state | Current active task and ephemeral state | `memory-bank/runtime/` |
+| Task archive transaction | Strict state validation, mutation planning, atomic writes, and retry recovery | `.paradigma/tools/pd-archive-task.py` |
 | Mid-term plans | Multi-session, multi-task plans bridging vision and execution | `memory-bank/knowledge/plans/` |
 | Operational logs | Progress sessions and changelog | `memory-bank/logs/` |
 | Knowledge bundle | Long-lived OKF-compatible knowledge | `memory-bank/knowledge/` |
@@ -85,6 +86,7 @@ paradigma/
 | Template source | Blank templates for derived projects | `memory-bank-template/` |
 | Deterministic tools | Lint and index utilities | `.paradigma/tools/` |
 | Shared YAML parser | Safe YAML/frontmatter parsing and structured diagnostics | `.paradigma/tools/_paradigma_yaml.py` |
+| Shared task state | Exact active-task lifecycle parsing used by archive and quality gates | `.paradigma/tools/_task_state.py` |
 | Characterization tests | Preserve current CLI and mutation behavior before refactoring | `tests/characterization/` |
 
 # Data Flow
@@ -115,6 +117,7 @@ flowchart TD
 - 修改协议源头时必须同步 Cursor rule、README、INIT_PROMPT 和模板目录。
 - 根 `VERSION`、`installed_distribution_version`、`config_schema_version`、`okf_version` 与 `document_schema_version` 语义不得混用；`pd-version.py --check` 必须通过。
 - YAML/frontmatter 必须通过共享 parser 读取；重复键、非法 UTF-8、语法错误和边界错误必须显式失败，Schema 错误由 lint 层单独报告。
+- Active task 状态只能是 `pending`、`active`、`blocked`、`completed`、`aborted`；归档计划绑定 source hash，先原子创建 archive 再原子替换 active-task，并通过 archive ID 支持恢复。
 
 # Open Questions
 
@@ -122,7 +125,7 @@ flowchart TD
 
 - **Session 间上下文断裂**：active-task 完成后归档，缺少 handoff 摘要和 task queue 追踪机制。下一个会话的 Agent 只能靠扫描 progress logs 推测上下文。详见 `known-issues/session-context-fragmentation.md`。方案 A（handoff.md）推荐在 v0.5.x 实现。
 - **单 Agent 假设**：active-task 是单焦点、单文件。多 Agent 并行工作时没有冲突解决协议，没有 task slot 分配机制。
-- **任务中断（Suspend）**：active-task 只有"进行中"和"完成"两个状态。用户暂停一个任务时没有正式的 suspend 协议，只能标记 completed（不诚实）或保留原样（污染下次会话）。
+- **任务暂停语义仍较粗**：`blocked` 已可表达暂时无法推进，`aborted` 可表达终止，但尚未定义带恢复条件和恢复时间的正式 suspended 状态。
 - **Read Phase 无分级**：当前 Read Phase 强制读取 active-task + index + 4 个 HOT 文档。即使是修复一个 typo 也需要完整上下文。缺少 "快速路径"（最小读取集 vs 完整读取集）。
 - **协议自身无版本号**：`AGENT_RULES.md` 没有版本标识。衍生项目无法区分"这次更新只需要新工具"还是"协议变了必须重读 AGENT_RULES.md"。
 
@@ -133,7 +136,7 @@ flowchart TD
 - **跨文档一致性检查**：`pd-check-links.py` 只检查链接是否存在，不检查内容一致性（如两个文档声明了冲突的约束）。
 - **Template Diff**：当上游模板更新时，已激活的衍生项目中对应文件无法感知变化。没有模板版本对比机制。
 - **知识文档删除/废弃协议**：frontmatter 有 `epistemic_status: deprecated`，但没有配套工具（自动排除索引、列出受影响文档）。
-- **Git 感知**：`pd-archive-task.py` 和 `pd-compact-progress.py` 不感知 git 状态，在未 commit 修改上运行可能导致数据丢失。
+- **Git 感知**：归档器已有 source hash、原子写入和中断恢复，但 `pd-archive-task.py` 与 `pd-compact-progress.py` 仍不提示未提交的 Git 变更。
 
 ## 语义与知识模型
 

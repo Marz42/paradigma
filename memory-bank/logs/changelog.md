@@ -12,6 +12,7 @@
 - 新增 `pd-version.py` 和共享 `_version.py`，报告并校验 distribution、installed distribution、config schema、OKF 和 document schema 五个版本维度。
 - 新增 ADR-004，记录分离版本模型及旧字段迁移政策。
 - 新增 PyYAML 驱动的共享 `_paradigma_yaml.py`、结构化 parser diagnostics 和 ADR-005。
+- 新增共享 `_task_state.py` 严格状态枚举、归档 mutation plan、稳定 `PD_TASK_*` / `PD_ARCHIVE_*` 错误码和 ADR-006。
 
 ### Changed
 - `pd-check-all.py` 增加版本一致性门禁。
@@ -19,9 +20,11 @@
 - `.paradigma/config.yaml` 升级到 `config_schema_version: "0.2"`，使用 `installed_distribution_version`。
 - 文档类型注册表使用明确的 `document_schema_version` 字段。
 - lint、links、index、HOT size、diagnose、version 和 progress compact 统一使用共享 YAML/frontmatter parser；CI 显式安装 `requirements.txt`。
+- `pd-archive-task.py` 默认 dry-run，使用 source hash、content-addressed archive ID、原子单文件写入和幂等恢复协议。
 
 ### Fixed
 - 非法 YAML、重复键、缺失/未闭合 frontmatter 与编码错误不再被静默忽略或误报为 Schema 缺字段。
+- “未完成”等自然语言状态和已勾选 checklist 不再被误判为完成；成功归档后 active-task 明确重置为 `pending`。
 
 ### Deprecated
 - `paradigma_harness_version` 和 config 顶层含义模糊的 `schema_version` 仅保留为迁移输入。

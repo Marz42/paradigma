@@ -9,6 +9,7 @@ import argparse
 import sys
 
 from _paradigma_yaml import ParseFailure, parse_flat_frontmatter, read_utf8_text
+from _task_state import TaskStateFailure, parse_task_status
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -57,6 +58,7 @@ def hot_documents() -> list[Path]:
 def collect_checks() -> list[SizeCheck]:
     checks: list[SizeCheck] = []
     if ACTIVE_TASK.exists():
+        parse_task_status(read_utf8_text(ACTIVE_TASK))
         checks.append(SizeCheck(ACTIVE_TASK, line_count(ACTIVE_TASK), 160, 260, "runtime active task"))
     if PROGRESS_INDEX.exists():
         checks.append(SizeCheck(PROGRESS_INDEX, line_count(PROGRESS_INDEX), 160, 260, "progress index"))
@@ -75,12 +77,19 @@ def main() -> int:
     except ParseFailure as error:
         print(f"ERROR: {error.diagnostic.format()}")
         return 1
+    except TaskStateFailure as error:
+        print(f"ERROR: {display_task_state_error(error)}")
+        return 1
     for check in checks:
         print(check.format())
     errors = sum(1 for check in checks if check.level == "ERROR")
     warnings = sum(1 for check in checks if check.level == "WARN")
     print(f"Checked {len(checks)} HOT/runtime file(s); errors={errors}, warnings={warnings}.")
     return 1 if errors or (warnings and args.fail_on_warn) else 0
+
+
+def display_task_state_error(error: TaskStateFailure) -> str:
+    return f"{ACTIVE_TASK.relative_to(ROOT)}: {error.format()}"
 
 
 if __name__ == "__main__":

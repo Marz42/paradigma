@@ -21,7 +21,7 @@ Agent 路由指南：先读取 runtime active task，再读取本 index，根据
 * [Known Issues](known-issues/) - Debugging notes and recurring issues.
 
 <!-- BEGIN PARADIGMA AUTO-INDEX -->
-<!-- checksum: fed93a80fd299b69 -->
+<!-- checksum: daae05bc064e38c1 -->
 <!-- generated_by: pd-sync-index.py -->
 
 | Path | Type | Title | Hints | Symbols | Relations |
@@ -34,6 +34,7 @@ Agent 路由指南：先读取 runtime active task，再读取本 index，根据
 | [decisions/adr-003-strict-okf-production-rules.md](decisions/adr-003-strict-okf-production-rules.md) | `paradigma-decision` | ADR-003 Adopt Strict OKF Production Rules | strict lint<br>link check<br>index checksum ... | - | constrains:/architecture.md<br>constrains:/contracts/repository-contract.md<br>follows:/decisions/adr-002-okf-compatible-memory-runtime.md |
 | [decisions/adr-004-separate-version-dimensions.md](decisions/adr-004-separate-version-dimensions.md) | `paradigma-decision` | ADR-004 Separate Distribution and Schema Version Dimensions | 版本模型<br>配置版本<br>发行版本 ... | VERSION<br>installed_distribution_version<br>config_schema_version ... | constrains:/architecture.md<br>constrains:/contracts/repository-contract.md<br>constrains:/domains/tooling.md<br>follows:/decisions/adr-003-strict-okf-production-rules.md |
 | [decisions/adr-005-unified-safe-yaml-parser.md](decisions/adr-005-unified-safe-yaml-parser.md) | `paradigma-decision` | ADR-005 Adopt a Unified Safe YAML Parser | 统一 YAML Parser<br>frontmatter 诊断<br>重复键 ... | _paradigma_yaml.py<br>ParseDiagnostic<br>ParseFailure ... | constrains:/architecture.md<br>constrains:/contracts/repository-contract.md<br>constrains:/domains/tooling.md<br>follows:/decisions/adr-004-separate-version-dimensions.md |
+| [decisions/adr-006-transactional-task-archive.md](decisions/adr-006-transactional-task-archive.md) | `paradigma-decision` | ADR-006 Make Task Status Strict and Archive Recovery Idempotent | 严格任务状态<br>安全归档<br>原子写入 ... | TaskStatus<br>_task_state.py<br>ArchivePlan ... | constrains:/architecture.md<br>constrains:/conventions.md<br>constrains:/contracts/repository-contract.md<br>constrains:/domains/tooling.md ... |
 | [domains/design-system.md](domains/design-system.md) | `paradigma-domain` | Design System Domain | 设计系统<br>视觉规范<br>前端设计 ... | DESIGN.md<br>design.md<br>design-system | depends_on:/architecture.md<br>related_to:/contracts/repository-contract.md<br>related_to:/manuals/paradigma-design-wizard.md |
 | [domains/migration-flows.md](domains/migration-flows.md) | `paradigma-domain` | Paradigma Migration Flows | 迁移流程<br>升级路径<br>结构迁移 ... | pd-diagnose.py<br>installed_distribution_version<br>INIT_PROMPT mode H ... | related_to:/manuals/paradigma-harness-update.md<br>related_to:/manuals/paradigma-baseline-test.md<br>related_to:/contracts/repository-contract.md |
 | [domains/plans.md](domains/plans.md) | `paradigma-domain` | Plans Domain | 计划<br>中期规划<br>实施路径 ... | paradigma-plan<br>knowledge/plans | depends_on:/architecture.md<br>depends_on:/domains/protocol.md<br>related_to:/contracts/repository-contract.md |

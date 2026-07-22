@@ -3,7 +3,7 @@ type: paradigma-contract
 title: Repository Contract
 description: Current repository-level contract boundaries for APIs, databases, tools, and versioning.
 tags: [contract, repository, tooling]
-timestamp: 2026-07-23T00:04:40+08:00
+timestamp: 2026-07-23T00:14:11+08:00
 paradigma:
   schema_version: "0.1"
   temperature: hot
@@ -47,6 +47,7 @@ This contract defines the externally meaningful repository boundaries for Projec
 | `memory-bank-template/` | Blank templates for derived projects |
 | `.paradigma/tools/` | Deterministic local tooling |
 | `.paradigma/tools/_paradigma_yaml.py` | Sole YAML/frontmatter parser for tool consumers |
+| `.paradigma/tools/_task_state.py` | Sole active-task status enum/parser for tool consumers |
 | `tests/characterization/` | Executable baseline for current tool CLI and mutation behavior |
 
 ## Tool Commands
@@ -61,7 +62,8 @@ This contract defines the externally meaningful repository boundaries for Projec
 | `python .paradigma/tools/pd-check-links.py` | Stable | Checks Markdown links, frontmatter relations, and generated index entries |
 | `python .paradigma/tools/pd-sync-index.py --write` | Stable | Scans concepts and updates root and subdirectory generated index blocks |
 | `python .paradigma/tools/pd-check-hot-size.py` | Stable | Reports active-task, HOT knowledge, and progress index size status |
-| `python .paradigma/tools/pd-archive-task.py --write` | Stable | Archives completed active task into session logs and resets active task |
+| `python .paradigma/tools/pd-archive-task.py --dry-run` | Stable | Validates exact task state and prints the immutable archive mutation plan without writes |
+| `python .paradigma/tools/pd-archive-task.py --write` | Stable | Atomically creates the content-addressed archive, then atomically resets active task to `pending`; retries recover without duplication |
 | `python .paradigma/tools/pd-compact-progress.py --write` | Stable | Writes a compact progress summary without deleting source logs |
 | `python .paradigma/tools/pd-diagnose.py --upstream <path>` | Experimental | Compares project harness against upstream Paradigma; reports gaps across structure, tools, schema, config, and protocol |
 
@@ -77,9 +79,12 @@ Tooling uses process exit codes:
 |-----------|---------|
 | `0` | Success |
 | `1` | Validation failed |
-| `2` | Diagnose input/path/parser failure where supported by `pd-diagnose.py` |
+| `2` | Diagnose input/path/parser failure, or archive I/O/parser failure |
+| `3` | Archive source/target concurrency conflict |
 
 Parser failures include a stable code, source, message, and optional line/column. YAML syntax and encoding failures must not be reported as document Schema failures. Supported parser codes are `ENCODING_ERROR`, `FILE_READ_ERROR`, `FRONTMATTER_MISSING`, `FRONTMATTER_UNCLOSED`, `YAML_SYNTAX_ERROR`, `YAML_DUPLICATE_KEY`, and `YAML_ROOT_TYPE_ERROR`.
+
+Active-task status is an exact enum: `pending`, `active`, `blocked`, `completed`, `aborted`. Invalid runtime state fails HOT/runtime and aggregate checks with `PD_TASK_INVALID_STATUS`; archive failures expose stable `PD_ARCHIVE_*` diagnostics. The archive mutation plan binds the active-task SHA-256; archive creation precedes reset, and `archive_id` makes recovery and repeated invocation idempotent.
 
 # State Transitions
 

@@ -165,7 +165,8 @@ python .paradigma/tools/pd-check-all.py
 | `python .paradigma/tools/pd-check-all.py` | 聚合运行版本、strict lint、links、index、hot-size 和 DESIGN.md 基本校验 |
 | `python .paradigma/tools/pd-sync-index.py --write` | 生成根 index 和子目录 index 的高信息密度 generated block |
 | `python .paradigma/tools/pd-diagnose.py --upstream <path>` | 检测衍生项目与上游 Paradigma 的版本差距（结构/工具/Schema/配置/协议） |
-| `python .paradigma/tools/pd-archive-task.py --write` | 将已完成 active task 归档成 session log 并重置 active-task |
+| `python .paradigma/tools/pd-archive-task.py --dry-run` | 为 `completed` active task 生成归档 mutation plan，不写文件 |
+| `python .paradigma/tools/pd-archive-task.py --write` | 原子应用归档计划并将 active-task 重置为 `pending` |
 | `python .paradigma/tools/pd-compact-progress.py --write` | 生成 progress summary，不删除原始 session logs |
 
 ---
@@ -193,6 +194,7 @@ paradigma/
 │   │   └── paradigma-types.schema.yaml
 │   └── tools/
 │       ├── _paradigma_yaml.py
+│       ├── _task_state.py
 │       ├── pd-check-all.py
 │       ├── pd-version.py
 │       ├── _version.py
@@ -266,6 +268,7 @@ paradigma/
 6. **工具生成优先**：index、checksum、summary 等可生成内容由 `.paradigma/tools/` 维护。
 7. **版本管理**：模板库结构、协议、路径、规则变更按 `conventions.md` 评估 SemVer。
 8. **版本诊断**：衍生项目可用 `pd-diagnose.py --check-version` 快速检查是否需要更新 Harness。
+9. **严格任务状态**：active-task 只使用 `pending`、`active`、`blocked`、`completed`、`aborted`；归档必须先 dry-run。
 
 ---
 

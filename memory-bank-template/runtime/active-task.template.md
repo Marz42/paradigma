@@ -21,6 +21,8 @@ paradigma:
 
 ## Current Status
 
+pending
+
 ## Checklist
 
 - [ ] Step 1

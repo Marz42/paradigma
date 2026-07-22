@@ -59,6 +59,10 @@ alwaysApply: true
 | Linux / macOS | `date +"%Y-%m-%d %H:%M"` | `YYYY-MM-DD HH:mm` |
 | Windows PowerShell | `Get-Date -Format "yyyy-MM-dd HH:mm"` | `YYYY-MM-DD HH:mm` |
 
+## Active Task 状态
+
+`Current Status` 只允许精确小写值：`pending`、`active`、`blocked`、`completed`、`aborted`。不得使用自然语言别名、标点变体或 checklist 推断状态。归档先运行 `pd-archive-task.py --dry-run` 审查 mutation plan，确认后才使用 `--write`；成功后状态重置为 `pending`。
+
 ## Update Phase
 
 结束前必须：
@@ -69,7 +73,7 @@ alwaysApply: true
 - 修改契约时更新 `memory-bank/knowledge/contracts/`
 - 做架构决策时追加 `memory-bank/knowledge/decisions/`
 - 运行 `python .paradigma/tools/pd-check-all.py`
-- 任务完成且 active-task 可归档时，可运行 `python .paradigma/tools/pd-archive-task.py --write`
+- 任务状态为 `completed` 时，先运行 `python .paradigma/tools/pd-archive-task.py --dry-run`，审查后再按需使用 `--write`
 - progress logs 过长时，可运行 `python .paradigma/tools/pd-compact-progress.py --write`
 - 按 `conventions.md` 评估版本号，必要时更新 `VERSION` 和 `memory-bank/logs/changelog.md`
 - （可选）若项目存在 `DESIGN.md` → 检查视觉设计规范与实现一致性

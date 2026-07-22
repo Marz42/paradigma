@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -137,6 +138,8 @@ class IsolatedMutationBaselineTests(unittest.TestCase):
         tools = root / ".paradigma" / "tools"
         tools.mkdir(parents=True)
         shutil.copy2(TOOLS / "pd-archive-task.py", tools)
+        shutil.copy2(TOOLS / "_paradigma_yaml.py", tools)
+        shutil.copy2(TOOLS / "_task_state.py", tools)
 
         runtime = root / "memory-bank" / "runtime"
         runtime.mkdir(parents=True)
@@ -149,7 +152,7 @@ TASK-001
 
 ## Current Status
 
-Completed.
+completed
 
 ## Checklist
 
@@ -170,6 +173,14 @@ timestamp: YYYY-MM-DDTHH:mm:ssZ
 ## Task ID
 
 ## Current Status
+
+pending
+
+## Checklist
+
+- [ ] Step 1
+
+## Notes
 """,
             encoding="utf-8",
         )
@@ -182,10 +193,16 @@ timestamp: YYYY-MM-DDTHH:mm:ssZ
             active = root / "memory-bank" / "runtime" / "active-task.md"
             before = active.read_bytes()
 
-            result = run_tool("pd-archive-task.py", cwd=root, tools_root=tools)
+            result = run_tool(
+                "pd-archive-task.py",
+                "--dry-run",
+                cwd=root,
+                tools_root=tools,
+            )
 
             self.assertEqual(0, result.returncode, result.stderr)
             self.assertIn("Dry run only", result.stdout)
+            self.assertIn("Mutation plan:", result.stdout)
             self.assertEqual(before, active.read_bytes())
             progress = root / "memory-bank" / "logs" / "progress"
             self.assertFalse(progress.exists())
@@ -211,6 +228,122 @@ timestamp: YYYY-MM-DDTHH:mm:ssZ
             )
             self.assertNotIn("TASK-001", active)
             self.assertNotIn("YYYY-MM-DDTHH:mm:ssZ", active)
+            self.assertIn("\n\npending\n", active)
+            self.assertIn("Last archive ID:", active)
+
+            repeated = run_tool(
+                "pd-archive-task.py",
+                "--write",
+                cwd=root,
+                tools_root=tools,
+            )
+            self.assertEqual(0, repeated.returncode, repeated.stderr)
+            self.assertIn("Already archived", repeated.stdout)
+            repeated_logs = list(
+                (root / "memory-bank" / "logs" / "progress").glob("*.md")
+            )
+            self.assertEqual(1, len(repeated_logs))
+
+    def test_archive_interruption_is_recoverable_without_duplicate_log(self) -> None:
+        archive = load_tool("pd-archive-task.py")
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.make_archive_repository(root)
+            active = root / "memory-bank" / "runtime" / "active-task.md"
+            template = (
+                root
+                / "memory-bank-template"
+                / "runtime"
+                / "active-task.template.md"
+            )
+            progress = root / "memory-bank" / "logs" / "progress"
+            with mock.patch.multiple(
+                archive,
+                ROOT=root,
+                ACTIVE_TASK=active,
+                ACTIVE_TASK_TEMPLATE=template,
+                PROGRESS_ROOT=progress,
+            ):
+                active_text = archive.read_utf8_text(active)
+                template_text = archive.read_utf8_text(template)
+                plan = archive.build_archive_plan(
+                    active_text, template_text, archive.now_local(), force=False
+                )
+                with mock.patch.object(
+                    archive, "atomic_replace", side_effect=OSError("injected")
+                ):
+                    with self.assertRaises(archive.ArchiveFailure) as raised:
+                        archive.execute_archive_plan(plan)
+                self.assertEqual("PD_ARCHIVE_IO_ERROR", raised.exception.code)
+                self.assertEqual(active_text, archive.read_utf8_text(active))
+                self.assertTrue(plan.target.exists())
+
+                recovery = archive.build_archive_plan(
+                    active_text, template_text, archive.now_local(), force=False
+                )
+                self.assertFalse(recovery.create_archive)
+                self.assertEqual(plan.target, recovery.target)
+                archive.execute_archive_plan(recovery)
+
+                self.assertIn("\n\npending\n", archive.read_utf8_text(active))
+                self.assertEqual(1, len(list(progress.glob("*.md"))))
+
+    def test_archive_cli_rejects_unknown_status_with_stable_code(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            tools = self.make_archive_repository(root)
+            active = root / "memory-bank" / "runtime" / "active-task.md"
+            active.write_text(
+                active.read_text(encoding="utf-8").replace("completed", "未完成"),
+                encoding="utf-8",
+            )
+
+            result = run_tool(
+                "pd-archive-task.py",
+                "--write",
+                cwd=root,
+                tools_root=tools,
+            )
+
+            self.assertEqual(1, result.returncode)
+            self.assertIn("PD_ARCHIVE_INVALID_STATUS", result.stderr)
+            self.assertFalse((root / "memory-bank" / "logs" / "progress").exists())
+
+    def test_archive_plan_rejects_source_change_before_any_mutation(self) -> None:
+        archive = load_tool("pd-archive-task.py")
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.make_archive_repository(root)
+            active = root / "memory-bank" / "runtime" / "active-task.md"
+            template = (
+                root
+                / "memory-bank-template"
+                / "runtime"
+                / "active-task.template.md"
+            )
+            progress = root / "memory-bank" / "logs" / "progress"
+            with mock.patch.multiple(
+                archive,
+                ROOT=root,
+                ACTIVE_TASK=active,
+                ACTIVE_TASK_TEMPLATE=template,
+                PROGRESS_ROOT=progress,
+            ):
+                plan = archive.build_archive_plan(
+                    archive.read_utf8_text(active),
+                    archive.read_utf8_text(template),
+                    archive.now_local(),
+                    force=False,
+                )
+                active.write_text(
+                    archive.read_utf8_text(active) + "\nuser edit\n",
+                    encoding="utf-8",
+                )
+                with self.assertRaises(archive.ArchiveFailure) as raised:
+                    archive.execute_archive_plan(plan)
+
+                self.assertEqual("PD_ARCHIVE_SOURCE_CHANGED", raised.exception.code)
+                self.assertFalse(progress.exists())
 
     def test_compact_write_preserves_source_logs(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -347,12 +480,39 @@ installed_distribution_version: "0.4.2"
 
     def test_archive_completion_baseline(self) -> None:
         archive = load_tool("pd-archive-task.py")
-        completed = "## Current Status\n\nCompleted.\n\n## Checklist\n\n- [x] done\n"
-        active = "## Current Status\n\nActive.\n\n## Checklist\n\n- [ ] pending\n"
-        checklist_only = "## Current Status\n\nActive.\n\n## Checklist\n\n- [x] done\n"
+        completed = "## Current Status\n\ncompleted\n\n## Checklist\n\n- [x] done\n"
+        active = "## Current Status\n\nactive\n\n## Checklist\n\n- [ ] pending\n"
+        checklist_only = "## Current Status\n\nactive\n\n## Checklist\n\n- [x] done\n"
         self.assertTrue(archive.is_completed(completed))
         self.assertFalse(archive.is_completed(active))
-        self.assertTrue(archive.is_completed(checklist_only))
+        self.assertFalse(archive.is_completed(checklist_only))
+
+    def test_archive_rejects_unknown_natural_language_status(self) -> None:
+        archive = load_tool("pd-archive-task.py")
+        source = "## Current Status\n\n未完成\n"
+        with self.assertRaises(archive.ArchiveFailure) as raised:
+            archive.parse_status(source)
+        self.assertEqual("PD_ARCHIVE_INVALID_STATUS", raised.exception.code)
+        with self.assertRaises(archive.ArchiveFailure):
+            archive.parse_status("## Current Status\n\nCompleted.\n")
+
+    def test_hot_size_gate_rejects_unknown_active_task_status(self) -> None:
+        hot_size = load_tool("pd-check-hot-size.py")
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            active = root / "active-task.md"
+            active.write_text(
+                "## Current Status\n\nIn progress.\n", encoding="utf-8"
+            )
+            with mock.patch.multiple(
+                hot_size,
+                ROOT=root,
+                ACTIVE_TASK=active,
+                KNOWLEDGE_ROOT=root / "knowledge",
+                PROGRESS_INDEX=root / "progress" / "index.md",
+            ):
+                with self.assertRaises(hot_size.TaskStateFailure):
+                    hot_size.collect_checks()
 
     def test_link_checker_strips_code_regions(self) -> None:
         links = load_tool("pd-check-links.py")
@@ -448,6 +608,7 @@ class SharedYamlParserTests(unittest.TestCase):
     def test_every_yaml_consumer_routes_through_shared_parser(self) -> None:
         consumers = {
             "_version.py",
+            "pd-archive-task.py",
             "pd-check-hot-size.py",
             "pd-check-links.py",
             "pd-compact-progress.py",

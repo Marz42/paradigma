@@ -3,7 +3,7 @@ type: paradigma-domain
 title: Tooling Domain
 description: Deterministic tooling layer for OKF lint, link checking, index sync, and runtime maintenance.
 tags: [domain, tooling]
-timestamp: 2026-07-23T00:04:40+08:00
+timestamp: 2026-07-23T00:14:11+08:00
 paradigma:
   schema_version: "0.1"
   temperature: warm
@@ -55,13 +55,13 @@ The tooling domain covers the L4 Deterministic Tooling Layer of Paradigma. Tools
 | `pd-check-links.py` | `python .paradigma/tools/pd-check-links.py` | Checks Markdown links, frontmatter relations, and generated index entries |
 | `pd-sync-index.py` | `python .paradigma/tools/pd-sync-index.py --write` | Scans concepts and generates root/subdirectory index blocks with checksums |
 | `pd-check-hot-size.py` | `python .paradigma/tools/pd-check-hot-size.py` | Reports active-task, HOT knowledge, and progress index size status |
-| `pd-archive-task.py` | `python .paradigma/tools/pd-archive-task.py --write` | Archives completed active task into session logs and resets active task |
+| `pd-archive-task.py` | `python .paradigma/tools/pd-archive-task.py --dry-run` | Plans or atomically applies a strict, idempotent active-task archive transaction |
 | `pd-compact-progress.py` | `python .paradigma/tools/pd-compact-progress.py --write` | Writes a compact progress summary without deleting source logs |
 | `pd-diagnose.py` | `python .paradigma/tools/pd-diagnose.py --upstream <path>` | Compares project harness against upstream; reports gaps in structure/tools/schema/config/protocol |
 
 # Internal Flow
 
-All tools share a common root resolution pattern (`Path(__file__).resolve().parents[2]`) and operate on the repository root. YAML and Markdown frontmatter consumers use `_paradigma_yaml.py`, while version-aware tools additionally share `_version.py`. Configuration comes from `.paradigma/config.yaml`, type rules come from `.paradigma/schemas/paradigma-types.schema.yaml`, and dry-run (no `--write`) is the default for mutation tools.
+All tools share a common root resolution pattern (`Path(__file__).resolve().parents[2]`) and operate on the repository root. YAML and Markdown frontmatter consumers use `_paradigma_yaml.py`, active-task consumers use `_task_state.py`, and version-aware tools use `_version.py`. Configuration comes from `.paradigma/config.yaml`, type rules come from `.paradigma/schemas/paradigma-types.schema.yaml`, and dry-run (no `--write`) is the default for mutation tools.
 
 Current behavior is preserved by `tests/characterization/`. Read-only CLI tests execute against the repository, while archive and compact write paths execute only inside temporary repository fixtures.
 
@@ -80,6 +80,6 @@ Current behavior is preserved by `tests/characterization/`. Read-only CLI tests 
 
 # Known Risks
 
-- Every standalone tool depends on the adjacent `_paradigma_yaml.py`; partial tool copies must include this shared module and `requirements.txt` dependencies.
+- Standalone tools depend on adjacent shared modules (`_paradigma_yaml.py`, `_task_state.py`, or `_version.py` as imported); partial tool copies must include them and `requirements.txt` dependencies.
 - Adding a new tool requires manually updating this document, the repository contract, and the testing guide.
-- `pd-archive-task.py` resets `active-task.md` from the template on write; an interrupted write could lose active-task content if the original was not committed.
+- Cross-file archive/reset is recoverable rather than globally atomic: after archive creation but before reset, the archive remains and the next invocation completes the reset using the same `archive_id`.

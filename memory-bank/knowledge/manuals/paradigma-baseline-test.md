@@ -3,7 +3,7 @@ type: paradigma-manual
 title: Paradigma Baseline Validation
 description: Baseline validation sequence for Paradigma knowledge quality, deterministic tooling, and release readiness.
 tags: [manual, testing, quality, paradigma]
-timestamp: 2026-07-23T00:04:40+08:00
+timestamp: 2026-07-23T00:14:11+08:00
 paradigma:
   schema_version: "0.1"
   temperature: warm
@@ -44,6 +44,7 @@ This guide defines the local validation sequence for Paradigma changes. It is **
 5. Run index sync in `--check` mode before deciding whether to write generated blocks.
 6. Run hot-size checks before ending substantial sessions.
 7. Compile Python tools when their implementation changes.
+8. Run archive tests after changing task state, templates, mutation planning, atomic writes, or retry behavior.
 
 # Verification
 
@@ -70,6 +71,9 @@ Validation tools should not delete source content. If a generated index update i
 | Timestamp error | Non-ISO frontmatter timestamp | Use `YYYY-MM-DDTHH:mm:ss+08:00` |
 | `YAML_SYNTAX_ERROR` / `YAML_DUPLICATE_KEY` | Invalid YAML or an ambiguous repeated key | Fix the reported source line; do not suppress the parser diagnostic |
 | `ENCODING_ERROR` | File is not valid UTF-8 | Re-save as UTF-8 (UTF-8 BOM is accepted) |
+| `PD_ARCHIVE_INVALID_STATUS` | `Current Status` is prose, punctuated, empty, or unknown | Use exactly one of `pending`, `active`, `blocked`, `completed`, `aborted` |
+| `PD_ARCHIVE_SOURCE_CHANGED` | active-task changed after dry-run plan generation | Generate and review a fresh plan; do not force the stale plan |
+| Archive exists but active-task was not reset | Process stopped between the two atomic writes | Re-run `pd-archive-task.py --write`; it reuses the same `archive_id` |
 | Link check reports a planned relation | The target is intentionally future work | Keep it under `paradigma.relations.planned` |
 
 # Citations

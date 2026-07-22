@@ -3,7 +3,7 @@ type: paradigma-convention
 title: Coding and Collaboration Conventions
 description: Coding, naming, testing, documentation, versioning, and prohibited patterns for Project Paradigma.
 tags: [conventions, semver, collaboration, tooling]
-timestamp: 2026-07-23T00:04:40+08:00
+timestamp: 2026-07-23T00:14:11+08:00
 paradigma:
   schema_version: "0.1"
   temperature: hot
@@ -58,6 +58,14 @@ Avoid pinyin, ambiguous abbreviations, and generic names such as `data`, `info`,
 - CLI output should include repository-relative paths.
 - Parser failures must preserve their structured diagnostic code; do not reinterpret syntax or encoding failures as Schema errors.
 - Generated files should be updated only when the user passes an explicit write flag or archive/compact command.
+- Multi-file mutations must publish a dry-run plan, bind the source content hash, use atomic single-file writes, and define a retry-safe recovery path.
+
+## Active Task Status
+
+- `Current Status` is exactly one of `pending`, `active`, `blocked`, `completed`, or `aborted`.
+- Status values are lowercase and contain no punctuation or prose.
+- Checklist completion never changes or infers task status.
+- Archive only `completed` tasks by default; run `pd-archive-task.py --dry-run` before `--write`.
 
 # Testing Conventions
 

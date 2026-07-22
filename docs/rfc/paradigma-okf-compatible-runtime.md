@@ -3,7 +3,7 @@ type: paradigma-rfc
 title: Paradigma OKF-Compatible Agent Memory Runtime
 description: RFC proposal for evolving Project Paradigma into an OKF-compatible Agent Memory Runtime framework.
 tags: [paradigma, okf, rfc, agent-memory, runtime]
-timestamp: 2026-07-04T22:33:00+08:00
+timestamp: 2026-07-23T00:14:11+08:00
 paradigma:
   schema_version: "0.1"
   layer: docs
@@ -1011,6 +1011,8 @@ paradigma:
 
 ## Current Status
 
+pending
+
 ## Checklist
 
 - [ ] Step 1
@@ -1033,6 +1035,7 @@ paradigma:
 3. 任务完成后必须归档到 `logs/progress/`；
 4. active task 不应积累长期知识；
 5. 长期知识必须迁移到 `knowledge/` 对应文档。
+6. `Current Status` 只允许 `pending`、`active`、`blocked`、`completed`、`aborted`，不得从自然语言或 checklist 推断。
 
 ***
 
@@ -1354,19 +1357,19 @@ SUGGESTION:
 
 用途：
 
-* 将完成的 active task 归档为 session log；
-* 清空 active-task；
-* 生成 follow-up；
-* 必要时触发 `pd-sync-index.py`。
+* 校验严格任务状态并生成 dry-run mutation plan；
+* 将 `completed` active task 归档为 content-addressed session log；
+* 原子重置 active-task 为 `pending`；
+* 使用 archive ID 恢复中断操作并保证重复调用不生成重复日志。
 
 归档流程：
 
 ```text
-1. 读取 active-task
-2. 生成 progress session 文件
-3. 提取 files read / modified / decisions / knowledge updates
-4. 清空 active-task
-5. 运行 pd-sync-index
+1. 读取 active-task，严格解析状态并计算 source hash
+2. 生成并展示 archive + reset mutation plan
+3. 原子创建含 `archive_id` 的 progress session 文件
+4. 原子替换 active-task 为带 last archive marker 的 `pending` 模板
+5. 若在 3/4 之间中断，重试复用既有 archive，只完成 reset
 ```
 
 ***
@@ -1964,7 +1967,7 @@ Refactor payment callback handling and update relevant contracts.
 
 ## Current Status
 
-In progress.
+active
 
 ## Checklist
 
