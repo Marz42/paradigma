@@ -149,6 +149,7 @@ flowchart TD
 ### 推荐检查顺序
 
 ```bash
+python -m unittest discover -s tests -p "test_*.py" -v
 python .paradigma/tools/pd-check-all.py
 ```
 
@@ -156,6 +157,7 @@ python .paradigma/tools/pd-check-all.py
 
 | 命令 | 用途 |
 |------|------|
+| `python -m unittest discover -s tests -p "test_*.py" -v` | 运行现有工具的 characterization test 基线 |
 | `python .paradigma/tools/pd-check-all.py` | 聚合运行严格 lint、link check、index check、hot-size check 和 DESIGN.md 基本校验 |
 | `python .paradigma/tools/pd-sync-index.py --write` | 生成根 index 和子目录 index 的高信息密度 generated block |
 | `python .paradigma/tools/pd-diagnose.py --upstream <path>` | 检测衍生项目与上游 Paradigma 的版本差距（结构/工具/Schema/配置/协议） |
@@ -196,6 +198,9 @@ paradigma/
 ├── .github/
 │   └── workflows/
 │       └── check.yml
+├── tests/
+│   └── characterization/
+│       └── test_tools.py
 ├── memory-bank-template/
 │   ├── DESIGN.md                     ← DESIGN.md 空白模板
 │   ├── runtime/

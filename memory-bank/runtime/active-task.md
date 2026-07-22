@@ -3,7 +3,7 @@ type: paradigma-runtime-state
 title: Active Task
 description: Current active task state for the Agent session.
 tags: [runtime, active-task]
-timestamp: 2026-07-05T12:43:00+08:00
+timestamp: 2026-07-22T23:35:41+08:00
 paradigma:
   layer: runtime
   temperature: hot
@@ -17,11 +17,11 @@ paradigma:
 
 ## Task ID
 
-2026-07-05-protocol-sync
+2026-07-22-phase0-characterization-tests
 
 ## User Request
 
-对 AGENT_RULES 和 INIT_PROMPT 进行全量回归模拟，修复所有协议同步问题。
+以 `docs/devplan/paradigma_dev_5+.md` 为正式主计划，开始执行 Paradigma v0.5.1 Phase 0；首批建立现有工具的 characterization test 基线。
 
 ## Current Status
 
@@ -29,24 +29,19 @@ Completed.
 
 ## Checklist
 
-- [x] 读取 AGENT_RULES.md、INIT_PROMPT.md、README.md 全量规范
-- [x] 逐条比对所有协议路径、命令引用、版本号
-- [x] C1: README.md 版本号 0.4.0 → 0.4.2
-- [x] C2: glossary.template.md 时间戳 2026-07-04 → YYYY-MM-DDTHH:mm:ssZ
-- [x] P1-P2: README.md 两处 4 条单独命令 → pd-check-all.py + pd-sync-index.py --write
-- [x] R1: README.md 目录树补充 pd-check-all.py 和 .github/workflows/check.yml
-- [x] P3-P6: INIT_PROMPT.md 模式F/A/C 和自定义提示 → pd-check-all.py
-- [x] P7: paradigma-deploy.md Verification → pd-check-all.py
-- [x] D1: cursor rule 删除多余的独立 pd-sync-index.py --check 行
-- [x] 运行 pd-check-all.py 全部 4 checks passed
-- [x] 版本保持 0.4.2（本次为文档同步，不涉及功能或协议变更）
+- [x] 拉取并确认远端最新基线 `c4c5e06` / v0.5.0
+- [x] 归档上一项已完成 active task
+- [x] 为当前 8 个 Python 工具建立行为基线测试
+- [x] 将测试入口接入 CI 与测试规范
+- [x] 运行 unittest、Python 编译和 `pd-check-all.py`
+- [x] 记录本批进度和下一批工作
 
 ## Relevant Knowledge
 
-- /AGENT_RULES.md
-- /INIT_PROMPT.md
-- /memory-bank/knowledge/contracts/repository-contract.md
+- /docs/devplan/paradigma_dev_5+.md
 - /memory-bank/knowledge/conventions.md
+- /memory-bank/knowledge/contracts/repository-contract.md
+- /memory-bank/knowledge/domains/tooling.md
 
 ## Blockers
 
@@ -54,4 +49,4 @@ None.
 
 ## Notes
 
-本次为纯协议同步：README、INIT_PROMPT、cursor rule、paradigma-deploy.md 统一将 Update Phase 的 4 条单独命令替换为 pd-check-all.py。glossary.template.md 修复了一个 C2 级 bug（模板带真实时间戳会导致衍生项目 strict lint 失败）。版本保持 0.4.2，无功能或协议变更。
+本批仅建立现有行为基线，没有修复版本解析、YAML parser、状态误判或归档原子性。已确认当前实现有 8 个工具，正式计划中“七个脚本”和不存在的 `format` 项将在后续计划同步时修正。验证结果：16/16 unittest 通过，全部工具 py_compile 通过，pd-check-all 5/5 通过。下一批执行 Batch 0.1：版本与配置统一。

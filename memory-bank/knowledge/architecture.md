@@ -3,7 +3,7 @@ type: paradigma-architecture
 title: System Architecture
 description: Top-level OKF-compatible architecture and protocol boundaries for Project Paradigma.
 tags: [architecture, okf, memory-bank]
-timestamp: 2026-07-05T11:45:00+08:00
+timestamp: 2026-07-22T23:34:30+08:00
 paradigma:
   schema_version: "0.1"
   temperature: hot
@@ -58,6 +58,8 @@ paradigma/
 │   ├── config.yaml
 │   ├── schemas/
 │   └── tools/
+├── tests/
+│   └── characterization/
 ├── memory-bank-template/
 │   ├── runtime/
 │   ├── logs/
@@ -82,6 +84,7 @@ paradigma/
 | RFC docs | Paradigma proposals and design drafts | `docs/rfc/` |
 | Template source | Blank templates for derived projects | `memory-bank-template/` |
 | Deterministic tools | Lint and index utilities | `.paradigma/tools/` |
+| Characterization tests | Preserve current CLI and mutation behavior before refactoring | `tests/characterization/` |
 
 # Data Flow
 

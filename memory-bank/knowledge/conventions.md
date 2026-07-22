@@ -3,7 +3,7 @@ type: paradigma-convention
 title: Coding and Collaboration Conventions
 description: Coding, naming, testing, documentation, versioning, and prohibited patterns for Project Paradigma.
 tags: [conventions, semver, collaboration, tooling]
-timestamp: 2026-07-04T22:50:00+08:00
+timestamp: 2026-07-22T23:34:30+08:00
 paradigma:
   schema_version: "0.1"
   temperature: hot
@@ -60,6 +60,8 @@ Avoid pinyin, ambiguous abbreviations, and generic names such as `data`, `info`,
 
 # Testing Conventions
 
+- Run `python -m unittest discover -s tests -p "test_*.py" -v` before and after tool refactors.
+- Keep pre-package tool behavior baselines under `tests/characterization/`; mutation tests must operate in temporary repositories.
 - Run `python .paradigma/tools/pd-check-all.py` after knowledge/RFC edits (aggregates lint, links, index, hot-size).
 - Run `python .paradigma/tools/pd-sync-index.py --write` after adding/removing concept documents.
 - Run `python .paradigma/tools/pd-check-hot-size.py` before ending substantial sessions.

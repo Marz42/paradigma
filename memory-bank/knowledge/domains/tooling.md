@@ -3,7 +3,7 @@ type: paradigma-domain
 title: Tooling Domain
 description: Deterministic tooling layer for OKF lint, link checking, index sync, and runtime maintenance.
 tags: [domain, tooling]
-timestamp: 2026-07-05T11:45:00+08:00
+timestamp: 2026-07-22T23:34:30+08:00
 paradigma:
   schema_version: "0.1"
   temperature: warm
@@ -61,12 +61,15 @@ The tooling domain covers the L4 Deterministic Tooling Layer of Paradigma. All t
 
 All tools share a common root resolution pattern (`Path(__file__).resolve().parents[2]`) and operate on the repository root. They read from `.paradigma/config.yaml` and `.paradigma/schemas/paradigma-types.schema.yaml` for configuration and type validation rules. Dry-run (no `--write`) is the default for mutation tools.
 
+Current behavior is preserved by `tests/characterization/`. Read-only CLI tests execute against the repository, while archive and compact write paths execute only inside temporary repository fixtures.
+
 # Dependencies
 
 - Python 3.11+ standard library (no third-party packages).
 - `.paradigma/config.yaml` for knowledge roots, reserved filenames, and generated block markers.
 - `.paradigma/schemas/paradigma-types.schema.yaml` for type registry, required sections, and field validation.
 - `memory-bank-template/` for active-task reset template.
+- Python standard-library `unittest` for the characterization suite.
 
 # Related Contracts
 
