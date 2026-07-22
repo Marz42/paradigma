@@ -2,6 +2,7 @@
 """Run all Paradigma quality-gate checks in sequence.
 
 Equivalent to the Update Phase command sequence:
+  pd-version.py --check
   pd-lint-okf.py --strict
   pd-check-links.py
   pd-sync-index.py --check
@@ -22,6 +23,7 @@ ROOT = Path(__file__).resolve().parents[2]
 TOOLS = ROOT / ".paradigma" / "tools"
 
 STEPS = [
+    ("version", "pd-version.py", ["--check"]),
     ("lint", "pd-lint-okf.py", ["--strict"]),
     ("links", "pd-check-links.py", ["--allow-warnings"]),
     ("index", "pd-sync-index.py", ["--check"]),

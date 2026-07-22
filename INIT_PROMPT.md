@@ -263,7 +263,7 @@
 8. 运行 python .paradigma/tools/pd-sync-index.py --write
 9. 运行 python .paradigma/tools/pd-check-all.py
 10. 如有 lint 错误，逐一修复。
-11. 更新 .paradigma/config.yaml 的 paradigma_harness_version 为最新版本。
+11. 更新 `.paradigma/config.yaml` 的 `installed_distribution_version` 为最新版本；旧 `paradigma_harness_version` 应迁移并移除。
 12. 全部通过后告诉我，我会手动删除旧 memory_bank/ 或 memory-bank/ flat 结构。
 13. 提醒我 git add + commit：chore: migrate to Paradigma OKF three-state structure
 ```

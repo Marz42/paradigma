@@ -1,4 +1,4 @@
-schema_version: "0.2"
+document_schema_version: "0.2"
 description: Paradigma semantic type registry for OKF-compatible concept documents.
 
 allowed_update_policies:

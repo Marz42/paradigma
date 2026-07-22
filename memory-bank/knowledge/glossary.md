@@ -3,7 +3,7 @@ type: paradigma-glossary
 title: Project Glossary
 description: Glossary of project-specific terms and abbreviations.
 tags: [glossary, terminology]
-timestamp: 2026-07-05T11:45:00+08:00
+timestamp: 2026-07-22T23:44:32+08:00
 paradigma:
   schema_version: "0.1"
   temperature: cold
@@ -54,6 +54,10 @@ paradigma:
 | Harness 诊断器 | Paradigma 版本差距检测工具 | 即 `pd-diagnose.py`。对比项目与上游 Paradigma 在结构、工具、Schema、配置、协议五个维度的差异，生成可操作的迁移建议。 |
 | 结构迁移 | pre-OKF flat 结构到 OKF 三态结构的升级过程 | 即 INIT_PROMPT 模式 H。由 Agent 主导：创建 runtime/logs/knowledge 目录，为知识文档添加 OKF frontmatter，拆分组合文件为独立 concept 文档。 |
 | 中期计划 (Plan) | 介于项目愿景和当前任务之间的多会话实施路径 | `paradigma-plan` 类型文档，存放于 `knowledge/plans/`。含 Goal、Scope、Approach、Tasks、Status。执行中为 WARM，完成后自动降为 COLD。 |
+| Distribution Version | Paradigma 源码发行版本 | 根 `VERSION` 是唯一发行真相源。 |
+| Installed Distribution Version | 当前 workspace 已部署的 Paradigma 版本 | 记录在 `.paradigma/config.yaml` 的 `installed_distribution_version`；源码仓库中必须与根 `VERSION` 一致。 |
+| Config Schema Version | `.paradigma/config.yaml` 的格式版本 | 使用 `config_schema_version`，不等于发行版本。 |
+| Document Schema Version | Paradigma concept-document 类型注册表版本 | 使用 `.paradigma/schemas/paradigma-types.schema.yaml` 的 `document_schema_version`。 |
 
 # Abbreviations
 

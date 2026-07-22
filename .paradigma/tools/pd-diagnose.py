@@ -2,11 +2,12 @@
 """Diagnose Paradigma Harness gaps between a project and the latest upstream.
 
 Detection rules (try in order):
-  1. .paradigma/config.yaml with paradigma_harness_version -> read version
-  2. memory_bank/ (underscore) directory exists      -> "pre-0.2.0 (legacy flat)"
-  3. memory-bank/ exists but no runtime/ subdirectory -> "0.2.x (flat memory-bank)"
-  4. memory-bank/runtime/ exists                     -> "0.3.0+ (OKF three-state)"
-  5. None of the above                               -> "no Paradigma harness detected"
+  1. .paradigma/config.yaml with installed_distribution_version -> read version
+  2. Legacy paradigma_harness_version -> read with migration warning
+  3. memory_bank/ (underscore) directory exists      -> "pre-0.2.0 (legacy flat)"
+  4. memory-bank/ exists but no runtime/ subdirectory -> "0.2.x (flat memory-bank)"
+  5. memory-bank/runtime/ exists                     -> "0.3.0+ (OKF three-state)"
+  6. None of the above                               -> "no Paradigma harness detected"
 
 Once version is identified, compare against upstream to find gaps in:
   - Structure (directories)
@@ -29,6 +30,12 @@ import json
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
+
+from _version import (
+    VersionModelError,
+    read_distribution_version,
+    read_installed_distribution_version,
+)
 
 
 # -- data model --------------------------------------------------
@@ -102,12 +109,9 @@ def _read_yaml_file(path: Path) -> dict[str, str]:
 
 
 def _detect_version(project: Path) -> str:
-    config = project / ".paradigma" / "config.yaml"
-    if config.exists():
-        data = _read_yaml_file(config)
-        version = data.get("paradigma_harness_version", "")
-        if version:
-            return version
+    version, _legacy = read_installed_distribution_version(project)
+    if version:
+        return version
 
     if (project / "memory_bank").is_dir():
         return "pre-0.2.0 (legacy flat memory_bank/)"
@@ -122,14 +126,15 @@ def _detect_version(project: Path) -> str:
 
 
 def _read_upstream_version(upstream: Path) -> str:
-    data = _read_yaml_file(upstream / ".paradigma" / "config.yaml")
-    version = data.get("paradigma_harness_version", "")
-    if version:
-        return version
-    ver_file = upstream / "VERSION"
-    if ver_file.exists():
-        return ver_file.read_text(encoding="utf-8").strip()
-    return "unknown"
+    try:
+        return read_distribution_version(upstream)
+    except VersionModelError:
+        data = _read_yaml_file(upstream / ".paradigma" / "config.yaml")
+        return (
+            data.get("installed_distribution_version", "")
+            or data.get("paradigma_harness_version", "")
+            or "unknown"
+        )
 
 
 # -- comparison helpers ------------------------------------------
@@ -302,14 +307,22 @@ def _check_config(project: Path, upstream: Path, result: DiagnoseResult) -> None
             ", ".join(sorted(missing_keys)),
         ))
 
-    version_key = "paradigma_harness_version"
+    version_key = "installed_distribution_version"
     if version_key in proj_data and version_key in up_data:
         if proj_data[version_key] != up_data[version_key]:
             result.gaps.append(Gap(
                 "config", "warning", "mismatch",
-                "paradigma_harness_version 不匹配",
+                "installed_distribution_version 不匹配",
                 f"项目: {proj_data[version_key]}, 上游: {up_data[version_key]}",
             ))
+
+    legacy_key = "paradigma_harness_version"
+    if legacy_key in proj_data:
+        result.gaps.append(Gap(
+            "config", "warning", "deprecated",
+            "配置仍使用 paradigma_harness_version",
+            "迁移为 installed_distribution_version",
+        ))
 
 
 # -- protocol check ----------------------------------------------
@@ -481,7 +494,7 @@ def _format_human(result: DiagnoseResult) -> str:
         if has_proto:
             lines.append("  4. 手动审查协议文件差异 (AGENT_RULES.md / INIT_PROMPT.md / .cursor/rules/)")
         lines.append("  5. 完成后运行 pd-check-all.py 校验")
-        lines.append("  6. 更新 .paradigma/config.yaml 中的 paradigma_harness_version")
+        lines.append("  6. 更新 .paradigma/config.yaml 中的 installed_distribution_version")
     elif result.warnings > 0:
         lines.append("建议: 从上游更新缺失/过时的工具和 Schema。协议文件差异较小，可手动审查。")
 

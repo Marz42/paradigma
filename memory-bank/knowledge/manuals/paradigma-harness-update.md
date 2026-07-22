@@ -3,7 +3,7 @@ type: paradigma-manual
 title: Paradigma Harness Update
 description: Guide for checking and updating Paradigma Harness (tools, protocol, schema, templates) in derived projects.
 tags: [manual, harness, update, migration, paradigma]
-timestamp: 2026-07-08T15:47:00+08:00
+timestamp: 2026-07-22T23:44:32+08:00
 paradigma:
   schema_version: "0.1"
   temperature: cold
@@ -25,7 +25,7 @@ paradigma:
       - pd-diagnose
   symbols:
     - pd-diagnose.py
-    - paradigma_harness_version
+    - installed_distribution_version
     - INIT_PROMPT mode H
   relations:
     related_to:
@@ -61,9 +61,10 @@ python .paradigma/tools/pd-diagnose.py --upstream <paradigma源路径>
 
 This produces a gap report across five dimensions: structure, tools, schema, config, and protocol.
 
-If `pd-diagnose.py` is not yet available in the project, copy it from upstream first:
+If `pd-diagnose.py` is not yet available in the project, copy it together with its shared version helper:
 ```bash
 cp <paradigma源>/.paradigma/tools/pd-diagnose.py .paradigma/tools/
+cp <paradigma源>/.paradigma/tools/_version.py .paradigma/tools/
 ```
 
 For CI/automation, use `--check-version` for a quick pass/fail check:
@@ -96,7 +97,7 @@ python .paradigma/tools/pd-diagnose.py --upstream <paradigma源> --check-version
 
 2. **Schema**: Copy all `.yaml` files from `<upstream>/.paradigma/schemas/`. New types are backward-compatible.
 
-3. **Config**: Merge new keys from upstream `config.yaml`. Never blindly overwrite — your `paradigma_harness_version` field and any custom keys must be preserved.
+3. **Config**: Merge new keys from upstream `config.yaml`. Never blindly overwrite custom project keys. Migrate `paradigma_harness_version` to `installed_distribution_version`, then remove the legacy field.
 
 4. **Protocol**: Review differences manually.
    ```bash
@@ -109,8 +110,10 @@ python .paradigma/tools/pd-diagnose.py --upstream <paradigma源> --check-version
 
 Edit `.paradigma/config.yaml`:
 ```yaml
-paradigma_harness_version: "<new_version>"
+installed_distribution_version: "<new_version>"
 ```
+
+Then run `python .paradigma/tools/pd-version.py --verbose --check`.
 
 ## 4. Validate
 

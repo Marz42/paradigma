@@ -3,7 +3,7 @@ type: paradigma-contract
 title: Repository Contract
 description: Current repository-level contract boundaries for APIs, databases, tools, and versioning.
 tags: [contract, repository, tooling]
-timestamp: 2026-07-22T23:34:30+08:00
+timestamp: 2026-07-22T23:44:32+08:00
 paradigma:
   schema_version: "0.1"
   temperature: hot
@@ -21,6 +21,7 @@ paradigma:
       - tool commands
       - compatibility policy
   symbols:
+    - pd-version.py
     - pd-lint-okf.py
     - pd-sync-index.py
     - VERSION
@@ -52,7 +53,9 @@ This contract defines the externally meaningful repository boundaries for Projec
 | Command | Status | Contract |
 |---------|--------|----------|
 | `python -m unittest discover -s tests -p "test_*.py" -v` | Stable | Runs the pre-refactor characterization suite using Python standard-library unittest |
-| `python .paradigma/tools/pd-check-all.py` | Stable | Aggregates lint, link check, index check, hot-size, and DESIGN.md basic validation into a single quality gate |
+| `python .paradigma/tools/pd-version.py --verbose` | Stable | Reports distribution, installed distribution, config schema, OKF, and document schema versions |
+| `python .paradigma/tools/pd-version.py --check` | Stable | Fails when required version fields are missing, legacy fields remain, or the installed distribution drifts from root `VERSION` |
+| `python .paradigma/tools/pd-check-all.py` | Stable | Aggregates version, lint, link, index, hot-size, and DESIGN.md validation into a single quality gate |
 | `python .paradigma/tools/pd-lint-okf.py --strict` | Stable | Checks concept documents against schema, sections, timestamps, policies, and generated blocks |
 | `python .paradigma/tools/pd-check-links.py` | Stable | Checks Markdown links, frontmatter relations, and generated index entries |
 | `python .paradigma/tools/pd-sync-index.py --write` | Stable | Scans concepts and updates root and subdirectory generated index blocks |

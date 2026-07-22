@@ -3,7 +3,7 @@ type: paradigma-manual
 title: Paradigma Release Preparation
 description: Pre-release validation and deployment notes specific to the Paradigma repository itself.
 tags: [manual, deploy, operations, paradigma]
-timestamp: 2026-07-05T12:02:00+08:00
+timestamp: 2026-07-22T23:44:32+08:00
 paradigma:
   schema_version: "0.1"
   temperature: cold
@@ -38,14 +38,16 @@ This manual records Paradigma-specific release preparation steps. It is **not** 
 
 # Steps
 
-1. Run OKF lint and link checks.
+1. Run characterization tests and the aggregated quality gate.
 2. Sync indexes after knowledge changes.
-3. Update `VERSION`, changelog, ADRs, and progress logs when required.
+3. Update `VERSION`, `installed_distribution_version`, changelog, ADRs, and progress logs when required.
 4. Review generated blocks and untracked files before release.
 
 # Verification
 
 ```bash
+python -m unittest discover -s tests -p "test_*.py" -v
+python .paradigma/tools/pd-version.py --verbose --check
 python .paradigma/tools/pd-check-all.py
 ```
 

@@ -6,6 +6,21 @@
 
 ---
 
+## [Unreleased]
+
+### Added
+- 新增 `pd-version.py` 和共享 `_version.py`，报告并校验 distribution、installed distribution、config schema、OKF 和 document schema 五个版本维度。
+- 新增 ADR-004，记录分离版本模型及旧字段迁移政策。
+
+### Changed
+- `pd-check-all.py` 增加版本一致性门禁。
+- `pd-diagnose.py` 以上游根 `VERSION` 作为发行版本真相源，并使用共享版本读取逻辑。
+- `.paradigma/config.yaml` 升级到 `config_schema_version: "0.2"`，使用 `installed_distribution_version`。
+- 文档类型注册表使用明确的 `document_schema_version` 字段。
+
+### Deprecated
+- `paradigma_harness_version` 和 config 顶层含义模糊的 `schema_version` 仅保留为迁移输入。
+
 ## [0.5.0] - 2026-07-08
 
 ### Added

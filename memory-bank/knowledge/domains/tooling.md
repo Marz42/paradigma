@@ -3,7 +3,7 @@ type: paradigma-domain
 title: Tooling Domain
 description: Deterministic tooling layer for OKF lint, link checking, index sync, and runtime maintenance.
 tags: [domain, tooling]
-timestamp: 2026-07-22T23:34:30+08:00
+timestamp: 2026-07-22T23:44:32+08:00
 paradigma:
   schema_version: "0.1"
   temperature: warm
@@ -29,6 +29,7 @@ paradigma:
     - pd-sync-index.py
     - pd-check-hot-size.py
     - pd-check-all.py
+    - pd-version.py
     - pd-archive-task.py
     - pd-compact-progress.py
   relations:
@@ -48,7 +49,8 @@ The tooling domain covers the L4 Deterministic Tooling Layer of Paradigma. All t
 
 | Tool | Command | Purpose |
 |------|---------|---------|
-| `pd-check-all.py` | `python .paradigma/tools/pd-check-all.py` | Aggregates lint, link check, index check, hot-size, and DESIGN.md basic validation into a single quality gate |
+| `pd-check-all.py` | `python .paradigma/tools/pd-check-all.py` | Aggregates version, lint, link, index, hot-size, and DESIGN.md validation into a single quality gate |
+| `pd-version.py` | `python .paradigma/tools/pd-version.py --verbose` | Reports and validates the separated Paradigma version dimensions |
 | `pd-lint-okf.py` | `python .paradigma/tools/pd-lint-okf.py --strict` | Validates concept documents against schema, sections, timestamps, policies, and generated blocks |
 | `pd-check-links.py` | `python .paradigma/tools/pd-check-links.py` | Checks Markdown links, frontmatter relations, and generated index entries |
 | `pd-sync-index.py` | `python .paradigma/tools/pd-sync-index.py --write` | Scans concepts and generates root/subdirectory index blocks with checksums |
@@ -59,7 +61,7 @@ The tooling domain covers the L4 Deterministic Tooling Layer of Paradigma. All t
 
 # Internal Flow
 
-All tools share a common root resolution pattern (`Path(__file__).resolve().parents[2]`) and operate on the repository root. They read from `.paradigma/config.yaml` and `.paradigma/schemas/paradigma-types.schema.yaml` for configuration and type validation rules. Dry-run (no `--write`) is the default for mutation tools.
+All tools share a common root resolution pattern (`Path(__file__).resolve().parents[2]`) and operate on the repository root. They read from `.paradigma/config.yaml` and `.paradigma/schemas/paradigma-types.schema.yaml` for configuration and type validation rules. Version-aware tools share `_version.py`; dry-run (no `--write`) is the default for mutation tools.
 
 Current behavior is preserved by `tests/characterization/`. Read-only CLI tests execute against the repository, while archive and compact write paths execute only inside temporary repository fixtures.
 

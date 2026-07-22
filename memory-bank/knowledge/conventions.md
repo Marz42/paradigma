@@ -3,7 +3,7 @@ type: paradigma-convention
 title: Coding and Collaboration Conventions
 description: Coding, naming, testing, documentation, versioning, and prohibited patterns for Project Paradigma.
 tags: [conventions, semver, collaboration, tooling]
-timestamp: 2026-07-22T23:34:30+08:00
+timestamp: 2026-07-22T23:44:32+08:00
 paradigma:
   schema_version: "0.1"
   temperature: hot
@@ -62,7 +62,7 @@ Avoid pinyin, ambiguous abbreviations, and generic names such as `data`, `info`,
 
 - Run `python -m unittest discover -s tests -p "test_*.py" -v` before and after tool refactors.
 - Keep pre-package tool behavior baselines under `tests/characterization/`; mutation tests must operate in temporary repositories.
-- Run `python .paradigma/tools/pd-check-all.py` after knowledge/RFC edits (aggregates lint, links, index, hot-size).
+- Run `python .paradigma/tools/pd-check-all.py` after knowledge/RFC edits (aggregates version, lint, links, index, hot-size, and optional design checks).
 - Run `python .paradigma/tools/pd-sync-index.py --write` after adding/removing concept documents.
 - Run `python .paradigma/tools/pd-check-hot-size.py` before ending substantial sessions.
 - Compile Python tools with `python -m py_compile` when tool code changes, then remove or ignore `__pycache__` outputs.
@@ -79,6 +79,18 @@ Avoid pinyin, ambiguous abbreviations, and generic names such as `data`, `info`,
 ## Versioning
 
 Project Paradigma follows SemVer using the root `VERSION` file as the source of truth.
+
+Version fields have distinct responsibilities:
+
+| Field | Location | Meaning |
+|-------|----------|---------|
+| Distribution version | `VERSION` | Source repository release version and sole release truth |
+| Installed distribution version | `.paradigma/config.yaml` | Paradigma distribution deployed in the current workspace |
+| Config schema version | `.paradigma/config.yaml` | Shape and semantics of `config.yaml` |
+| OKF version | `.paradigma/config.yaml` | External OKF format compatibility target |
+| Document schema version | `.paradigma/schemas/paradigma-types.schema.yaml` | Paradigma concept-document registry version |
+
+Run `python .paradigma/tools/pd-version.py --check` after changing any version field. The legacy `paradigma_harness_version` and ambiguous top-level config `schema_version` are migration inputs only and must not be written by current tooling.
 
 | Change type | Version action |
 |-------------|----------------|

@@ -3,7 +3,7 @@ type: paradigma-manual
 title: Paradigma Baseline Validation
 description: Baseline validation sequence for Paradigma knowledge quality, deterministic tooling, and release readiness.
 tags: [manual, testing, quality, paradigma]
-timestamp: 2026-07-05T12:02:00+08:00
+timestamp: 2026-07-22T23:44:32+08:00
 paradigma:
   schema_version: "0.1"
   temperature: warm
@@ -37,17 +37,20 @@ This guide defines the local validation sequence for Paradigma changes. It is **
 
 # Steps
 
-1. Run strict OKF lint after concept or schema edits.
-2. Run link checks after Markdown links, relations, or index entries change.
-3. Run index sync in `--check` mode before deciding whether to write generated blocks.
-4. Run hot-size checks before ending substantial sessions.
-5. Compile Python tools when their implementation changes.
+1. Run the standard-library unittest suite before and after tool refactors.
+2. Run version consistency checks after release, config, OKF, or document schema changes.
+3. Run strict OKF lint after concept or schema edits.
+4. Run link checks after Markdown links, relations, or index entries change.
+5. Run index sync in `--check` mode before deciding whether to write generated blocks.
+6. Run hot-size checks before ending substantial sessions.
+7. Compile Python tools when their implementation changes.
 
 # Verification
 
 Recommended command sequence:
 
 ```powershell
+python -m unittest discover -s tests -p "test_*.py" -v
 python .paradigma/tools/pd-check-all.py
 ```
 
@@ -61,12 +64,14 @@ Validation tools should not delete source content. If a generated index update i
 
 | Symptom | Likely Cause | Action |
 |---------|--------------|--------|
+| Version check fails | Distribution, installed, config, OKF, or document schema metadata drifted | Run `pd-version.py --verbose --check` and update only the field whose semantic version changed |
 | `unknown type` | Schema registry missing the concept type | Add the type to `.paradigma/schemas/paradigma-types.schema.yaml` |
 | Timestamp error | Non-ISO frontmatter timestamp | Use `YYYY-MM-DDTHH:mm:ss+08:00` |
 | Link check reports a planned relation | The target is intentionally future work | Keep it under `paradigma.relations.planned` |
 
 # Citations
 
+- `.paradigma/tools/pd-version.py`
 - `.paradigma/tools/pd-lint-okf.py`
 - `.paradigma/tools/pd-check-links.py`
 - `.paradigma/tools/pd-sync-index.py`

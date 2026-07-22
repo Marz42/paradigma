@@ -652,7 +652,7 @@ paradigma/
 
 1. 使用标准 YAML 库。
 2. 提取统一 frontmatter parser。
-3. 删除七个脚本中的重复解析逻辑。
+3. 删除现有工具中的重复解析逻辑。
 4. Parser 返回结构化 diagnostics。
 5. 严格区分：
    - YAML 语法错误；
@@ -733,9 +733,11 @@ paradigma/
 - lint；
 -link check；
 -index sync；
+-hot-size；
 -archive；
+-compact；
 -diagnose；
--format；
+-version；
 -check-all。
 
 #### Phase 0 退出门槛

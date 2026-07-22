@@ -12,6 +12,8 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 TOOLS = ROOT / ".paradigma" / "tools"
+if str(TOOLS) not in sys.path:
+    sys.path.insert(0, str(TOOLS))
 EXPECTED_TOOLS = {
     "pd-archive-task.py",
     "pd-check-all.py",
@@ -21,6 +23,7 @@ EXPECTED_TOOLS = {
     "pd-diagnose.py",
     "pd-lint-okf.py",
     "pd-sync-index.py",
+    "pd-version.py",
 }
 
 
@@ -54,7 +57,9 @@ def load_tool(script: str):
 
 class ToolInventoryTests(unittest.TestCase):
     def test_expected_tool_inventory(self) -> None:
-        actual = {path.name for path in TOOLS.glob("*.py")}
+        actual = {
+            path.name for path in TOOLS.glob("*.py") if not path.name.startswith("_")
+        }
         self.assertEqual(EXPECTED_TOOLS, actual)
 
     def test_every_tool_exposes_help(self) -> None:
@@ -93,7 +98,15 @@ class RepositoryCliBaselineTests(unittest.TestCase):
 
     def test_check_all_passes(self) -> None:
         output = self.assert_tool_passes("pd-check-all.py", "--keep-going")
-        self.assertIn("All 5 checks passed", output)
+        self.assertIn("All 6 checks passed", output)
+
+    def test_version_report_is_consistent(self) -> None:
+        output = self.assert_tool_passes("pd-version.py", "--verbose", "--check")
+        self.assertIn("distribution_version: 0.5.0", output)
+        self.assertIn("installed_distribution_version: 0.5.0", output)
+        self.assertIn("config_schema_version: 0.2", output)
+        self.assertIn("okf_version: 0.1", output)
+        self.assertIn("document_schema_version: 0.2", output)
 
     def test_compact_progress_dry_run_does_not_write(self) -> None:
         summary = ROOT / "memory-bank" / "logs" / "progress" / "summary.md"
@@ -113,8 +126,8 @@ class RepositoryCliBaselineTests(unittest.TestCase):
             "--json",
         )
         report = json.loads(output)
-        self.assertEqual("0.4.2", report["detected_version"])
-        self.assertEqual("0.4.2", report["upstream_version"])
+        self.assertEqual("0.5.0", report["detected_version"])
+        self.assertEqual("0.5.0", report["upstream_version"])
         self.assertTrue(report["version_match"])
         self.assertEqual([], report["gaps"])
 
@@ -250,7 +263,7 @@ paradigma:
                 self.assertEqual(expected_roots, parsed["knowledge_roots"])
                 self.assertEqual("warm", parsed["paradigma.temperature"])
 
-    def test_diagnose_upstream_version_currently_prefers_harness_config(self) -> None:
+    def test_diagnose_upstream_version_uses_root_distribution_version(self) -> None:
         diagnose = load_tool("pd-diagnose.py")
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -260,7 +273,75 @@ paradigma:
                 'paradigma_harness_version: "0.4.2"\n', encoding="utf-8"
             )
             (root / "VERSION").write_text("0.5.0\n", encoding="utf-8")
-            self.assertEqual("0.4.2", diagnose._read_upstream_version(root))
+            self.assertEqual("0.5.0", diagnose._read_upstream_version(root))
+
+    def test_diagnose_reads_legacy_harness_version_for_migration(self) -> None:
+        diagnose = load_tool("pd-diagnose.py")
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            config = root / ".paradigma"
+            config.mkdir()
+            (config / "config.yaml").write_text(
+                'paradigma_harness_version: "0.4.2"\n', encoding="utf-8"
+            )
+            self.assertEqual("0.4.2", diagnose._detect_version(root))
+            report = diagnose.DiagnoseResult(
+                project_path=root,
+                upstream_path=ROOT,
+                detected_version="0.4.2",
+                upstream_version="0.5.0",
+                version_match=False,
+            )
+            diagnose._check_config(root, ROOT, report)
+            self.assertTrue(
+                any(gap.kind == "deprecated" for gap in report.gaps), report.gaps
+            )
+
+    def test_version_check_rejects_distribution_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            tools = root / ".paradigma" / "tools"
+            schemas = root / ".paradigma" / "schemas"
+            tools.mkdir(parents=True)
+            schemas.mkdir(parents=True)
+            shutil.copy2(TOOLS / "_version.py", tools)
+            shutil.copy2(TOOLS / "pd-version.py", tools)
+            (root / "VERSION").write_text("0.5.0\n", encoding="utf-8")
+            (root / ".paradigma" / "config.yaml").write_text(
+                """config_schema_version: "0.2"
+okf_version: "0.1"
+installed_distribution_version: "0.4.2"
+""",
+                encoding="utf-8",
+            )
+            (schemas / "paradigma-types.schema.yaml").write_text(
+                'document_schema_version: "0.2"\n', encoding="utf-8"
+            )
+
+            result = run_tool(
+                "pd-version.py", "--check", cwd=root, tools_root=tools
+            )
+
+            self.assertEqual(1, result.returncode)
+            self.assertIn("does not match root VERSION", result.stdout)
+
+    def test_version_model_rejects_legacy_field_names(self) -> None:
+        versioning = load_tool("_version.py")
+        info = versioning.VersionInfo(
+            distribution_version="0.5.0",
+            installed_distribution_version="0.5.0",
+            config_schema_version="0.2",
+            okf_version="0.1",
+            document_schema_version="0.2",
+            legacy_harness_version="0.4.2",
+            legacy_config_schema_version="0.1",
+            legacy_document_schema_version="0.1",
+        )
+        errors = versioning.validate_version_info(info)
+        self.assertEqual(3, len(errors))
+        self.assertTrue(any("paradigma_harness_version" in error for error in errors))
+        self.assertTrue(any("config schema_version" in error for error in errors))
+        self.assertTrue(any("registry schema_version" in error for error in errors))
 
     def test_archive_completion_baseline(self) -> None:
         archive = load_tool("pd-archive-task.py")
