@@ -3,7 +3,7 @@ type: paradigma-contract
 title: Repository Contract
 description: Current repository-level contract boundaries for APIs, databases, tools, and versioning.
 tags: [contract, repository, tooling]
-timestamp: 2026-07-22T23:44:32+08:00
+timestamp: 2026-07-23T00:04:40+08:00
 paradigma:
   schema_version: "0.1"
   temperature: hot
@@ -46,6 +46,7 @@ This contract defines the externally meaningful repository boundaries for Projec
 | `docs/rfc/` | OKF-compatible proposal/RFC documents |
 | `memory-bank-template/` | Blank templates for derived projects |
 | `.paradigma/tools/` | Deterministic local tooling |
+| `.paradigma/tools/_paradigma_yaml.py` | Sole YAML/frontmatter parser for tool consumers |
 | `tests/characterization/` | Executable baseline for current tool CLI and mutation behavior |
 
 ## Tool Commands
@@ -76,6 +77,9 @@ Tooling uses process exit codes:
 |-----------|---------|
 | `0` | Success |
 | `1` | Validation failed |
+| `2` | Diagnose input/path/parser failure where supported by `pd-diagnose.py` |
+
+Parser failures include a stable code, source, message, and optional line/column. YAML syntax and encoding failures must not be reported as document Schema failures. Supported parser codes are `ENCODING_ERROR`, `FILE_READ_ERROR`, `FRONTMATTER_MISSING`, `FRONTMATTER_UNCLOSED`, `YAML_SYNTAX_ERROR`, `YAML_DUPLICATE_KEY`, and `YAML_ROOT_TYPE_ERROR`.
 
 # State Transitions
 
@@ -86,6 +90,7 @@ User request -> runtime active task -> knowledge routing -> edits -> lint -> log
 # Compatibility Notes
 
 - Adding new optional frontmatter fields is backward compatible.
+- Tooling requires Python 3.11+ and dependencies declared in root `requirements.txt`.
 - Adding new Paradigma concept types is backward compatible if existing types remain valid.
 - Moving core paths such as `memory-bank/knowledge/` or changing required tooling commands is a compatibility-impacting protocol change and requires version evaluation.
 

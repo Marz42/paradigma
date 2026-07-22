@@ -13,6 +13,13 @@ import argparse
 import hashlib
 import sys
 
+from _paradigma_yaml import (
+    FlatValue,
+    ParseFailure,
+    load_flat_yaml_file,
+    parse_flat_frontmatter,
+)
+
 
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG_PATH = ROOT / ".paradigma" / "config.yaml"
@@ -33,46 +40,7 @@ class Concept:
     relations: list[str]
 
 
-def parse_scalar(value: str) -> str | list[str]:
-    value = value.strip().strip('"').strip("'")
-    if value.startswith("[") and value.endswith("]"):
-        inner = value[1:-1].strip()
-        if not inner:
-            return []
-        return [item.strip().strip('"').strip("'") for item in inner.split(",")]
-    return value
-
-
-def parse_yaml_subset(text: str) -> dict[str, str | list[str]]:
-    data: dict[str, str | list[str]] = {}
-    stack: list[str] = []
-    for raw_line in text.splitlines():
-        if not raw_line.strip() or raw_line.lstrip().startswith("#"):
-            continue
-        indent = len(raw_line) - len(raw_line.lstrip(" "))
-        level = indent // 2
-        line = raw_line.strip()
-        if line.startswith("- "):
-            key = ".".join(stack)
-            data.setdefault(key, [])
-            if isinstance(data[key], list):
-                data[key].append(parse_scalar(line[2:].strip()))
-            continue
-        if ":" not in line:
-            continue
-        key, value = line.split(":", 1)
-        stack = stack[:level]
-        stack.append(key.strip())
-        full_key = ".".join(stack)
-        data[full_key] = parse_scalar(value) if value.strip() else []
-    return data
-
-
-def read_yaml_file(path: Path) -> dict[str, str | list[str]]:
-    return parse_yaml_subset(path.read_text(encoding="utf-8-sig")) if path.exists() else {}
-
-
-def get_list(data: dict[str, str | list[str]], key: str) -> list[str]:
+def get_list(data: dict[str, FlatValue], key: str) -> list[str]:
     value = data.get(key, [])
     if isinstance(value, list):
         return [str(item) for item in value]
@@ -80,32 +48,17 @@ def get_list(data: dict[str, str | list[str]], key: str) -> list[str]:
 
 
 def knowledge_roots() -> list[Path]:
-    config = read_yaml_file(CONFIG_PATH)
+    config = load_flat_yaml_file(CONFIG_PATH, missing_ok=True)
     roots = get_list(config, "knowledge_roots") or ["memory-bank/knowledge"]
     return [(ROOT / root_text).resolve() for root_text in roots]
 
 
-def parse_frontmatter(path: Path) -> dict[str, str | list[str]]:
-    text = path.read_text(encoding="utf-8-sig")
-    if not text.startswith("---"):
-        return {}
-    lines = text.splitlines()
-    close_index: int | None = None
-    for index, line in enumerate(lines[1:], start=1):
-        if line.strip() == "---":
-            close_index = index
-            break
-    if close_index is None:
-        return {}
-    return parse_yaml_subset("\n".join(lines[1:close_index]))
-
-
-def get_scalar(metadata: dict[str, str | list[str]], key: str, default: str = "") -> str:
+def get_scalar(metadata: dict[str, FlatValue], key: str, default: str = "") -> str:
     value = metadata.get(key, default)
     return "" if isinstance(value, list) else str(value).strip()
 
 
-def relation_summary(metadata: dict[str, str | list[str]]) -> list[str]:
+def relation_summary(metadata: dict[str, FlatValue]) -> list[str]:
     summary: list[str] = []
     for key, value in metadata.items():
         if not key.startswith("paradigma.relations."):
@@ -126,7 +79,7 @@ def collect_concepts(scope: Path) -> list[Concept]:
     for path in sorted(scope.rglob("*.md")):
         if path.name in RESERVED_FILENAMES:
             continue
-        metadata = parse_frontmatter(path)
+        metadata, _body = parse_flat_frontmatter(path)
         document_type = get_scalar(metadata, "type")
         if not document_type:
             continue
@@ -282,16 +235,20 @@ def main() -> int:
 
     if args.write and args.check:
         parser.error("--write and --check are mutually exclusive")
-    if args.write:
-        updated = write_indexes()
-        print(f"Updated {updated} index file(s).")
+    try:
+        if args.write:
+            updated = write_indexes()
+            print(f"Updated {updated} index file(s).")
+            return 0
+        if args.check:
+            stale = check_indexes()
+            print(f"Checked indexes; stale={stale}.")
+            return 1 if stale else 0
+        print_inventory()
         return 0
-    if args.check:
-        stale = check_indexes()
-        print(f"Checked indexes; stale={stale}.")
-        return 1 if stale else 0
-    print_inventory()
-    return 0
+    except ParseFailure as error:
+        print(f"ERROR: {error.diagnostic.format()}")
+        return 1
 
 
 if __name__ == "__main__":

@@ -8,6 +8,8 @@ from pathlib import Path
 import argparse
 import sys
 
+from _paradigma_yaml import ParseFailure, parse_flat_frontmatter, read_utf8_text
+
 
 ROOT = Path(__file__).resolve().parents[2]
 ACTIVE_TASK = ROOT / "memory-bank" / "runtime" / "active-task.md"
@@ -35,42 +37,8 @@ class SizeCheck:
         return f"{self.level}: {self.path.relative_to(ROOT)}: {self.lines} lines ({self.category}; warn>{self.warn_at}, error>{self.error_at})"
 
 
-def parse_yaml_subset(text: str) -> dict[str, str]:
-    metadata: dict[str, str] = {}
-    stack: list[str] = []
-    for raw_line in text.splitlines():
-        if not raw_line.strip() or raw_line.lstrip().startswith("#"):
-            continue
-        indent = len(raw_line) - len(raw_line.lstrip(" "))
-        level = indent // 2
-        line = raw_line.strip()
-        if line.startswith("- ") or ":" not in line:
-            continue
-        key, value = line.split(":", 1)
-        stack = stack[:level]
-        stack.append(key.strip())
-        if value.strip():
-            metadata[".".join(stack)] = value.strip().strip('"').strip("'")
-    return metadata
-
-
-def frontmatter(path: Path) -> dict[str, str]:
-    text = path.read_text(encoding="utf-8-sig")
-    if not text.startswith("---"):
-        return {}
-    lines = text.splitlines()
-    close_index: int | None = None
-    for index, line in enumerate(lines[1:], start=1):
-        if line.strip() == "---":
-            close_index = index
-            break
-    if close_index is None:
-        return {}
-    return parse_yaml_subset("\n".join(lines[1:close_index]))
-
-
 def line_count(path: Path) -> int:
-    return len(path.read_text(encoding="utf-8-sig").splitlines()) if path.exists() else 0
+    return len(read_utf8_text(path).splitlines()) if path.exists() else 0
 
 
 def hot_documents() -> list[Path]:
@@ -80,7 +48,8 @@ def hot_documents() -> list[Path]:
     for path in sorted(KNOWLEDGE_ROOT.rglob("*.md")):
         if path.name in {"index.md", "log.md"}:
             continue
-        if frontmatter(path).get("paradigma.temperature") == "hot":
+        metadata, _body = parse_flat_frontmatter(path)
+        if metadata.get("paradigma.temperature") == "hot":
             documents.append(path)
     return documents
 
@@ -101,7 +70,11 @@ def main() -> int:
     parser.add_argument("--fail-on-warn", action="store_true", help="return non-zero when any warning is present")
     args = parser.parse_args()
 
-    checks = collect_checks()
+    try:
+        checks = collect_checks()
+    except ParseFailure as error:
+        print(f"ERROR: {error.diagnostic.format()}")
+        return 1
     for check in checks:
         print(check.format())
     errors = sum(1 for check in checks if check.level == "ERROR")

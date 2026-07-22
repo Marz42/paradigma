@@ -4,7 +4,7 @@
 * [ADR-002 Adopt OKF-Compatible Memory Runtime Structure](adr-002-okf-compatible-memory-runtime.md) - Adopts runtime/logs/knowledge and OKF-compatible knowledge.
 
 <!-- BEGIN PARADIGMA AUTO-INDEX -->
-<!-- checksum: 2b1f5f17d6035e80 -->
+<!-- checksum: a64577f83034b12f -->
 <!-- generated_by: pd-sync-index.py -->
 
 | Path | Type | Title | Hints | Symbols | Relations |
@@ -13,5 +13,6 @@
 | [adr-002-okf-compatible-memory-runtime.md](adr-002-okf-compatible-memory-runtime.md) | `paradigma-decision` | ADR-002 Adopt OKF-Compatible Memory Runtime Structure | OKF 迁移<br>runtime logs knowledge<br>三态结构 ... | - | constrains:/architecture.md<br>constrains:/contracts/repository-contract.md |
 | [adr-003-strict-okf-production-rules.md](adr-003-strict-okf-production-rules.md) | `paradigma-decision` | ADR-003 Adopt Strict OKF Production Rules | strict lint<br>link check<br>index checksum ... | - | constrains:/architecture.md<br>constrains:/contracts/repository-contract.md<br>follows:/decisions/adr-002-okf-compatible-memory-runtime.md |
 | [adr-004-separate-version-dimensions.md](adr-004-separate-version-dimensions.md) | `paradigma-decision` | ADR-004 Separate Distribution and Schema Version Dimensions | 版本模型<br>配置版本<br>发行版本 ... | VERSION<br>installed_distribution_version<br>config_schema_version ... | constrains:/architecture.md<br>constrains:/contracts/repository-contract.md<br>constrains:/domains/tooling.md<br>follows:/decisions/adr-003-strict-okf-production-rules.md |
+| [adr-005-unified-safe-yaml-parser.md](adr-005-unified-safe-yaml-parser.md) | `paradigma-decision` | ADR-005 Adopt a Unified Safe YAML Parser | 统一 YAML Parser<br>frontmatter 诊断<br>重复键 ... | _paradigma_yaml.py<br>ParseDiagnostic<br>ParseFailure ... | constrains:/architecture.md<br>constrains:/contracts/repository-contract.md<br>constrains:/domains/tooling.md<br>follows:/decisions/adr-004-separate-version-dimensions.md |
 
 <!-- END PARADIGMA AUTO-INDEX -->

@@ -218,6 +218,7 @@ timestamp: YYYY-MM-DDTHH:mm:ssZ
             tools = root / ".paradigma" / "tools"
             tools.mkdir(parents=True)
             shutil.copy2(TOOLS / "pd-compact-progress.py", tools)
+            shutil.copy2(TOOLS / "_paradigma_yaml.py", tools)
             progress = root / "memory-bank" / "logs" / "progress"
             progress.mkdir(parents=True)
             source = progress / "2026-07-22-session.md"
@@ -249,19 +250,19 @@ title: Characterization Session
 
 
 class ParserAndFunctionBaselineTests(unittest.TestCase):
-    def test_yaml_subset_parsers_agree_on_supported_nested_lists(self) -> None:
+    def test_shared_parser_flattens_supported_nested_lists(self) -> None:
         source = """knowledge_roots:
   - memory-bank/knowledge
   - docs/rfc
 paradigma:
   temperature: warm
 """
-        expected_roots = ["memory-bank/knowledge", "docs/rfc"]
-        for script in ("pd-lint-okf.py", "pd-check-links.py", "pd-sync-index.py"):
-            with self.subTest(script=script):
-                parsed = load_tool(script).parse_yaml_subset(source)
-                self.assertEqual(expected_roots, parsed["knowledge_roots"])
-                self.assertEqual("warm", parsed["paradigma.temperature"])
+        parser = load_tool("_paradigma_yaml.py")
+        parsed = parser.flatten_mapping(parser.load_yaml_text(source))
+        self.assertEqual(
+            ["memory-bank/knowledge", "docs/rfc"], parsed["knowledge_roots"]
+        )
+        self.assertEqual("warm", parsed["paradigma.temperature"])
 
     def test_diagnose_upstream_version_uses_root_distribution_version(self) -> None:
         diagnose = load_tool("pd-diagnose.py")
@@ -304,6 +305,7 @@ paradigma:
             schemas = root / ".paradigma" / "schemas"
             tools.mkdir(parents=True)
             schemas.mkdir(parents=True)
+            shutil.copy2(TOOLS / "_paradigma_yaml.py", tools)
             shutil.copy2(TOOLS / "_version.py", tools)
             shutil.copy2(TOOLS / "pd-version.py", tools)
             (root / "VERSION").write_text("0.5.0\n", encoding="utf-8")
@@ -366,6 +368,98 @@ Inline `[ignored](inline.md)`.
         self.assertIn("[link](missing.md)", stripped)
         self.assertNotIn("inside-fence.md", stripped)
         self.assertNotIn("inline.md", stripped)
+
+
+class SharedYamlParserTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.parser = load_tool("_paradigma_yaml.py")
+
+    def assert_parse_code(self, expected: str, callback) -> None:
+        with self.assertRaises(self.parser.ParseFailure) as raised:
+            callback()
+        self.assertEqual(expected, raised.exception.diagnostic.code)
+
+    def test_frontmatter_accepts_bom_crlf_and_chinese(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "中文.md"
+            path.write_bytes(
+                b"\xef\xbb\xbf---\r\ntitle: \xe4\xb8\xad\xe6\x96\x87\xe6\xa0\x87\xe9\xa2\x98\r\ntimestamp: 2026-07-22T23:59:14+08:00\r\n---\r\n\r\n# Body\r\n"
+            )
+            parsed = self.parser.parse_markdown_file(path)
+            self.assertEqual("中文标题", parsed.metadata["title"])
+            self.assertEqual(
+                "2026-07-22T23:59:14+08:00", parsed.metadata["timestamp"]
+            )
+            self.assertIn("# Body", parsed.body)
+
+    def test_invalid_yaml_has_syntax_diagnostic_and_source_line(self) -> None:
+        def parse() -> None:
+            self.parser.parse_markdown_text(
+                "---\ntags: [one, two\n---\n# Body\n", source="broken.md"
+            )
+
+        with self.assertRaises(self.parser.ParseFailure) as raised:
+            parse()
+        diagnostic = raised.exception.diagnostic
+        self.assertEqual("YAML_SYNTAX_ERROR", diagnostic.code)
+        self.assertEqual("broken.md", diagnostic.source)
+        self.assertEqual(2, diagnostic.line)
+
+    def test_duplicate_keys_are_rejected(self) -> None:
+        self.assert_parse_code(
+            "YAML_DUPLICATE_KEY",
+            lambda: self.parser.load_yaml_text("title: one\ntitle: two\n"),
+        )
+
+    def test_non_mapping_yaml_root_is_rejected(self) -> None:
+        self.assert_parse_code(
+            "YAML_ROOT_TYPE_ERROR",
+            lambda: self.parser.load_yaml_text("- one\n- two\n"),
+        )
+
+    def test_missing_and_unclosed_frontmatter_are_distinct(self) -> None:
+        self.assert_parse_code(
+            "FRONTMATTER_MISSING",
+            lambda: self.parser.parse_markdown_text("# Body\n"),
+        )
+        self.assert_parse_code(
+            "FRONTMATTER_UNCLOSED",
+            lambda: self.parser.parse_markdown_text("---\ntitle: Test\n"),
+        )
+
+    def test_invalid_utf8_has_encoding_diagnostic(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "invalid.md"
+            path.write_bytes(b"---\ntitle: \xff\n---\n")
+            self.assert_parse_code(
+                "ENCODING_ERROR", lambda: self.parser.parse_markdown_file(path)
+            )
+
+    def test_linter_preserves_parser_diagnostic_from_schema_validation(self) -> None:
+        lint = load_tool("pd-lint-okf.py")
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "broken.md"
+            path.write_text("---\ntitle: [broken\n---\n", encoding="utf-8")
+            issues = lint.validate_document(path, {}, "strict")
+            self.assertEqual(1, len(issues))
+            self.assertIn("[YAML_SYNTAX_ERROR]", issues[0].message)
+
+    def test_every_yaml_consumer_routes_through_shared_parser(self) -> None:
+        consumers = {
+            "_version.py",
+            "pd-check-hot-size.py",
+            "pd-check-links.py",
+            "pd-compact-progress.py",
+            "pd-diagnose.py",
+            "pd-lint-okf.py",
+            "pd-sync-index.py",
+        }
+        for script in sorted(consumers):
+            with self.subTest(script=script):
+                source = (TOOLS / script).read_text(encoding="utf-8")
+                self.assertIn("from _paradigma_yaml import", source)
+                self.assertNotIn("def parse_yaml_subset", source)
 
 
 if __name__ == "__main__":

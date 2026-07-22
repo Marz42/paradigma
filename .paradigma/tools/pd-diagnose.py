@@ -31,6 +31,7 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from _paradigma_yaml import FlatValue, ParseFailure, load_flat_yaml_file
 from _version import (
     VersionModelError,
     read_distribution_version,
@@ -95,17 +96,8 @@ class DiagnoseResult:
 # -- version detection -------------------------------------------
 
 
-def _read_yaml_file(path: Path) -> dict[str, str]:
-    result: dict[str, str] = {}
-    if not path.exists():
-        return result
-    for raw_line in path.read_text(encoding="utf-8-sig").splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#") or ":" not in line:
-            continue
-        key, _, val = line.partition(":")
-        result[key.strip()] = val.strip().strip('"').strip("'")
-    return result
+def _read_yaml_file(path: Path) -> dict[str, FlatValue]:
+    return load_flat_yaml_file(path, missing_ok=True)
 
 
 def _detect_version(project: Path) -> str:
@@ -542,10 +534,17 @@ def main() -> int:
         print(f"ERROR: project path does not exist: {project}", file=sys.stderr)
         return 2
 
-    if args.check_version:
-        return _check_version_only(project, upstream)
-
-    result = diagnose(project, upstream)
+    try:
+        if args.check_version:
+            return _check_version_only(project, upstream)
+        result = diagnose(project, upstream)
+    except ParseFailure as error:
+        diagnostic = error.diagnostic
+        if args.json:
+            print(json.dumps({"error": diagnostic.__dict__}, indent=2, ensure_ascii=False))
+        else:
+            print(f"ERROR: {diagnostic.format()}", file=sys.stderr)
+        return 2
 
     if args.json:
         print(json.dumps(result.to_dict(), indent=2, ensure_ascii=False))

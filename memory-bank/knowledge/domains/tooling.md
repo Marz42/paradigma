@@ -3,7 +3,7 @@ type: paradigma-domain
 title: Tooling Domain
 description: Deterministic tooling layer for OKF lint, link checking, index sync, and runtime maintenance.
 tags: [domain, tooling]
-timestamp: 2026-07-22T23:44:32+08:00
+timestamp: 2026-07-23T00:04:40+08:00
 paradigma:
   schema_version: "0.1"
   temperature: warm
@@ -43,7 +43,7 @@ paradigma:
 
 # Responsibility
 
-The tooling domain covers the L4 Deterministic Tooling Layer of Paradigma. All tools are self-contained Python standard-library scripts under `.paradigma/tools/`. They validate, generate, and maintain Memory-Bank artifacts without LLM interpretation.
+The tooling domain covers the L4 Deterministic Tooling Layer of Paradigma. Tools live under `.paradigma/tools/`, use a shared PyYAML-backed parser, and validate, generate, and maintain Memory-Bank artifacts without LLM interpretation.
 
 # Public Interfaces
 
@@ -61,13 +61,14 @@ The tooling domain covers the L4 Deterministic Tooling Layer of Paradigma. All t
 
 # Internal Flow
 
-All tools share a common root resolution pattern (`Path(__file__).resolve().parents[2]`) and operate on the repository root. They read from `.paradigma/config.yaml` and `.paradigma/schemas/paradigma-types.schema.yaml` for configuration and type validation rules. Version-aware tools share `_version.py`; dry-run (no `--write`) is the default for mutation tools.
+All tools share a common root resolution pattern (`Path(__file__).resolve().parents[2]`) and operate on the repository root. YAML and Markdown frontmatter consumers use `_paradigma_yaml.py`, while version-aware tools additionally share `_version.py`. Configuration comes from `.paradigma/config.yaml`, type rules come from `.paradigma/schemas/paradigma-types.schema.yaml`, and dry-run (no `--write`) is the default for mutation tools.
 
 Current behavior is preserved by `tests/characterization/`. Read-only CLI tests execute against the repository, while archive and compact write paths execute only inside temporary repository fixtures.
 
 # Dependencies
 
-- Python 3.11+ standard library (no third-party packages).
+- Python 3.11+.
+- PyYAML 6.x, declared in root `requirements.txt`.
 - `.paradigma/config.yaml` for knowledge roots, reserved filenames, and generated block markers.
 - `.paradigma/schemas/paradigma-types.schema.yaml` for type registry, required sections, and field validation.
 - `memory-bank-template/` for active-task reset template.
@@ -79,6 +80,6 @@ Current behavior is preserved by `tests/characterization/`. Read-only CLI tests 
 
 # Known Risks
 
-- Tools parse YAML frontmatter heuristically (not via a full YAML library); edge cases with complex YAML values may cause false negatives in lint.
+- Every standalone tool depends on the adjacent `_paradigma_yaml.py`; partial tool copies must include this shared module and `requirements.txt` dependencies.
 - Adding a new tool requires manually updating this document, the repository contract, and the testing guide.
 - `pd-archive-task.py` resets `active-task.md` from the template on write; an interrupted write could lose active-task content if the original was not committed.

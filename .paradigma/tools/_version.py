@@ -1,14 +1,12 @@
-"""Shared Paradigma version model helpers.
-
-This module intentionally parses only top-level scalar fields. Batch 0.2 will
-replace the repository's YAML subset parsers with a standard YAML parser.
-"""
+"""Shared Paradigma version model helpers."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
 import re
+
+from _paradigma_yaml import load_flat_yaml_file
 
 
 SEMVER_PATTERN = re.compile(
@@ -35,18 +33,12 @@ class VersionInfo:
 
 
 def read_top_level_scalars(path: Path) -> dict[str, str]:
-    values: dict[str, str] = {}
-    if not path.exists():
-        return values
-    for raw_line in path.read_text(encoding="utf-8-sig").splitlines():
-        if not raw_line or raw_line[0].isspace():
-            continue
-        line = raw_line.strip()
-        if not line or line.startswith("#") or ":" not in line:
-            continue
-        key, value = line.split(":", 1)
-        values[key.strip()] = value.strip().strip('"').strip("'")
-    return values
+    flattened = load_flat_yaml_file(path, missing_ok=True)
+    return {
+        key: value
+        for key, value in flattened.items()
+        if "." not in key and isinstance(value, str)
+    }
 
 
 def read_distribution_version(root: Path) -> str:

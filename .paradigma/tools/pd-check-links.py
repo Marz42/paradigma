@@ -10,6 +10,15 @@ import argparse
 import re
 import sys
 
+from _paradigma_yaml import (
+    FlatValue,
+    ParseFailure,
+    flatten_mapping,
+    load_flat_yaml_file,
+    parse_markdown_text,
+    read_utf8_text,
+)
+
 
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG_PATH = ROOT / ".paradigma" / "config.yaml"
@@ -29,46 +38,7 @@ class LinkIssue:
         return f"{self.level}: {self.path.relative_to(ROOT)} -> {self.target}: {self.message}"
 
 
-def parse_scalar(value: str) -> str | list[str]:
-    value = value.strip().strip('"').strip("'")
-    if value.startswith("[") and value.endswith("]"):
-        inner = value[1:-1].strip()
-        if not inner:
-            return []
-        return [item.strip().strip('"').strip("'") for item in inner.split(",")]
-    return value
-
-
-def parse_yaml_subset(text: str) -> dict[str, str | list[str]]:
-    data: dict[str, str | list[str]] = {}
-    stack: list[str] = []
-    for raw_line in text.splitlines():
-        if not raw_line.strip() or raw_line.lstrip().startswith("#"):
-            continue
-        indent = len(raw_line) - len(raw_line.lstrip(" "))
-        level = indent // 2
-        line = raw_line.strip()
-        if line.startswith("- "):
-            key = ".".join(stack)
-            data.setdefault(key, [])
-            if isinstance(data[key], list):
-                data[key].append(parse_scalar(line[2:].strip()))
-            continue
-        if ":" not in line:
-            continue
-        key, value = line.split(":", 1)
-        stack = stack[:level]
-        stack.append(key.strip())
-        full_key = ".".join(stack)
-        data[full_key] = parse_scalar(value) if value.strip() else []
-    return data
-
-
-def read_yaml_file(path: Path) -> dict[str, str | list[str]]:
-    return parse_yaml_subset(path.read_text(encoding="utf-8-sig")) if path.exists() else {}
-
-
-def get_list(data: dict[str, str | list[str]], key: str) -> list[str]:
+def get_list(data: dict[str, FlatValue], key: str) -> list[str]:
     value = data.get(key, [])
     if isinstance(value, list):
         return [str(item) for item in value]
@@ -76,7 +46,7 @@ def get_list(data: dict[str, str | list[str]], key: str) -> list[str]:
 
 
 def knowledge_roots() -> list[Path]:
-    config = read_yaml_file(CONFIG_PATH)
+    config = load_flat_yaml_file(CONFIG_PATH, missing_ok=True)
     roots = get_list(config, "knowledge_roots") or ["memory-bank/knowledge", "docs/rfc"]
     return [(ROOT / root).resolve() for root in roots]
 
@@ -87,20 +57,6 @@ def markdown_files(roots: list[Path]) -> list[Path]:
         if root.exists():
             files.extend(sorted(root.rglob("*.md")))
     return files
-
-
-def split_frontmatter(text: str) -> tuple[dict[str, str | list[str]], str]:
-    if not text.startswith("---"):
-        return {}, text
-    lines = text.splitlines()
-    close_index: int | None = None
-    for index, line in enumerate(lines[1:], start=1):
-        if line.strip() == "---":
-            close_index = index
-            break
-    if close_index is None:
-        return {}, text
-    return parse_yaml_subset("\n".join(lines[1:close_index])), "\n".join(lines[close_index + 1 :])
 
 
 def is_external(target: str) -> bool:
@@ -143,7 +99,7 @@ def target_exists(path: Path) -> bool:
     return False
 
 
-def relation_targets(metadata: dict[str, str | list[str]]) -> list[tuple[str, str]]:
+def relation_targets(metadata: dict[str, FlatValue]) -> list[tuple[str, str]]:
     targets: list[tuple[str, str]] = []
     for key, value in metadata.items():
         if not key.startswith("paradigma.relations."):
@@ -189,8 +145,15 @@ def markdown_targets(body: str) -> list[str]:
 
 
 def check_file(path: Path, roots: list[Path]) -> list[LinkIssue]:
-    text = path.read_text(encoding="utf-8-sig")
-    metadata, body = split_frontmatter(text)
+    try:
+        text = read_utf8_text(path)
+        if text.splitlines()[:1] == ["---"]:
+            parsed = parse_markdown_text(text, source=str(path))
+            metadata, body = flatten_mapping(parsed.metadata), parsed.body
+        else:
+            metadata, body = {}, text
+    except ParseFailure as error:
+        return [LinkIssue("ERROR", path, "frontmatter", error.diagnostic.format())]
     issues: list[LinkIssue] = []
 
     targets = [("markdown", target) for target in markdown_targets(strip_code_content(body))]
@@ -218,7 +181,11 @@ def main() -> int:
     parser.add_argument("--allow-warnings", action="store_true", help="exit 0 when only warnings are present")
     args = parser.parse_args()
 
-    roots = knowledge_roots()
+    try:
+        roots = knowledge_roots()
+    except ParseFailure as error:
+        print(f"ERROR: {error.diagnostic.format()}")
+        return 1
     files = markdown_files(roots)
     issues: list[LinkIssue] = []
     for path in files:

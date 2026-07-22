@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""Paradigma OKF linter.
-
-No third-party dependencies are required. The parser intentionally supports the
-small YAML subset used by Paradigma config, schema, and frontmatter files.
-"""
+"""Paradigma OKF linter."""
 
 from __future__ import annotations
 
@@ -13,6 +9,13 @@ import argparse
 import hashlib
 import re
 import sys
+
+from _paradigma_yaml import (
+    FlatValue,
+    ParseFailure,
+    load_flat_yaml_file,
+    parse_flat_frontmatter,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -37,81 +40,32 @@ class LintIssue:
         return f"{self.level}: {relative_path}: {self.message}"
 
 
-def parse_scalar(value: str) -> str | list[str]:
-    value = value.strip().strip('"').strip("'")
-    if value.startswith("[") and value.endswith("]"):
-        inner = value[1:-1].strip()
-        if not inner:
-            return []
-        return [item.strip().strip('"').strip("'") for item in inner.split(",")]
-    return value
-
-
-def parse_yaml_subset(text: str) -> dict[str, str | list[str]]:
-    data: dict[str, str | list[str]] = {}
-    stack: list[str] = []
-
-    for raw_line in text.splitlines():
-        if not raw_line.strip() or raw_line.lstrip().startswith("#"):
-            continue
-        indent = len(raw_line) - len(raw_line.lstrip(" "))
-        level = indent // 2
-        line = raw_line.strip()
-
-        if line.startswith("- "):
-            key = ".".join(stack)
-            data.setdefault(key, [])
-            if isinstance(data[key], list):
-                data[key].append(parse_scalar(line[2:].strip()))
-            continue
-
-        if ":" not in line:
-            continue
-
-        key, value = line.split(":", 1)
-        key = key.strip()
-        value = value.strip()
-        stack = stack[:level]
-        stack.append(key)
-        full_key = ".".join(stack)
-        if value:
-            data[full_key] = parse_scalar(value)
-        else:
-            data.setdefault(full_key, [])
-
-    return data
-
-
-def read_yaml_file(path: Path) -> dict[str, str | list[str]]:
-    return parse_yaml_subset(path.read_text(encoding="utf-8-sig")) if path.exists() else {}
-
-
-def get_list(data: dict[str, str | list[str]], key: str) -> list[str]:
+def get_list(data: dict[str, FlatValue], key: str) -> list[str]:
     value = data.get(key, [])
     if isinstance(value, list):
         return [str(item) for item in value]
     return [str(value)] if value else []
 
 
-def get_scalar(data: dict[str, str | list[str]], key: str) -> str:
+def get_scalar(data: dict[str, FlatValue], key: str) -> str:
     value = data.get(key, "")
     if isinstance(value, list):
         return ""
     return str(value).strip()
 
 
-def load_config() -> dict[str, str | list[str]]:
-    config = read_yaml_file(CONFIG_PATH)
+def load_config() -> dict[str, FlatValue]:
+    config = load_flat_yaml_file(CONFIG_PATH, missing_ok=True)
     if not get_list(config, "knowledge_roots"):
         config["knowledge_roots"] = ["memory-bank/knowledge", "docs/rfc"]
     return config
 
 
-def load_schema() -> dict[str, str | list[str]]:
-    return read_yaml_file(SCHEMA_PATH)
+def load_schema() -> dict[str, FlatValue]:
+    return load_flat_yaml_file(SCHEMA_PATH, missing_ok=True)
 
 
-def concept_types(schema: dict[str, str | list[str]]) -> set[str]:
+def concept_types(schema: dict[str, FlatValue]) -> set[str]:
     types: set[str] = set()
     for key in schema:
         if key.startswith("types."):
@@ -120,11 +74,11 @@ def concept_types(schema: dict[str, str | list[str]]) -> set[str]:
     return types
 
 
-def schema_sections(schema: dict[str, str | list[str]], document_type: str) -> list[str]:
+def schema_sections(schema: dict[str, FlatValue], document_type: str) -> list[str]:
     return get_list(schema, f"types.{document_type}.required_sections")
 
 
-def iter_markdown_files(config: dict[str, str | list[str]]) -> tuple[list[Path], list[Path]]:
+def iter_markdown_files(config: dict[str, FlatValue]) -> tuple[list[Path], list[Path]]:
     concepts: list[Path] = []
     indexes: list[Path] = []
     for root_text in get_list(config, "knowledge_roots"):
@@ -139,35 +93,16 @@ def iter_markdown_files(config: dict[str, str | list[str]]) -> tuple[list[Path],
     return concepts, indexes
 
 
-def split_frontmatter(path: Path) -> tuple[dict[str, str | list[str]], str, str | None]:
-    text = path.read_text(encoding="utf-8-sig")
-    if not text.startswith("---"):
-        return {}, text, "missing YAML frontmatter"
-
-    lines = text.splitlines()
-    close_index: int | None = None
-    for index, line in enumerate(lines[1:], start=1):
-        if line.strip() == "---":
-            close_index = index
-            break
-
-    if close_index is None:
-        return {}, text, "frontmatter is not closed"
-
-    frontmatter = "\n".join(lines[1:close_index])
-    body = "\n".join(lines[close_index + 1 :])
-    return parse_yaml_subset(frontmatter), body, None
-
-
 def has_required_sections(body: str, required_sections: list[str]) -> list[str]:
     headings = {match.group(1).strip() for match in HEADING_PATTERN.finditer(body)}
     return [section for section in required_sections if section not in headings]
 
 
-def validate_document(path: Path, schema: dict[str, str | list[str]], mode: str) -> list[LintIssue]:
-    metadata, body, error = split_frontmatter(path)
-    if error:
-        return [LintIssue("ERROR", path, error)]
+def validate_document(path: Path, schema: dict[str, FlatValue], mode: str) -> list[LintIssue]:
+    try:
+        metadata, body = parse_flat_frontmatter(path)
+    except ParseFailure as error:
+        return [LintIssue("ERROR", path, error.diagnostic.format())]
 
     issues: list[LintIssue] = []
     document_type = get_scalar(metadata, "type")
@@ -247,8 +182,12 @@ def main() -> int:
     args = parser.parse_args()
 
     mode = "strict" if args.strict else "warn" if args.warn else "normal"
-    config = load_config()
-    schema = load_schema()
+    try:
+        config = load_config()
+        schema = load_schema()
+    except ParseFailure as error:
+        print(f"ERROR: {error.diagnostic.format()}")
+        return 1
     concept_documents, index_documents = iter_markdown_files(config)
 
     issues: list[LintIssue] = []

@@ -83,6 +83,7 @@ Copy-Item -Recurse -Force memory-bank-template/knowledge/* memory-bank/knowledge
 然后运行本地检查：
 
 ```bash
+python -m pip install -r requirements.txt
 python .paradigma/tools/pd-check-all.py
 python .paradigma/tools/pd-sync-index.py --write
 ```
@@ -150,6 +151,7 @@ flowchart TD
 ### 推荐检查顺序
 
 ```bash
+python -m pip install -r requirements.txt
 python -m unittest discover -s tests -p "test_*.py" -v
 python .paradigma/tools/pd-check-all.py
 ```
@@ -176,6 +178,7 @@ paradigma/
 ├── AGENT_RULES.md
 ├── INIT_PROMPT.md
 ├── VERSION
+├── requirements.txt                  ← PyYAML 运行时依赖
 ├── DESIGN.md                         ← 可选，前端视觉设计规范
 ├── docs/
 │   └── rfc/
@@ -189,6 +192,7 @@ paradigma/
 │   ├── schemas/
 │   │   └── paradigma-types.schema.yaml
 │   └── tools/
+│       ├── _paradigma_yaml.py
 │       ├── pd-check-all.py
 │       ├── pd-version.py
 │       ├── _version.py
@@ -268,6 +272,8 @@ paradigma/
 ## 灵感来源与依赖
 
 本项目受以下项目的启发，并使用了它们定义的标准：
+
+- **[PyYAML](https://pyyaml.org/)** — 工具链统一、安全解析 YAML 与 Markdown frontmatter 的运行时依赖。
 
 - **[EnzeD/vibe-coding](https://github.com/EnzeD/vibe-coding)** — 提出了 AI-assisted development workflow 和结构化项目记忆的理念，为本项目的 Memory-Bank 体系提供了初始灵感。
 - **[GoogleCloudPlatform/knowledge-catalog](https://github.com/GoogleCloudPlatform/knowledge-catalog)** — OKF (Open Knowledge Format) v0.1：知识库文档的 Markdown + YAML frontmatter 格式标准。Paradigma 的 `knowledge/` 和 RFC 文档遵循 OKF 格式。

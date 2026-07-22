@@ -3,7 +3,7 @@ type: paradigma-convention
 title: Coding and Collaboration Conventions
 description: Coding, naming, testing, documentation, versioning, and prohibited patterns for Project Paradigma.
 tags: [conventions, semver, collaboration, tooling]
-timestamp: 2026-07-22T23:44:32+08:00
+timestamp: 2026-07-23T00:04:40+08:00
 paradigma:
   schema_version: "0.1"
   temperature: hot
@@ -45,9 +45,9 @@ Avoid pinyin, ambiguous abbreviations, and generic names such as `data`, `info`,
 
 # Code Style
 
-- Prefer standard-library Python for Paradigma MVP tools.
+- Prefer standard-library Python except for the approved PyYAML runtime dependency.
 - Keep tools single-purpose: lint, link check, index sync, hot-size check, archive, compact.
-- Keep parsing conservative and deterministic. Do not rely on LLM interpretation for generated indexes or validation results.
+- Route all YAML and Markdown frontmatter reads through `_paradigma_yaml.py`; keep parsing conservative and deterministic.
 - Avoid premature abstractions until duplicated logic proves stable across at least three tools.
 - Use comments only when they explain why a rule exists or why a parser is intentionally limited.
 
@@ -56,6 +56,7 @@ Avoid pinyin, ambiguous abbreviations, and generic names such as `data`, `info`,
 - Tool failures should use non-zero exit codes when they produce ERROR-level findings.
 - WARNING-level findings should be visible but should not fail `warn` mode.
 - CLI output should include repository-relative paths.
+- Parser failures must preserve their structured diagnostic code; do not reinterpret syntax or encoding failures as Schema errors.
 - Generated files should be updated only when the user passes an explicit write flag or archive/compact command.
 
 # Testing Conventions

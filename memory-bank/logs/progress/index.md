@@ -7,3 +7,4 @@
 - [2026-07-05 Rename Manuals and Config-Driven Index](2026-07-05-rename-and-config-index.md)
 - [2026-07-05 Code Block Fix and CI](2026-07-05-tooling-fix-and-ci.md)
 - [2026-07-05 Protocol Sync](2026-07-05-protocol-sync.md)
+- [2026-07-23 Phase 0 Unified YAML Parser](2026-07-23-phase0-unified-yaml-parser.md)

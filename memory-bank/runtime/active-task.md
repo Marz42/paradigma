@@ -3,7 +3,7 @@ type: paradigma-runtime-state
 title: Active Task
 description: Current active task state for the Agent session.
 tags: [runtime, active-task]
-timestamp: 2026-07-22T23:49:54+08:00
+timestamp: 2026-07-23T00:06:54+08:00
 paradigma:
   layer: runtime
   temperature: hot
@@ -17,11 +17,11 @@ paradigma:
 
 ## Task ID
 
-2026-07-22-phase0-version-model
+2026-07-22-phase0-unified-yaml-parser
 
 ## User Request
 
-执行 Paradigma v0.5.1 Phase 0 Batch 0.1：统一发行版本、配置 Schema、OKF 和文档 Schema 版本语义，修复诊断器版本混淆并加入 CI 门禁。
+执行 Paradigma v0.5.1 Phase 0 Batch 0.2：使用 PyYAML 建立统一 YAML/frontmatter parser、结构化诊断并迁移全部现有 YAML 消费者。
 
 ## Current Status
 
@@ -29,13 +29,12 @@ Completed.
 
 ## Checklist
 
-- [x] 定义并记录四类版本字段及旧字段迁移语义
-- [x] 实现共享版本读取和 `pd-version.py --verbose/--check`
-- [x] 修复 `pd-diagnose.py` 上游版本解析与配置比较
-- [x] 将版本一致性检查加入 `pd-check-all.py` / CI
-- [x] 补充版本模型回归测试
-- [x] 同步协议、契约、手册、ADR 和 changelog
-- [x] 运行完整验证并提交 Batch 0.1
+- [x] 确认 PyYAML 运行环境与当前所有解析入口
+- [x] 实现共享 YAML/frontmatter parser 和结构化 diagnostics
+- [x] 迁移 lint、links、index、hot-size、diagnose、version、compact
+- [x] 补充 BOM、CRLF、中文、非法 YAML、重复键和编码错误测试
+- [x] 同步依赖、CI、架构、契约、ADR、手册和 changelog
+- [x] 运行完整验证并提交 Batch 0.2
 
 ## Relevant Knowledge
 
@@ -52,4 +51,4 @@ None.
 
 ## Notes
 
-根 `VERSION` 是源码发行版本真相源。配置中的安装版本只表示当前 workspace 使用的 Paradigma distribution，必须使用无歧义名称并由版本门禁检查漂移；旧 `paradigma_harness_version` 只作为迁移兼容输入。验证结果：20/20 unittest、全部工具 py_compile、pd-check-all 6/6、pd-diagnose self-check 和 git diff check 全部通过。下一批为 Batch 0.2：统一 YAML/frontmatter parser。
+正式计划要求使用标准 YAML 库。选择 PyYAML SafeLoader 语义并通过自定义 mapping constructor 拒绝重复键、保留 timestamp 字符串；依赖显式记录在 `requirements.txt` 并由 CI 安装。验证结果：28/28 unittest、全部工具和测试 py_compile、pd-check-all 6/6、pd-diagnose self-check 和 git diff check 全部通过。下一批为 Batch 0.3：状态判断和归档事务。

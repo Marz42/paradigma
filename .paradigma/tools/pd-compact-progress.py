@@ -9,6 +9,8 @@ import argparse
 import re
 import sys
 
+from _paradigma_yaml import ParseFailure, flatten_mapping, parse_markdown_text, read_utf8_text
+
 
 ROOT = Path(__file__).resolve().parents[2]
 PROGRESS_ROOT = ROOT / "memory-bank" / "logs" / "progress"
@@ -17,9 +19,11 @@ EXCLUDED = {"index.md", "summary.md"}
 
 
 def title_for(path: Path, text: str) -> str:
-    frontmatter_match = re.search(r"^title:\s*(.+)$", text, re.MULTILINE)
-    if frontmatter_match:
-        return frontmatter_match.group(1).strip().strip('"').strip("'")
+    if text.splitlines()[:1] == ["---"]:
+        metadata = flatten_mapping(parse_markdown_text(text, source=str(path)).metadata)
+        title = metadata.get("title")
+        if isinstance(title, str) and title.strip():
+            return title.strip()
     heading_match = re.search(r"^#\s+(.+)$", text, re.MULTILINE)
     if heading_match:
         return heading_match.group(1).strip()
@@ -41,7 +45,7 @@ def collect_logs() -> list[tuple[Path, str, str]]:
     for path in sorted(PROGRESS_ROOT.glob("*.md")):
         if path.name in EXCLUDED:
             continue
-        text = path.read_text(encoding="utf-8-sig")
+        text = read_utf8_text(path)
         logs.append((path, title_for(path, text), first_nonempty_bullet(text)))
     return logs
 
@@ -71,7 +75,11 @@ def main() -> int:
     parser.add_argument("--write", action="store_true", help="write memory-bank/logs/progress/summary.md")
     args = parser.parse_args()
 
-    logs = collect_logs()
+    try:
+        logs = collect_logs()
+    except ParseFailure as error:
+        print(f"ERROR: {error.diagnostic.format()}")
+        return 1
     summary = render_summary(logs)
     if args.write:
         PROGRESS_ROOT.mkdir(parents=True, exist_ok=True)
