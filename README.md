@@ -85,8 +85,8 @@ Copy-Item -Recurse -Force memory-bank-template/knowledge/* memory-bank/knowledge
 ```bash
 python -m pip install -r requirements.txt
 python -m pip install --no-deps .
-python .paradigma/tools/pd-index.py rebuild
-python .paradigma/tools/pd-check-all.py
+pd index rebuild
+pd check
 ```
 
 复制完成后，`memory-bank/` 中的 `.md` 文件就是你的项目记忆，应随代码一起提交。
@@ -154,15 +154,21 @@ flowchart TD
 ```bash
 python -m pip install -r requirements.txt
 python -m pip install --no-deps .
-python .paradigma/tools/pd-index.py rebuild
+pd index rebuild
 python -m unittest discover -s tests -p "test_*.py" -v
-python .paradigma/tools/pd-check-all.py
+pd check
 ```
 
 常用维护命令：
 
 | 命令 | 用途 |
 |------|------|
+| `pd version --format text/json` | 显示并校验发行、安装、配置、OKF 和文档 Schema 版本 |
+| `pd config validate` | 校验仓库配置和路径边界 |
+| `pd check` | 聚合运行版本、strict lint、links、index、hot-size 和 DESIGN.md 校验 |
+| `pd index rebuild/verify` | 重建或校验局部 Markdown 索引和机器 cache |
+| `pd diagnose --upstream <path>` | 输出结构化 Harness 差异 |
+| `pd task archive` | 默认只生成归档计划；显式 `--write` 才执行原子写入 |
 | `python -m unittest discover -s tests -p "test_*.py" -v` | 运行现有工具的 characterization test 基线 |
 | `python .paradigma/tools/pd-version.py --verbose` | 显示发行、安装、配置、OKF 和文档 Schema 版本 |
 | `python .paradigma/tools/pd-check-all.py` | 聚合运行版本、strict lint、links、index、hot-size 和 DESIGN.md 基本校验 |
@@ -172,6 +178,9 @@ python .paradigma/tools/pd-check-all.py
 | `python .paradigma/tools/pd-diagnose.py --upstream <path>` | 检测衍生项目与上游 Paradigma 的版本差距（结构/工具/Schema/配置/协议） |
 | `python .paradigma/tools/pd-archive-task.py --dry-run` | 为 `completed` active task 生成归档 mutation plan，不写文件 |
 | `python .paradigma/tools/pd-archive-task.py --write` | 原子应用归档计划并将 active-task 重置为 `pending` |
+
+统一命令的叶子命令均支持 `--format text|json`、`--dry-run` 和
+`--project <path>`。`.paradigma/tools/` 下的旧入口在 v0.5.x 继续兼容。
 | `python .paradigma/tools/pd-compact-progress.py --write` | 原子替换 progress summary，不删除或改写原始 session logs |
 
 ---

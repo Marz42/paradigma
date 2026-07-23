@@ -31,7 +31,7 @@ active
 
 - [x] Batch 1.1：建立 `pyproject.toml`、`src/paradigma/` 和 package unit tests
 - [x] 提取 errors、results、config、parser、schema validator、atomic writer、diagnostics
-- [ ] Batch 1.2：实现统一 `pd` CLI 及 text/JSON/dry-run 输出契约
+- [x] Batch 1.2：实现统一 `pd` CLI 及 text/JSON/dry-run 输出契约
 - [ ] Batch 1.3：将现有脚本改为调用 package/Application Service 的薄包装器
 - [ ] 验证 package 安装、新旧 CLI 等价和 Windows/POSIX 行为
 - [ ] 同步 ADR、契约、手册、changelog 和 Phase 1 退出结论
@@ -53,4 +53,4 @@ None.
 
 ## Notes
 
-Batch 1.1 已完成：wheel 可构建并隔离安装，package version 与根 `VERSION` 一致；59/59 tests 通过。下一步 Batch 1.2 建立统一 `pd` CLI 和 Application Service，现有脚本继续作为等价基线。
+Batch 1.1、1.2 已完成：wheel/package core 已验证；统一 `pd` 命令树、结构化输出和默认安全 dry-run 已接通，65/65 tests 通过。下一步 Batch 1.3 将 legacy scripts 收敛为 package-backed thin wrappers，并用等价测试守住旧调用方式。

@@ -75,9 +75,18 @@ This contract defines the externally meaningful repository boundaries for Projec
 
 # Request Schema
 
-No HTTP, SDK, or CLI request schema is currently published. Tool command arguments are intentionally minimal and documented in each script help text.
+The installed package publishes one `pd` command with the following stable Phase 1
+command tree: `version`, `config validate`, `check`, `diagnose`, `index
+rebuild`, `index verify`, and `task archive`. Every leaf accepts `--format
+text|json`, `--dry-run`, and `--project <path>`. Mutation commands remain
+non-mutating unless their explicit write option is present; `pd task archive`
+therefore requires `--write` to apply its plan.
 
 Package core methods return values, `OperationResult`, or structured exceptions/diagnostics. They do not parse CLI arguments, invoke subprocesses, or print output directly.
+
+JSON responses expose `command`, `ok`, `changed`, `dry_run`, `data`, `messages`,
+and `diagnostics`. Diagnostics provide stable codes and severities. Text rendering
+is an adapter concern and does not change the underlying outcome.
 
 # Response Schema
 

@@ -18,6 +18,9 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
 ]
 
+[project.scripts]
+pd = "paradigma.cli.main:main"
+
 [tool.setuptools.dynamic]
 version = {file = ["VERSION"]}
 
@@ -26,4 +29,3 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 paradigma = ["py.typed"]
-

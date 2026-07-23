@@ -130,6 +130,7 @@ flowchart TD
 - Active task 状态只能是 `pending`、`active`、`blocked`、`completed`、`aborted`；归档计划绑定 source hash，先原子创建 archive 再原子替换 active-task，并通过 archive ID 支持恢复。
 - index cache、局部索引和 progress summary 的单文件发布必须使用同目录临时文件、flush、`fsync` 和 atomic replace；失败不得破坏既有目标或 canonical source。
 - `src/paradigma/` 核心模块不得依赖 legacy tools、CLI 参数解析、subprocess 或直接打印；CLI 和兼容包装器只能位于外层。
+- `src/paradigma/application/` 返回 `CommandOutcome`；`src/paradigma/cli/` 是唯一统一参数解析、text/JSON 输出和退出码适配层。
 
 # Open Questions
 

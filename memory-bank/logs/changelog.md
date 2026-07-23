@@ -11,6 +11,8 @@
 ### Added
 - 新增 `pyproject.toml` 和 `src/paradigma/` package skeleton，提取 structured diagnostics/errors/results、config、safe parser、Schema validator 和 atomic writer。
 - 新增 package unit、legacy parser equivalence、repository schema integration 和 architecture boundary tests；CI 安装本地 package 后再运行门禁。
+- 新增可安装的 `pd` 统一 CLI，覆盖 version、config validate、check、diagnose、index rebuild/verify 和 task archive。
+- 新增 adapter-neutral Application Service 与 `CommandOutcome`，统一 text/JSON、dry-run、diagnostics 和退出码契约。
 
 ## [0.5.1] - 2026-07-23
 

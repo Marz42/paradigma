@@ -47,6 +47,21 @@ The tooling domain covers the L4 Deterministic Tooling Layer of Paradigma. Reusa
 
 # Public Interfaces
 
+安装 package 后，首选统一入口：
+
+| Command | Purpose |
+|---------|---------|
+| `pd version` | Report separated version dimensions |
+| `pd config validate` | Validate repository configuration and path boundaries |
+| `pd check` | Run all six deterministic quality gates and return one result |
+| `pd diagnose --upstream <path>` | Compare a project harness with an upstream repository |
+| `pd index rebuild/verify` | Rebuild or verify derived indexes |
+| `pd task archive` | Preview an archive plan by default; mutate only with `--write` |
+
+每个叶子命令支持 `--format text|json`、`--dry-run` 和
+`--project <path>`。Application Service 返回 `CommandOutcome`，仅 CLI adapter
+负责格式化和进程退出码。
+
 | Tool | Command | Purpose |
 |------|---------|---------|
 | `pd-check-all.py` | `python .paradigma/tools/pd-check-all.py` | Aggregates version, lint, link, index, hot-size, and DESIGN.md validation into a single quality gate |
@@ -62,7 +77,7 @@ The tooling domain covers the L4 Deterministic Tooling Layer of Paradigma. Reusa
 
 # Internal Flow
 
-Package modules expose structured config, parsing, Schema validation, atomic write, diagnostic, error, and result APIs without CLI side effects. Legacy tools still use adjacent private modules until Batch 1.3, when they become thin package-backed wrappers. Configuration comes from `.paradigma/config.yaml`, type rules come from `.paradigma/schemas/paradigma-types.schema.yaml`, and dry-run (no `--write`) remains the default for mutation tools.
+Package modules expose structured config, parsing, Schema validation, atomic write, validation, diagnosis, index and task-archive services without CLI side effects. The `pd` adapter performs argument parsing, text/JSON rendering and exit-code mapping. Legacy tools still use adjacent private modules until Batch 1.3, when they become thin package-backed wrappers. Configuration comes from `.paradigma/config.yaml`, type rules come from `.paradigma/schemas/paradigma-types.schema.yaml`, and dry-run (no `--write`) remains the default for mutation tools.
 
 Current behavior is preserved by `tests/characterization/`. Repository smoke tests cover all public tools; failure baselines cover validation and exit behavior; archive, compact, and index failure injection runs only inside temporary repositories. A relocated temporary workspace rebuilds its derived index and passes `pd-check-all.py`, protecting the pre-package deployment model.
 
