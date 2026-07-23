@@ -3,7 +3,7 @@ type: paradigma-runtime-state
 title: Active Task
 description: Current active task state for the Agent session.
 tags: [runtime, active-task]
-timestamp: 2026-07-23T21:59:00+08:00
+timestamp: 2026-07-23T22:11:32+08:00
 paradigma:
   layer: runtime
   temperature: hot
@@ -17,11 +17,11 @@ paradigma:
 
 ## Task ID
 
-2026-07-23-phase0-characterization-tests
+2026-07-23-v0-5-1-release-preparation
 
 ## User Request
 
-执行 Paradigma v0.5.1 Phase 0 Batch 0.5：为现有工具补齐行为基线、故障注入和 Phase 0 退出门槛验证。
+准备 Paradigma v0.5.1 发布候选：统一版本、冻结 release notes、验证 0.5.0 升级路径并完成 tag 前检查；不实际创建 tag 或推送。
 
 ## Current Status
 
@@ -29,12 +29,12 @@ completed
 
 ## Checklist
 
-- [x] 对照正式计划审计九类工具的现有行为覆盖
-- [x] 补齐 lint、links、hot-size、diagnose、version 和 check-all 失败基线
-- [x] 补齐 index、archive、compact 写入与故障恢复基线
-- [x] 修复 characterization 暴露的 Phase 0 可靠性缺口
-- [x] 同步测试手册、契约、changelog 和 Phase 0 退出结论
-- [x] 运行完整回归、故障测试并提交 Batch 0.5
+- [x] 将 distribution 与 installed distribution 统一 bump 到 0.5.1
+- [x] 冻结 0.5.1 changelog/release notes 并更新 README
+- [x] 补全 0.5.0 → 0.5.1 衍生 Workspace 升级说明
+- [x] 更新版本相关 characterization expectations
+- [x] 运行 tag 前完整回归、迁移验证和仓库审查
+- [x] 记录发布准备结果并提交 release-prep commit
 
 ## Relevant Knowledge
 
@@ -44,6 +44,8 @@ completed
 - /memory-bank/knowledge/contracts/repository-contract.md
 - /memory-bank/knowledge/domains/tooling.md
 - /memory-bank/knowledge/manuals/paradigma-baseline-test.md
+- /memory-bank/knowledge/manuals/paradigma-deploy.md
+- /memory-bank/knowledge/manuals/paradigma-harness-update.md
 
 ## Blockers
 
@@ -51,4 +53,4 @@ None.
 
 ## Notes
 
-Batch 0.5 将 suite 扩展到 47 项，覆盖九类公开工具的正向、失败、兼容和写入故障行为。`pd-compact-progress.py --write` 已改为原子替换；临时外部 Workspace 可完成 index rebuild 并通过聚合门禁。Phase 0 退出门槛已满足，下一步单独准备 v0.5.1 发布。
+v0.5.1 release candidate 已准备完成：48/48 tests、6/6 quality gates、版本五维一致、self-diagnose 0 gaps、0.5.0 元数据迁移可重复通过。仓库当前没有 `v0.5.1` tag；annotated tag、push 和 GitHub Release 等外部发布动作留待用户确认。

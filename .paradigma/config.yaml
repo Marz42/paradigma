@@ -1,6 +1,6 @@
 config_schema_version: "0.3"
 okf_version: "0.1"
-installed_distribution_version: "0.5.0"
+installed_distribution_version: "0.5.1"
 
 knowledge_roots:
   - memory-bank/knowledge

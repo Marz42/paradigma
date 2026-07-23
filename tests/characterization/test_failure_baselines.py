@@ -364,5 +364,64 @@ class ExternalWorkspaceBaselineTests(unittest.TestCase):
             self.assertIn("All 6 checks passed", checks.stdout)
 
 
+class ReleaseMigrationBaselineTests(unittest.TestCase):
+    def test_v0_5_0_version_metadata_migration_is_repeatable(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            project = Path(temporary)
+            tools = project / ".paradigma" / "tools"
+            schemas = project / ".paradigma" / "schemas"
+            tools.mkdir(parents=True)
+            schemas.mkdir(parents=True)
+            for name in ("_paradigma_yaml.py", "_version.py", "pd-version.py"):
+                shutil.copy2(TOOLS / name, tools / name)
+
+            (project / "VERSION").write_text("0.5.1\n", encoding="utf-8")
+            config = project / ".paradigma" / "config.yaml"
+            config.write_text(
+                """okf_version: "0.1"
+schema_version: "0.1"
+paradigma_harness_version: "0.4.2"
+""",
+                encoding="utf-8",
+            )
+            schema = schemas / "paradigma-types.schema.yaml"
+            schema.write_text('schema_version: "0.2"\n', encoding="utf-8")
+
+            before = subprocess.run(
+                [sys.executable, str(tools / "pd-version.py"), "--check"],
+                cwd=project,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                check=False,
+            )
+            self.assertEqual(1, before.returncode)
+            self.assertIn("legacy paradigma_harness_version", before.stdout)
+
+            config.write_text(
+                """config_schema_version: "0.3"
+okf_version: "0.1"
+installed_distribution_version: "0.5.1"
+machine_index_path: .paradigma/cache/knowledge-index.json
+""",
+                encoding="utf-8",
+            )
+            schema.write_text(
+                'document_schema_version: "0.2"\n', encoding="utf-8"
+            )
+
+            for _attempt in range(2):
+                after = subprocess.run(
+                    [sys.executable, str(tools / "pd-version.py"), "--check"],
+                    cwd=project,
+                    capture_output=True,
+                    text=True,
+                    encoding="utf-8",
+                    check=False,
+                )
+                self.assertEqual(0, after.returncode, after.stdout + after.stderr)
+                self.assertIn("distribution=0.5.1", after.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()

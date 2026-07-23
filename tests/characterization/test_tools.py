@@ -108,8 +108,8 @@ class RepositoryCliBaselineTests(unittest.TestCase):
 
     def test_version_report_is_consistent(self) -> None:
         output = self.assert_tool_passes("pd-version.py", "--verbose", "--check")
-        self.assertIn("distribution_version: 0.5.0", output)
-        self.assertIn("installed_distribution_version: 0.5.0", output)
+        self.assertIn("distribution_version: 0.5.1", output)
+        self.assertIn("installed_distribution_version: 0.5.1", output)
         self.assertIn("config_schema_version: 0.3", output)
         self.assertIn("okf_version: 0.1", output)
         self.assertIn("document_schema_version: 0.2", output)
@@ -132,8 +132,8 @@ class RepositoryCliBaselineTests(unittest.TestCase):
             "--json",
         )
         report = json.loads(output)
-        self.assertEqual("0.5.0", report["detected_version"])
-        self.assertEqual("0.5.0", report["upstream_version"])
+        self.assertEqual("0.5.1", report["detected_version"])
+        self.assertEqual("0.5.1", report["upstream_version"])
         self.assertTrue(report["version_match"])
         self.assertEqual([], report["gaps"])
 

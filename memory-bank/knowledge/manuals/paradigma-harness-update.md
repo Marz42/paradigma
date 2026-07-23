@@ -3,7 +3,7 @@ type: paradigma-manual
 title: Paradigma Harness Update
 description: Guide for checking and updating Paradigma Harness (tools, protocol, schema, templates) in derived projects.
 tags: [manual, harness, update, migration, paradigma]
-timestamp: 2026-07-23T21:35:00+08:00
+timestamp: 2026-07-23T22:08:27+08:00
 paradigma:
   schema_version: "0.1"
   temperature: cold
@@ -61,10 +61,13 @@ python .paradigma/tools/pd-diagnose.py --upstream <paradigma源路径>
 
 This produces a gap report across five dimensions: structure, tools, schema, config, and protocol.
 
-If `pd-diagnose.py` is not yet available in the project, copy it together with its shared version helper:
+If `pd-diagnose.py` is not yet available in the project, copy it together with both shared dependencies and install the runtime requirements:
 ```bash
 cp <paradigma源>/.paradigma/tools/pd-diagnose.py .paradigma/tools/
 cp <paradigma源>/.paradigma/tools/_version.py .paradigma/tools/
+cp <paradigma源>/.paradigma/tools/_paradigma_yaml.py .paradigma/tools/
+cp <paradigma源>/requirements.txt ./requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 For CI/automation, use `--check-version` for a quick pass/fail check:
@@ -114,6 +117,27 @@ installed_distribution_version: "<new_version>"
 ```
 
 Then run `python .paradigma/tools/pd-version.py --verbose --check`.
+
+### v0.5.0 → v0.5.1 Metadata Migration
+
+The 0.5.0 source used ambiguous legacy version fields. For a derived 0.5.0 workspace:
+
+1. Copy the complete upstream `.paradigma/tools/` and `.paradigma/schemas/` directories, plus `requirements.txt`.
+2. Install `requirements.txt`; v0.5.1 tooling requires PyYAML.
+3. Replace config `schema_version` and `paradigma_harness_version` with the explicit fields below, preserving project-specific roots and paths:
+
+   ```yaml
+   config_schema_version: "0.3"
+   okf_version: "0.1"
+   installed_distribution_version: "0.5.1"
+   machine_index_path: .paradigma/cache/knowledge-index.json
+   ```
+
+4. In `paradigma-types.schema.yaml`, replace top-level `schema_version` with `document_schema_version: "0.2"`.
+5. Update the workspace root `VERSION` to `0.5.1`, rebuild indexes, and run the version and aggregate checks.
+6. Keep any customized `AGENT_RULES.md`, `INIT_PROMPT.md`, and IDE rules under manual diff review; do not overwrite them blindly.
+
+The migration is retry-safe because configuration edits are declarative and generated indexes are rebuildable. Roll back with `git revert` or restore the pre-migration commit; `.paradigma/cache/` may be deleted at any time.
 
 ## 4. Validate
 

@@ -2,7 +2,7 @@
 
 *OKF-compatible Agent Memory Runtime Framework*
 
-当前版本：`0.5.0`
+当前版本：`0.5.1`
 
 ## 核心理念
 

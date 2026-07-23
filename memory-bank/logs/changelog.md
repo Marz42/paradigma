@@ -8,6 +8,8 @@
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-07-23
+
 ### Added
 - 新增 `pd-version.py` 和共享 `_version.py`，报告并校验 distribution、installed distribution、config schema、OKF 和 document schema 五个版本维度。
 - 新增 ADR-004，记录分离版本模型及旧字段迁移政策。
@@ -15,6 +17,7 @@
 - 新增共享 `_task_state.py` 严格状态枚举、归档 mutation plan、稳定 `PD_TASK_*` / `PD_ARCHIVE_*` 错误码和 ADR-006。
 - 新增 `pd-index.py rebuild/verify`、共享 `_index.py`、可重建机器 JSON cache 和 ADR-007。
 - 新增覆盖九类公开工具成功、失败、兼容、原子写入和外部临时 Workspace 的 Characterization Tests。
+- 新增可重复的 0.5.0 → 0.5.1 版本元数据迁移说明与临时 Workspace 验证。
 
 ### Changed
 - `pd-check-all.py` 增加版本一致性门禁。
