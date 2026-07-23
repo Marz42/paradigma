@@ -6,8 +6,8 @@ Recorded issues and their resolution status.
 * [Stale section structure in ADR-001 and manuals](stale-section-structure-in-adr001.md) - Section headings did not match expanded schema registry.
 
 <!-- BEGIN PARADIGMA AUTO-INDEX -->
-<!-- checksum: 2e36f0af1d82edc7 -->
-<!-- generated_by: pd-sync-index.py -->
+<!-- checksum: 9ae9d22aeba159b5 -->
+<!-- generated_by: pd-index.py -->
 
 | Path | Type | Title | Hints | Symbols | Relations |
 |------|------|-------|-------|---------|-----------|

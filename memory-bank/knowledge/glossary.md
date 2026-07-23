@@ -3,7 +3,7 @@ type: paradigma-glossary
 title: Project Glossary
 description: Glossary of project-specific terms and abbreviations.
 tags: [glossary, terminology]
-timestamp: 2026-07-22T23:44:32+08:00
+timestamp: 2026-07-23T21:35:00+08:00
 paradigma:
   schema_version: "0.1"
   temperature: cold
@@ -41,11 +41,11 @@ paradigma:
 | COLD | Files read for audits, archaeology, or disputes | decisions, known issues, glossary. |
 | Concept Document | OKF-compatible Markdown file under `knowledge/` or `docs/rfc/` | Must have YAML frontmatter with non-empty `type`. |
 | Paradigma Namespace | `paradigma:` block in frontmatter | Holds Paradigma-specific metadata (temperature, lifecycle, update_policy, epistemic_status, retrieval_hints, symbols, relations). |
-| Retrieval Hints | `paradigma.retrieval_hints` in frontmatter | zh/en keyword arrays that `pd-sync-index.py` uses to build route tables. |
+| Retrieval Hints | `paradigma.retrieval_hints` in frontmatter | zh/en keyword arrays that `pd-index.py` uses for local and machine route indexes. |
 | Symbols | `paradigma.symbols` in frontmatter | Domain-specific identifiers (class names, endpoints, constants) for index routing. |
 | Epistemic Status | `paradigma.epistemic_status` field | One of: confirmed, decision, proposal, assumption, deprecated, unknown. |
 | Update Policy | `paradigma.update_policy` field | One of: agent-editable, requires-human-confirmation, append-only, generated, read-only. |
-| Generated Block | Section between `<!-- BEGIN PARADIGMA AUTO-INDEX -->` and `<!-- END PARADIGMA AUTO-INDEX -->` | Maintained by `pd-sync-index.py`; agents must not edit by hand. |
+| Generated Block | Section between `<!-- BEGIN PARADIGMA AUTO-INDEX -->` and `<!-- END PARADIGMA AUTO-INDEX -->` | Used only in local subdirectory indexes and maintained by `pd-index.py`; root navigation is manual. |
 | Session Log | Progress log under `logs/progress/` | Records one Agent session: goal, actions, files, decisions, follow-ups. |
 | ADR | Architecture Decision Record | Stored under `knowledge/decisions/`; append-only, accepted decisions constrain future work. |
 | Active Task | Current task state in `memory-bank/runtime/active-task.md` | Single focus; archived to session log on completion. |

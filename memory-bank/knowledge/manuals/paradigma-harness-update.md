@@ -3,7 +3,7 @@ type: paradigma-manual
 title: Paradigma Harness Update
 description: Guide for checking and updating Paradigma Harness (tools, protocol, schema, templates) in derived projects.
 tags: [manual, harness, update, migration, paradigma]
-timestamp: 2026-07-22T23:44:32+08:00
+timestamp: 2026-07-23T21:35:00+08:00
 paradigma:
   schema_version: "0.1"
   temperature: cold
@@ -118,7 +118,7 @@ Then run `python .paradigma/tools/pd-version.py --verbose --check`.
 ## 4. Validate
 
 ```bash
-python .paradigma/tools/pd-sync-index.py --write
+python .paradigma/tools/pd-index.py rebuild
 python .paradigma/tools/pd-check-all.py
 ```
 
@@ -144,7 +144,7 @@ python .paradigma/tools/pd-check-all.py
 | Diagnose shows "unknown" | Project has no Paradigma traces | Verify `memory-bank/` or `memory_bank/` directory exists |
 | Protocol has many diffs but no obvious changes needed | Project heavily customized AGENT_RULES | Cherry-pick only the new sections (checkpoints, DESIGN.md, diagnostics reference) |
 | `pd-check-all` fails after migration | Missing OKF frontmatter on migrated files | Re-run mode H Step 7 to add frontmatter |
-| Agent can't find files after migration | Index not synced | Run `pd-sync-index.py --write` |
+| Agent can't find files after migration | Index not rebuilt | Run `pd-index.py rebuild` |
 
 # Citations
 

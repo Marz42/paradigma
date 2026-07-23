@@ -3,7 +3,7 @@ type: paradigma-manual
 title: Paradigma Release Preparation
 description: Pre-release validation and deployment notes specific to the Paradigma repository itself.
 tags: [manual, deploy, operations, paradigma]
-timestamp: 2026-07-22T23:44:32+08:00
+timestamp: 2026-07-23T21:35:00+08:00
 paradigma:
   schema_version: "0.1"
   temperature: cold
@@ -61,7 +61,7 @@ If a release preparation step produces incorrect generated content, restore the 
 |---------|--------------|--------|
 | Strict lint fails | Missing frontmatter field or section | Add the required field/section according to schema |
 | Link check fails | Moved document or stale relation | Update the link or relation target |
-| Index check fails | Concept changed after index generation | Run `pd-sync-index.py --write` |
+| Index check fails | Concept changed after index generation | Run `pd-index.py rebuild`, then `pd-index.py verify` |
 
 # Citations
 

@@ -4,8 +4,8 @@
 * [ADR-002 Adopt OKF-Compatible Memory Runtime Structure](adr-002-okf-compatible-memory-runtime.md) - Adopts runtime/logs/knowledge and OKF-compatible knowledge.
 
 <!-- BEGIN PARADIGMA AUTO-INDEX -->
-<!-- checksum: b5302f196935ba18 -->
-<!-- generated_by: pd-sync-index.py -->
+<!-- checksum: 97f7c0976dbee3de -->
+<!-- generated_by: pd-index.py -->
 
 | Path | Type | Title | Hints | Symbols | Relations |
 |------|------|-------|-------|---------|-----------|
@@ -15,5 +15,6 @@
 | [adr-004-separate-version-dimensions.md](adr-004-separate-version-dimensions.md) | `paradigma-decision` | ADR-004 Separate Distribution and Schema Version Dimensions | 版本模型<br>配置版本<br>发行版本 ... | VERSION<br>installed_distribution_version<br>config_schema_version ... | constrains:/architecture.md<br>constrains:/contracts/repository-contract.md<br>constrains:/domains/tooling.md<br>follows:/decisions/adr-003-strict-okf-production-rules.md |
 | [adr-005-unified-safe-yaml-parser.md](adr-005-unified-safe-yaml-parser.md) | `paradigma-decision` | ADR-005 Adopt a Unified Safe YAML Parser | 统一 YAML Parser<br>frontmatter 诊断<br>重复键 ... | _paradigma_yaml.py<br>ParseDiagnostic<br>ParseFailure ... | constrains:/architecture.md<br>constrains:/contracts/repository-contract.md<br>constrains:/domains/tooling.md<br>follows:/decisions/adr-004-separate-version-dimensions.md |
 | [adr-006-transactional-task-archive.md](adr-006-transactional-task-archive.md) | `paradigma-decision` | ADR-006 Make Task Status Strict and Archive Recovery Idempotent | 严格任务状态<br>安全归档<br>原子写入 ... | TaskStatus<br>_task_state.py<br>ArchivePlan ... | constrains:/architecture.md<br>constrains:/conventions.md<br>constrains:/contracts/repository-contract.md<br>constrains:/domains/tooling.md ... |
+| [adr-007-separate-index-boundaries.md](adr-007-separate-index-boundaries.md) | `paradigma-decision` | ADR-007 Separate Human Navigation from Derived Machine Indexes | 索引边界<br>根导航<br>机器索引缓存 ... | pd-index.py<br>_index.py<br>knowledge-index.json ... | constrains:/architecture.md<br>constrains:/conventions.md<br>constrains:/contracts/repository-contract.md<br>constrains:/domains/tooling.md ... |
 
 <!-- END PARADIGMA AUTO-INDEX -->

@@ -3,7 +3,7 @@ type: paradigma-architecture
 title: System Architecture
 description: Top-level OKF-compatible architecture and protocol boundaries for Project Paradigma.
 tags: [architecture, okf, memory-bank]
-timestamp: 2026-07-23T00:14:11+08:00
+timestamp: 2026-07-23T21:35:00+08:00
 paradigma:
   schema_version: "0.1"
   temperature: hot
@@ -87,6 +87,7 @@ paradigma/
 | Deterministic tools | Lint and index utilities | `.paradigma/tools/` |
 | Shared YAML parser | Safe YAML/frontmatter parsing and structured diagnostics | `.paradigma/tools/_paradigma_yaml.py` |
 | Shared task state | Exact active-task lifecycle parsing used by archive and quality gates | `.paradigma/tools/_task_state.py` |
+| Derived indexes | Human root navigation, non-recursive local indexes, and rebuildable machine cache | `.paradigma/tools/_index.py` + `.paradigma/cache/` |
 | Characterization tests | Preserve current CLI and mutation behavior before refactoring | `tests/characterization/` |
 
 # Data Flow
@@ -113,7 +114,7 @@ flowchart TD
 - `memory-bank/runtime/` 不进入 OKF knowledge bundle，避免短生命周期状态污染长期知识。
 - `memory-bank/knowledge/plans/` 中的计划文档按状态切换温度：`in-progress` → WARM，`completed` → COLD。
 - `memory-bank/logs/` 以追加为主，不替代 decisions、known issues 或 contracts。
-- `index.md` 的 generated block 只能由工具更新，Agent 不应手工编辑 generated block。
+- knowledge root 的 `index.md` 只保留人工高层导航；子目录 generated block 只列直接文档；递归机器 inventory 位于可删除重建的 `.paradigma/cache/knowledge-index.json`。
 - 修改协议源头时必须同步 Cursor rule、README、INIT_PROMPT 和模板目录。
 - 根 `VERSION`、`installed_distribution_version`、`config_schema_version`、`okf_version` 与 `document_schema_version` 语义不得混用；`pd-version.py --check` 必须通过。
 - YAML/frontmatter 必须通过共享 parser 读取；重复键、非法 UTF-8、语法错误和边界错误必须显式失败，Schema 错误由 lint 层单独报告。

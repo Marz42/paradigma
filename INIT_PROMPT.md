@@ -41,7 +41,7 @@
    - 如果 remote 仍指向 Marz42/paradigma，执行 `git remote remove origin`
    - 然后告诉我你的 GitHub 仓库 URL，我帮你关联 `git remote add origin <你的仓库URL>`
 
-5. 运行 `python .paradigma/tools/pd-check-all.py` 和 `python .paradigma/tools/pd-sync-index.py --write` 验证 Memory-Bank 状态。
+5. 运行 `python .paradigma/tools/pd-index.py rebuild` 和 `python .paradigma/tools/pd-check-all.py` 验证 Memory-Bank 状态。
 
 6. 将所有更改做首次 commit：
    - 提交信息：chore: init from paradigma template
@@ -74,7 +74,7 @@
 4. 基于 memory-bank/knowledge/contracts/repository-contract.md 设计第一版契约边界；如涉及 API/数据库，新增 contracts 文档。
 5. 基于 memory-bank/runtime/active-task.md 创建第一个 MVP 任务。
 6. 对暂时无法确定的字段标记为 `TODO`，不要编造。
-7. 运行 `python .paradigma/tools/pd-check-all.py` 和 `python .paradigma/tools/pd-sync-index.py --write`。
+7. 运行 `python .paradigma/tools/pd-index.py rebuild` 和 `python .paradigma/tools/pd-check-all.py`。
 8. 完成文档初始化后告诉我，我们再开始写第一行代码。
 ```
 
@@ -260,7 +260,7 @@
 
 ———— Phase 4：校验与清理 ————
 
-8. 运行 python .paradigma/tools/pd-sync-index.py --write
+8. 运行 python .paradigma/tools/pd-index.py rebuild
 9. 运行 python .paradigma/tools/pd-check-all.py
 10. 如有 lint 错误，逐一修复。
 11. 更新 `.paradigma/config.yaml` 的 `installed_distribution_version` 为最新版本；旧 `paradigma_harness_version` 应迁移并移除。

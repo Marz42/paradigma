@@ -3,7 +3,7 @@ type: paradigma-domain
 title: Paradigma Migration Flows
 description: Migration flow taxonomy (F-STRUCT, F-UPGRADE, F-SYNC) with phase breakdowns, file mapping tables, decision points, and a real-world case study.
 tags: [domain, migration, harness, upgrade, paradigma]
-timestamp: 2026-07-22T23:44:32+08:00
+timestamp: 2026-07-23T21:35:00+08:00
 paradigma:
   schema_version: "0.1"
   temperature: warm
@@ -217,7 +217,7 @@ Agent frontmatter rules:
 - `_version.py` — shared version reader required by `pd-diagnose.py` and `pd-version.py`
 - `pd-version.py` — validates local version metadata after migration
 - `pd-check-all.py` — validates migration completeness
-- `pd-sync-index.py` — generates index after knowledge file changes
+- `pd-index.py` — rebuilds local and machine indexes after knowledge file changes
 - `pd-lint-okf.py` — validates OKF frontmatter on migrated files
 - Upstream Paradigma source — local path or git repo
 

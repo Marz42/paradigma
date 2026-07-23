@@ -3,11 +3,11 @@
 * [Repository Contract](repository-contract.md) - Current repository-level contract boundaries.
 
 <!-- BEGIN PARADIGMA AUTO-INDEX -->
-<!-- checksum: af3cc5229a761284 -->
-<!-- generated_by: pd-sync-index.py -->
+<!-- checksum: 8c44c5acae068421 -->
+<!-- generated_by: pd-index.py -->
 
 | Path | Type | Title | Hints | Symbols | Relations |
 |------|------|-------|-------|---------|-----------|
-| [repository-contract.md](repository-contract.md) | `paradigma-contract` | Repository Contract | 仓库契约<br>工具命令<br>兼容策略 ... | pd-version.py<br>pd-lint-okf.py<br>pd-sync-index.py ... | depends_on:/architecture.md |
+| [repository-contract.md](repository-contract.md) | `paradigma-contract` | Repository Contract | 仓库契约<br>工具命令<br>兼容策略 ... | pd-version.py<br>pd-lint-okf.py<br>pd-index.py ... | depends_on:/architecture.md |
 
 <!-- END PARADIGMA AUTO-INDEX -->

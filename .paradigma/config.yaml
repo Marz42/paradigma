@@ -1,4 +1,4 @@
-config_schema_version: "0.2"
+config_schema_version: "0.3"
 okf_version: "0.1"
 installed_distribution_version: "0.5.0"
 
@@ -17,3 +17,4 @@ generated_markers:
 runtime_root: memory-bank/runtime
 logs_root: memory-bank/logs
 template_root: memory-bank-template
+machine_index_path: .paradigma/cache/knowledge-index.json

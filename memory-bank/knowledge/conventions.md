@@ -3,7 +3,7 @@ type: paradigma-convention
 title: Coding and Collaboration Conventions
 description: Coding, naming, testing, documentation, versioning, and prohibited patterns for Project Paradigma.
 tags: [conventions, semver, collaboration, tooling]
-timestamp: 2026-07-23T00:14:11+08:00
+timestamp: 2026-07-23T21:35:00+08:00
 paradigma:
   schema_version: "0.1"
   temperature: hot
@@ -72,7 +72,7 @@ Avoid pinyin, ambiguous abbreviations, and generic names such as `data`, `info`,
 - Run `python -m unittest discover -s tests -p "test_*.py" -v` before and after tool refactors.
 - Keep pre-package tool behavior baselines under `tests/characterization/`; mutation tests must operate in temporary repositories.
 - Run `python .paradigma/tools/pd-check-all.py` after knowledge/RFC edits (aggregates version, lint, links, index, hot-size, and optional design checks).
-- Run `python .paradigma/tools/pd-sync-index.py --write` after adding/removing concept documents.
+- Run `python .paradigma/tools/pd-index.py rebuild` after adding/removing concepts or changing retrieval metadata, then run `pd-index.py verify`.
 - Run `python .paradigma/tools/pd-check-hot-size.py` before ending substantial sessions.
 - Compile Python tools with `python -m py_compile` when tool code changes, then remove or ignore `__pycache__` outputs.
 
@@ -179,7 +179,8 @@ contracts/
 # Prohibited Patterns
 
 - Do not write long-lived facts into `memory-bank/runtime/active-task.md`.
-- Do not manually edit generated index blocks.
+- Maintain root index navigation by hand, but do not place recursive generated blocks there.
+- Do not manually edit subdirectory generated blocks or `.paradigma/cache/` machine indexes.
 - Do not add new concept documents without OKF frontmatter.
 - Do not change contracts, architecture, or accepted ADRs without checking update policy.
 - Do not keep legacy flat Memory-Bank paths in active protocol docs.

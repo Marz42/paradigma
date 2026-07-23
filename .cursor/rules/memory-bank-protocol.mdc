@@ -72,6 +72,7 @@ alwaysApply: true
 - 修改长期知识时更新 `memory-bank/knowledge/`
 - 修改契约时更新 `memory-bank/knowledge/contracts/`
 - 做架构决策时追加 `memory-bank/knowledge/decisions/`
+- concept 文档或元数据变化后运行 `python .paradigma/tools/pd-index.py rebuild` 和 `pd-index.py verify`；根 index 高层导航人工维护，子目录 generated block 与机器 cache 不手改
 - 运行 `python .paradigma/tools/pd-check-all.py`
 - 任务状态为 `completed` 时，先运行 `python .paradigma/tools/pd-archive-task.py --dry-run`，审查后再按需使用 `--write`
 - progress logs 过长时，可运行 `python .paradigma/tools/pd-compact-progress.py --write`
@@ -84,5 +85,5 @@ alwaysApply: true
 - 不确定时先读相关 knowledge / contract / RFC。
 - 术语不清时读 glossary。
 - 类似问题先查 known issues。
-- 不手动维护 generated block。
+- 不手动维护子目录 generated block 或 `.paradigma/cache/`；根 index 只人工维护高层导航。
 - 怀疑 Paradigma 版本过旧时运行 `pd-diagnose.py --check-version --upstream <path>`。

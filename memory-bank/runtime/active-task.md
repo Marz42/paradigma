@@ -3,7 +3,7 @@ type: paradigma-runtime-state
 title: Active Task
 description: Current active task state for the Agent session.
 tags: [runtime, active-task]
-timestamp: 2026-07-23T00:19:27+08:00
+timestamp: 2026-07-23T21:42:14+08:00
 paradigma:
   layer: runtime
   temperature: hot
@@ -17,11 +17,11 @@ paradigma:
 
 ## Task ID
 
-2026-07-23-phase0-safe-task-archive
+2026-07-23-phase0-index-boundaries
 
 ## User Request
 
-执行 Paradigma v0.5.1 Phase 0 Batch 0.3：引入严格任务状态、归档 mutation plan、原子写入、幂等恢复和稳定错误码。
+执行 Paradigma v0.5.1 Phase 0 Batch 0.4：分离根导航、子目录局部索引和可删除重建的机器完整索引。
 
 ## Current Status
 
@@ -29,12 +29,12 @@ completed
 
 ## Checklist
 
-- [x] 定义 pending/active/blocked/completed/aborted 严格状态枚举
-- [x] 实现显式 dry-run mutation plan 和稳定错误码
-- [x] 实现 archive 原子创建、active-task 原子替换和 source hash 冲突检测
-- [x] 补充严格状态、幂等归档和中断恢复测试
-- [x] 同步模板、协议、契约、ADR、手册和 changelog
-- [x] 运行完整验证并提交 Batch 0.3
+- [x] 定义根导航、局部 Markdown 索引和机器缓存的职责边界
+- [x] 实现共享索引核心及 `pd-index.py rebuild/verify`
+- [x] 保留 `pd-sync-index.py` 兼容入口并迁移质量门禁/CI
+- [x] 迁移根索引并补充非递归、缓存损坏和可重建测试
+- [x] 同步协议、契约、ADR、手册和 changelog
+- [x] 运行完整验证并提交 Batch 0.4
 
 ## Relevant Knowledge
 
@@ -43,7 +43,7 @@ completed
 - /memory-bank/knowledge/conventions.md
 - /memory-bank/knowledge/contracts/repository-contract.md
 - /memory-bank/knowledge/domains/tooling.md
-- /memory-bank/knowledge/contracts/repository-contract.md
+- /memory-bank/knowledge/decisions/adr-007-separate-index-boundaries.md
 
 ## Blockers
 
@@ -51,4 +51,6 @@ None.
 
 ## Notes
 
-归档顺序为：验证 source hash → 原子创建 archive → 原子替换 active-task。若第二步后中断，重试通过 archive_id 复用已创建 archive 并只完成 reset；完成后再次执行则识别 pending reset marker 并返回成功。验证结果：33/33 unittest、全部工具和测试 py_compile、pd-check-all 6/6、索引 stale=0、诊断器 0 gaps 和 git diff check 全部通过。下一批为 Batch 0.4：索引边界调整。
+根 `index.md` 只保留人工维护的高层导航；子目录 `index.md` 只列直接子文档；全量递归元数据进入 `.paradigma/cache/knowledge-index.json`。缓存是派生产物，可删除重建，不参与 canonical knowledge 事实语义。
+
+Batch 0.4 已完成；下一步进入 Batch 0.5 Characterization Tests，补齐 Phase 0 行为基线和退出门槛验证。

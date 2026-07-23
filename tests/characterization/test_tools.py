@@ -22,6 +22,7 @@ EXPECTED_TOOLS = {
     "pd-check-links.py",
     "pd-compact-progress.py",
     "pd-diagnose.py",
+    "pd-index.py",
     "pd-lint-okf.py",
     "pd-sync-index.py",
     "pd-version.py",
@@ -90,8 +91,12 @@ class RepositoryCliBaselineTests(unittest.TestCase):
         self.assertIn("errors=0, warnings=0", output)
 
     def test_indexes_are_current(self) -> None:
+        output = self.assert_tool_passes("pd-index.py", "verify")
+        self.assertIn("Verified derived indexes; stale=0", output)
+
+    def test_legacy_index_entrypoint_remains_compatible(self) -> None:
         output = self.assert_tool_passes("pd-sync-index.py", "--check")
-        self.assertIn("stale=0", output)
+        self.assertIn("Checked indexes; stale=0", output)
 
     def test_hot_size_check_passes(self) -> None:
         output = self.assert_tool_passes("pd-check-hot-size.py")
@@ -105,7 +110,7 @@ class RepositoryCliBaselineTests(unittest.TestCase):
         output = self.assert_tool_passes("pd-version.py", "--verbose", "--check")
         self.assertIn("distribution_version: 0.5.0", output)
         self.assertIn("installed_distribution_version: 0.5.0", output)
-        self.assertIn("config_schema_version: 0.2", output)
+        self.assertIn("config_schema_version: 0.3", output)
         self.assertIn("okf_version: 0.1", output)
         self.assertIn("document_schema_version: 0.2", output)
 
@@ -608,19 +613,140 @@ class SharedYamlParserTests(unittest.TestCase):
     def test_every_yaml_consumer_routes_through_shared_parser(self) -> None:
         consumers = {
             "_version.py",
+            "_index.py",
             "pd-archive-task.py",
             "pd-check-hot-size.py",
             "pd-check-links.py",
             "pd-compact-progress.py",
             "pd-diagnose.py",
             "pd-lint-okf.py",
-            "pd-sync-index.py",
         }
         for script in sorted(consumers):
             with self.subTest(script=script):
                 source = (TOOLS / script).read_text(encoding="utf-8")
                 self.assertIn("from _paradigma_yaml import", source)
                 self.assertNotIn("def parse_yaml_subset", source)
+
+
+class DerivedIndexBoundaryTests(unittest.TestCase):
+    def make_index_repository(self, root: Path) -> None:
+        config = root / ".paradigma"
+        config.mkdir(parents=True)
+        (config / "config.yaml").write_text(
+            """knowledge_roots:
+  - memory-bank/knowledge
+reserved_filenames:
+  - index.md
+  - log.md
+machine_index_path: .paradigma/cache/knowledge-index.json
+""",
+            encoding="utf-8",
+        )
+        knowledge = root / "memory-bank" / "knowledge"
+        nested = knowledge / "domains" / "nested"
+        nested.mkdir(parents=True)
+        (knowledge / "index.md").write_text(
+            "# Knowledge Navigation\n\n* [Domains](domains/)\n",
+            encoding="utf-8",
+        )
+        self.write_concept(knowledge / "root-concept.md", "Root Concept")
+        self.write_concept(knowledge / "domains" / "direct.md", "Direct Concept")
+        self.write_concept(nested / "deep.md", "Deep Concept")
+
+    @staticmethod
+    def write_concept(path: Path, title: str) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            f"""---
+type: test-concept
+title: {title}
+description: Test concept.
+tags: [test]
+timestamp: 2026-07-23T21:30:22+08:00
+paradigma:
+  retrieval_hints:
+    en: [test]
+---
+
+# {title}
+""",
+            encoding="utf-8",
+        )
+
+    def test_root_navigation_is_constant_and_local_indexes_are_non_recursive(self) -> None:
+        index = load_tool("_index.py")
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.make_index_repository(root)
+            settings = index.load_settings(root)
+            root_index = root / "memory-bank" / "knowledge" / "index.md"
+            navigation_text = index.normalize_newlines(
+                root_index.read_text(encoding="utf-8")
+            )
+            root_index.write_text(
+                root_index.read_text(encoding="utf-8")
+                + f"\n{index.BEGIN_MARKER}\nlegacy recursive rows\n{index.END_MARKER}\n",
+                encoding="utf-8",
+            )
+
+            first = index.rebuild_indexes(settings)
+            self.assertEqual(3, first.concept_count)
+            self.assertEqual(navigation_text, root_index.read_text(encoding="utf-8"))
+            self.assertNotIn(index.BEGIN_MARKER, root_index.read_text(encoding="utf-8"))
+            navigation = root_index.read_bytes()
+
+            domain_index = root / "memory-bank" / "knowledge" / "domains" / "index.md"
+            domain_text = domain_index.read_text(encoding="utf-8")
+            self.assertIn("direct.md", domain_text)
+            self.assertNotIn("deep.md", domain_text)
+            nested_text = (
+                root
+                / "memory-bank"
+                / "knowledge"
+                / "domains"
+                / "nested"
+                / "index.md"
+            ).read_text(encoding="utf-8")
+            self.assertIn("deep.md", nested_text)
+
+            for number in range(20):
+                self.write_concept(
+                    root / "memory-bank" / "knowledge" / f"extra-{number}.md",
+                    f"Extra {number}",
+                )
+            second = index.rebuild_indexes(settings)
+            self.assertEqual(23, second.concept_count)
+            self.assertEqual(navigation, root_index.read_bytes())
+
+    def test_machine_cache_corruption_does_not_change_canonical_knowledge(self) -> None:
+        index = load_tool("_index.py")
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.make_index_repository(root)
+            settings = index.load_settings(root)
+            canonical = {
+                path.relative_to(root): path.read_bytes()
+                for path in (root / "memory-bank" / "knowledge").rglob("*.md")
+                if path.name != "index.md"
+            }
+            index.rebuild_indexes(settings)
+            settings.cache_path.write_text("{broken", encoding="utf-8")
+
+            checks = index.verify_indexes(settings)
+            machine = [item for item in checks if item.label == "machine cache"]
+            self.assertEqual(1, len(machine))
+            self.assertFalse(machine[0].current)
+            self.assertEqual(
+                canonical,
+                {
+                    path.relative_to(root): path.read_bytes()
+                    for path in (root / "memory-bank" / "knowledge").rglob("*.md")
+                    if path.name != "index.md"
+                },
+            )
+
+            index.rebuild_indexes(settings)
+            self.assertTrue(all(item.current for item in index.verify_indexes(settings)))
 
 
 if __name__ == "__main__":

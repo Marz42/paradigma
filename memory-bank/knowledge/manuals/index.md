@@ -4,8 +4,8 @@
 * [Paradigma Baseline Validation](paradigma-baseline-test.md) - Baseline validation sequence for Paradigma knowledge quality and tooling.
 
 <!-- BEGIN PARADIGMA AUTO-INDEX -->
-<!-- checksum: ad36cbea9a29fd37 -->
-<!-- generated_by: pd-sync-index.py -->
+<!-- checksum: 1694f3edc9285199 -->
+<!-- generated_by: pd-index.py -->
 
 | Path | Type | Title | Hints | Symbols | Relations |
 |------|------|-------|-------|---------|-----------|

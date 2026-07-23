@@ -5,7 +5,7 @@ Equivalent to the Update Phase command sequence:
   pd-version.py --check
   pd-lint-okf.py --strict
   pd-check-links.py
-  pd-sync-index.py --check
+  pd-index.py verify
   pd-check-hot-size.py
   DESIGN.md basic validation (if present)
 
@@ -26,7 +26,7 @@ STEPS = [
     ("version", "pd-version.py", ["--check"]),
     ("lint", "pd-lint-okf.py", ["--strict"]),
     ("links", "pd-check-links.py", ["--allow-warnings"]),
-    ("index", "pd-sync-index.py", ["--check"]),
+    ("index", "pd-index.py", ["verify"]),
     ("hot-size", "pd-check-hot-size.py", []),
 ]
 

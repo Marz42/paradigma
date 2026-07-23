@@ -13,21 +13,24 @@
 - 新增 ADR-004，记录分离版本模型及旧字段迁移政策。
 - 新增 PyYAML 驱动的共享 `_paradigma_yaml.py`、结构化 parser diagnostics 和 ADR-005。
 - 新增共享 `_task_state.py` 严格状态枚举、归档 mutation plan、稳定 `PD_TASK_*` / `PD_ARCHIVE_*` 错误码和 ADR-006。
+- 新增 `pd-index.py rebuild/verify`、共享 `_index.py`、可重建机器 JSON cache 和 ADR-007。
 
 ### Changed
 - `pd-check-all.py` 增加版本一致性门禁。
 - `pd-diagnose.py` 以上游根 `VERSION` 作为发行版本真相源，并使用共享版本读取逻辑。
-- `.paradigma/config.yaml` 升级到 `config_schema_version: "0.2"`，使用 `installed_distribution_version`。
+- `.paradigma/config.yaml` 升级到 `config_schema_version: "0.3"`，使用 `installed_distribution_version` 并声明 `machine_index_path`。
 - 文档类型注册表使用明确的 `document_schema_version` 字段。
 - lint、links、index、HOT size、diagnose、version 和 progress compact 统一使用共享 YAML/frontmatter parser；CI 显式安装 `requirements.txt`。
 - `pd-archive-task.py` 默认 dry-run，使用 source hash、content-addressed archive ID、原子单文件写入和幂等恢复协议。
+- 根 index 改为人工高层导航；子目录 generated block 改为非递归局部视图；全量递归元数据迁移到 ignored `.paradigma/cache/knowledge-index.json`。
+
+### Deprecated
+- `pd-sync-index.py --write/--check` 保留为 v0.5.x 兼容入口，分别映射到 `pd-index.py rebuild/verify`。
+- `paradigma_harness_version` 和 config 顶层含义模糊的 `schema_version` 仅保留为迁移输入。
 
 ### Fixed
 - 非法 YAML、重复键、缺失/未闭合 frontmatter 与编码错误不再被静默忽略或误报为 Schema 缺字段。
 - “未完成”等自然语言状态和已勾选 checklist 不再被误判为完成；成功归档后 active-task 明确重置为 `pending`。
-
-### Deprecated
-- `paradigma_harness_version` 和 config 顶层含义模糊的 `schema_version` 仅保留为迁移输入。
 
 ## [0.5.0] - 2026-07-08
 

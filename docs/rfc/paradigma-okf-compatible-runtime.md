@@ -3,7 +3,7 @@ type: paradigma-rfc
 title: Paradigma OKF-Compatible Agent Memory Runtime
 description: RFC proposal for evolving Project Paradigma into an OKF-compatible Agent Memory Runtime framework.
 tags: [paradigma, okf, rfc, agent-memory, runtime]
-timestamp: 2026-07-23T00:14:11+08:00
+timestamp: 2026-07-23T21:35:00+08:00
 paradigma:
   schema_version: "0.1"
   layer: docs
@@ -78,7 +78,7 @@ Paradigma
 | L1 | Format Layer           | 文件如何存储与交换             | Markdown、YAML frontmatter、links、index.md                         |
 | L2 | Semantic Layer         | 这些文件在 Paradigma 中代表什么 | `paradigma-architecture`、`paradigma-contract`、`paradigma-manual` |
 | L3 | Runtime Protocol Layer | Agent 如何读写和维护这些文件     | HOT/WARM/COLD、任务流程、更新权限、归档策略                                     |
-| L4 | Tooling Layer          | 如何用确定性工具防止腐化          | `pd-lint-okf.py`、`pd-check-links.py`、`pd-sync-index.py`          |
+| L4 | Tooling Layer          | 如何用确定性工具防止腐化          | `pd-lint-okf.py`、`pd-check-links.py`、`pd-index.py`          |
 
 ***
 
@@ -191,7 +191,7 @@ paradigma/
 │   ├── tools/
 │   │   ├── pd-lint-okf.py
 │   │   ├── pd-check-links.py
-│   │   ├── pd-sync-index.py
+│   │   ├── pd-index.py
 │   │   ├── pd-check-hot-size.py
 │   │   ├── pd-archive-task.py
 │   │   └── pd-compact-progress.py
@@ -1172,7 +1172,7 @@ Phase 4: Update Memory
 Phase 5: Validate
   - 运行 pd-lint-okf
   - 运行 pd-check-links
-  - 运行 pd-sync-index
+  - 运行 pd-index rebuild
   - 若失败，根据错误修正
 ```
 
@@ -1215,7 +1215,7 @@ read-only:
 .paradigma/tools/
 ├── pd-lint-okf.py
 ├── pd-check-links.py
-├── pd-sync-index.py
+├── pd-index.py
 ├── pd-check-hot-size.py
 ├── pd-archive-task.py
 └── pd-compact-progress.py
@@ -1290,20 +1290,21 @@ paradigma:
 
 ***
 
-## 7.4 `pd-sync-index.py`
+## 7.4 `pd-index.py`
 
 用途：
 
-* 自动生成 `index.md`；
-* 读取所有 knowledge 文档 frontmatter；
-* 汇总 title、description、type、tags、retrieval hints、symbols；
-* 生成高信息密度路由表。
+* 保持 knowledge root `index.md` 为人工高层导航；
+* 为子目录生成只含直接文档的局部索引；
+* 将全部 knowledge 文档的递归元数据写入 `.paradigma/cache/knowledge-index.json`；
+* 提供 `rebuild` 和 `verify`，机器 cache 可删除重建。
 
 重要规则：
 
-1. Agent 不得手动维护 auto-index 区域；
-2. 工具只替换 generated block；
-3. 人工补充内容必须放在 generated block 之外。
+1. 根 index 不包含 auto-index 区域，由人类维护有限导航；
+2. 子目录 generated block 只列本目录直接文档，Agent 不得手改；
+3. 全量机器 index 位于 ignored cache，不是 canonical knowledge；
+4. `pd-sync-index.py --write/--check` 仅作为 v0.5.x 兼容入口。
 
 推荐 index 格式：
 
@@ -1313,18 +1314,15 @@ paradigma:
 Agent 路由指南：请根据 Type、Hints、Symbols 选择最相关的 1-3 个文档读取。
 One-shot retrieval 是第一跳，不是终点。读取命中文档后，应检查其 relations。
 
-<!-- BEGIN PARADIGMA AUTO-INDEX -->
+## HOT Knowledge
 
-| Path | Type | Title | Hints | Symbols |
-| :--- | :--- | :--- | :--- | :--- |
-| /contracts/payment-api.md | paradigma-contract | Payment API Contract | 支付回调, 订单状态机, payment callback | PENDING, PAID, FAILED |
-| /domains/auth.md | paradigma-domain | Auth Domain | 登录, 注册, JWT, OAuth2 | JWT, OAuth2 |
+* [Architecture](architecture.md)
+* [Repository Contract](contracts/repository-contract.md)
 
-<!-- END PARADIGMA AUTO-INDEX -->
+## WARM Knowledge
 
-# Manual Notes
-
-这里可放人工维护的补充说明。
+* [Domains](domains/)
+* [Manuals](manuals/)
 ```
 
 ***
@@ -1451,7 +1449,7 @@ paradigma:
     - POST /api/payment/callback
 ```
 
-这些字段是 `pd-sync-index.py` 生成路由表的主要依据。
+这些字段是 `pd-index.py` 生成局部路由表和机器 inventory 的主要依据。
 
 ***
 
@@ -1526,7 +1524,7 @@ frontmatter：
 ```yaml
 paradigma:
   update_policy: generated
-  generated_by: pd-sync-index.py
+  generated_by: pd-index.py
 ```
 
 Markdown block：
@@ -1543,7 +1541,7 @@ Markdown block：
 2. 人类补充内容应放在 block 外；
 3. 工具只能覆盖 block 内内容；
 4. lint 工具应检测 generated block 是否被破坏；
-5. CI 中应检查 index 是否与 source documents 同步。
+5. CI 中应重建 cache、检查 tracked 局部索引无 diff，再运行 verify。
 
 ***
 
@@ -1758,7 +1756,7 @@ paradigma-glossary
 
 ```text
 pd-lint-okf.py
-pd-sync-index.py
+pd-index.py
 ```
 
 再启用：
@@ -1805,7 +1803,7 @@ L1 / L2 / L3 / L4 四层规则
 7. memory-bank/knowledge/domains/
 8. memory-bank/knowledge/contracts/
 9. pd-lint-okf.py
-10. pd-sync-index.py
+10. pd-index.py
 ```
 
 MVP 的强制规则：
@@ -1814,7 +1812,7 @@ MVP 的强制规则：
 - knowledge 文档必须有 frontmatter
 - knowledge 文档必须有 type/title/description
 - type 必须属于 Paradigma 允许集合
-- index.md 必须由工具生成
+- root index 必须是人工高层导航，子目录 generated block 必须由工具生成
 - active-task 不进入 OKF knowledge bundle
 - session log 按文件拆分
 ```
