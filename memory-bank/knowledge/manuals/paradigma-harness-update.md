@@ -96,7 +96,7 @@ python .paradigma/tools/pd-diagnose.py --upstream <paradigma源> --check-version
 
 **Trigger**: Diagnose shows "0.3.0+" or a specific version number, with only tool/schema/config gaps.
 
-1. **Tools**: Copy all `.py` files from `<upstream>/.paradigma/tools/` to your project. Paradigma tools are designed to be drop-in replacements — derived projects rarely customize them.
+1. **Package and adapters**: Copy `pyproject.toml`, `src/paradigma/`, and all `.py` files from `<upstream>/.paradigma/tools/`, then install the project package. The adapters are only a v0.5.x compatibility surface and must match the package version.
 
 2. **Schema**: Copy all `.yaml` files from `<upstream>/.paradigma/schemas/`. New types are backward-compatible.
 
@@ -116,7 +116,7 @@ Edit `.paradigma/config.yaml`:
 installed_distribution_version: "<new_version>"
 ```
 
-Then run `python .paradigma/tools/pd-version.py --verbose --check`.
+Then install the package and run `pd version --format json`.
 
 ### v0.5.0 → v0.5.1 Metadata Migration
 

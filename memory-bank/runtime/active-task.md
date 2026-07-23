@@ -3,7 +3,7 @@ type: paradigma-runtime-state
 title: Active Task
 description: Current active task state for the Agent session.
 tags: [runtime, active-task]
-timestamp: 2026-07-23T22:31:40+08:00
+timestamp: 2026-07-23T23:04:58+08:00
 paradigma:
   layer: runtime
   temperature: hot
@@ -32,9 +32,9 @@ active
 - [x] Batch 1.1：建立 `pyproject.toml`、`src/paradigma/` 和 package unit tests
 - [x] 提取 errors、results、config、parser、schema validator、atomic writer、diagnostics
 - [x] Batch 1.2：实现统一 `pd` CLI 及 text/JSON/dry-run 输出契约
-- [ ] Batch 1.3：将现有脚本改为调用 package/Application Service 的薄包装器
-- [ ] 验证 package 安装、新旧 CLI 等价和 Windows/POSIX 行为
-- [ ] 同步 ADR、契约、手册、changelog 和 Phase 1 退出结论
+- [x] Batch 1.3：将现有脚本改为调用 package/Application Service 的薄包装器
+- [x] 验证 package 安装、新旧 CLI 等价和跨平台路径行为；Windows 本地通过，POSIX/Windows CI matrix 已设门禁
+- [x] 同步 ADR、契约、手册、changelog 和 Phase 1 退出结论
 
 ## Relevant Knowledge
 
@@ -53,4 +53,4 @@ None.
 
 ## Notes
 
-Batch 1.1、1.2 已完成：wheel/package core 已验证；统一 `pd` 命令树、结构化输出和默认安全 dry-run 已接通，65/65 tests 通过。下一步 Batch 1.3 将 legacy scripts 收敛为 package-backed thin wrappers，并用等价测试守住旧调用方式。
+Phase 1 三个 Batch 的实现已完成：package 可构建/隔离安装，统一 CLI 与 Application Service 已接通，legacy scripts 已删除独立业务实现。70 项本地 Windows 测试覆盖等价、结构化失败、恢复、架构边界和 Unicode/space 路径；最终退出只待本提交的 Windows/POSIX CI matrix 确认。

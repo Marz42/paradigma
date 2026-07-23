@@ -36,6 +36,16 @@ class UnifiedCliFoundationTests(unittest.TestCase):
         self.assertTrue(payload["dry_run"])
         self.assertEqual("0.5.1", payload["data"]["distribution_version"])
 
+    def test_version_missing_root_is_a_structured_failure(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            exit_code, output = run_cli(
+                "version", "--project", temporary, "--format", "json"
+            )
+        self.assertEqual(1, exit_code)
+        payload = json.loads(output)
+        self.assertFalse(payload["ok"])
+        self.assertEqual("PD_VERSION_READ_ERROR", payload["diagnostics"][0]["code"])
+
     def test_config_validate_and_index_verify_commands(self) -> None:
         config_exit, config_output = run_cli(
             "config", "validate", "--project", str(ROOT), "--format", "json"

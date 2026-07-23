@@ -85,19 +85,20 @@ paradigma/
 | Cursor adapter | Cursor-specific always-on rule | `.cursor/rules/memory-bank-protocol.mdc` |
 | User entry prompts | Bootstrap and work-mode prompts | `INIT_PROMPT.md` |
 | Runtime state | Current active task and ephemeral state | `memory-bank/runtime/` |
-| Task archive transaction | Strict state validation, mutation planning, atomic writes, and retry recovery | `.paradigma/tools/pd-archive-task.py` |
-| Progress compaction | Read-only source aggregation and atomic summary replacement | `.paradigma/tools/pd-compact-progress.py` |
+| Task archive transaction | Strict state validation, mutation planning, atomic writes, and retry recovery | `src/paradigma/application/tasks.py` |
+| Progress compaction | Read-only source aggregation and atomic summary replacement | `src/paradigma/application/progress.py` |
 | Mid-term plans | Multi-session, multi-task plans bridging vision and execution | `memory-bank/knowledge/plans/` |
 | Operational logs | Progress sessions and changelog | `memory-bank/logs/` |
 | Knowledge bundle | Long-lived OKF-compatible knowledge | `memory-bank/knowledge/` |
 | RFC docs | Paradigma proposals and design drafts | `docs/rfc/` |
 | Template source | Blank templates for derived projects | `memory-bank-template/` |
-| Deterministic tools | Lint and index utilities | `.paradigma/tools/` |
-| Package application core | Value-returning config, parser, schema, atomic-write, diagnostic, error, and result modules | `src/paradigma/` |
-| Shared YAML parser | Safe YAML/frontmatter parsing and structured diagnostics | `.paradigma/tools/_paradigma_yaml.py` |
-| Shared task state | Exact active-task lifecycle parsing used by archive and quality gates | `.paradigma/tools/_task_state.py` |
-| Derived indexes | Human root navigation, non-recursive local indexes, and rebuildable machine cache | `.paradigma/tools/_index.py` + `.paradigma/cache/` |
-| Characterization tests | Preserve current CLI and mutation behavior before refactoring | `tests/characterization/` |
+| Unified CLI adapter | Argument parsing, text/JSON rendering, and process exit mapping | `src/paradigma/cli/` |
+| Package application core | Value-returning validation, diagnosis, index, archive, progress, config, parser, schema and atomic-write services | `src/paradigma/` |
+| Legacy compatibility adapters | v0.5.x command names and output shapes only; no independent business rules | `.paradigma/tools/` |
+| Shared YAML parser | Safe YAML/frontmatter parsing and structured diagnostics | `src/paradigma/parser.py` |
+| Shared task state | Exact active-task lifecycle parsing used by archive and quality gates | `src/paradigma/task_state.py` |
+| Derived indexes | Human root navigation, non-recursive local indexes, and rebuildable machine cache | `src/paradigma/application/indexing.py` + `.paradigma/cache/` |
+| Characterization tests | Preserve compatibility CLI and mutation behavior | `tests/characterization/` |
 
 # Data Flow
 

@@ -45,10 +45,10 @@ This contract defines the externally meaningful repository boundaries for Projec
 | `memory-bank/knowledge/` | OKF-compatible long-lived knowledge bundle |
 | `docs/rfc/` | OKF-compatible proposal/RFC documents |
 | `memory-bank-template/` | Blank templates for derived projects |
-| `.paradigma/tools/` | Deterministic local tooling |
+| `.paradigma/tools/` | Deprecated v0.5.x command adapters backed by the installed/source-tree package |
 | `pyproject.toml` + `src/paradigma/` | Installable Python distribution and value-returning application core |
-| `.paradigma/tools/_paradigma_yaml.py` | Sole YAML/frontmatter parser for tool consumers |
-| `.paradigma/tools/_task_state.py` | Sole active-task status enum/parser for tool consumers |
+| `src/paradigma/parser.py` | Sole YAML/frontmatter parser implementation |
+| `src/paradigma/task_state.py` | Sole active-task status enum/parser implementation |
 | `.paradigma/cache/` | Ignored, disposable machine index artifacts; never canonical knowledge |
 | `tests/characterization/` | Executable baseline for current tool CLI and mutation behavior |
 | `tests/unit/`, `tests/integration/`, `tests/architecture/` | Package behavior, legacy equivalence, and dependency-boundary enforcement |
@@ -58,10 +58,11 @@ This contract defines the externally meaningful repository boundaries for Projec
 | Command | Status | Contract |
 |---------|--------|----------|
 | `python -m unittest discover -s tests -p "test_*.py" -v` | Stable | Runs the pre-refactor characterization suite using Python standard-library unittest |
-| `python -m pip install --no-deps .` | Phase 1 | Installs the `paradigma` distribution using root `VERSION` as package version |
-| `python .paradigma/tools/pd-version.py --verbose` | Stable | Reports distribution, installed distribution, config schema, OKF, and document schema versions |
+| `python -m pip install --no-deps .` | Stable | Installs the `paradigma` distribution using root `VERSION` as package version |
+| `pd version/config/check/diagnose/index/task` | Stable | Preferred unified CLI; every leaf supports text/JSON, dry-run, and explicit project root |
+| `python .paradigma/tools/pd-version.py --verbose` | Deprecated compatibility | Reports distribution, installed distribution, config schema, OKF, and document schema versions |
 | `python .paradigma/tools/pd-version.py --check` | Stable | Fails when required version fields are missing, legacy fields remain, or the installed distribution drifts from root `VERSION` |
-| `python .paradigma/tools/pd-check-all.py` | Stable | Aggregates version, lint, link, index, hot-size, and DESIGN.md validation into a single quality gate |
+| `python .paradigma/tools/pd-check-all.py` | Deprecated compatibility | Aggregates version, lint, link, index, hot-size, and DESIGN.md validation into a single quality gate |
 | `python .paradigma/tools/pd-lint-okf.py --strict` | Stable | Checks concept documents against schema, sections, timestamps, policies, and generated blocks |
 | `python .paradigma/tools/pd-check-links.py` | Stable | Checks Markdown links, frontmatter relations, and generated index entries |
 | `python .paradigma/tools/pd-index.py rebuild` | Stable | Strips legacy root generated blocks, rebuilds non-recursive local indexes, and writes the complete machine cache |

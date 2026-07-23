@@ -13,8 +13,17 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
 TOOLS = ROOT / ".paradigma" / "tools"
+SRC = ROOT / "src"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+from paradigma.application.diagnosis import diagnose_outcome
+from paradigma.application.validation import _strip_code_content, hot_size_outcome
+from paradigma.errors import AtomicWriteFailure, ParseFailure
+from paradigma.parser import parse_flat_frontmatter
+import paradigma.application.tasks as task_service
 EXPECTED_TOOLS = {
     "pd-archive-task.py",
     "pd-check-all.py",
@@ -55,6 +64,11 @@ def load_tool(script: str):
     sys.modules[module_name] = module
     spec.loader.exec_module(module)
     return module
+
+
+def copy_package_runtime(project: Path, tools: Path) -> None:
+    shutil.copy2(TOOLS / "_bootstrap.py", tools / "_bootstrap.py")
+    shutil.copytree(SRC / "paradigma", project / "src" / "paradigma")
 
 
 class ToolInventoryTests(unittest.TestCase):
@@ -145,6 +159,7 @@ class IsolatedMutationBaselineTests(unittest.TestCase):
         shutil.copy2(TOOLS / "pd-archive-task.py", tools)
         shutil.copy2(TOOLS / "_paradigma_yaml.py", tools)
         shutil.copy2(TOOLS / "_task_state.py", tools)
+        copy_package_runtime(root, tools)
 
         runtime = root / "memory-bank" / "runtime"
         runtime.mkdir(parents=True)
@@ -250,48 +265,34 @@ pending
             self.assertEqual(1, len(repeated_logs))
 
     def test_archive_interruption_is_recoverable_without_duplicate_log(self) -> None:
-        archive = load_tool("pd-archive-task.py")
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             self.make_archive_repository(root)
             active = root / "memory-bank" / "runtime" / "active-task.md"
-            template = (
-                root
-                / "memory-bank-template"
-                / "runtime"
-                / "active-task.template.md"
-            )
             progress = root / "memory-bank" / "logs" / "progress"
-            with mock.patch.multiple(
-                archive,
-                ROOT=root,
-                ACTIVE_TASK=active,
-                ACTIVE_TASK_TEMPLATE=template,
-                PROGRESS_ROOT=progress,
+            active_text = active.read_text(encoding="utf-8")
+            plan = task_service.build_archive_plan(
+                root, task_service.datetime.now().astimezone(), force=False
+            )
+            injected = AtomicWriteFailure(active, "atomic replace", OSError("injected"))
+            with mock.patch.object(
+                task_service, "atomic_replace_text", side_effect=injected
             ):
-                active_text = archive.read_utf8_text(active)
-                template_text = archive.read_utf8_text(template)
-                plan = archive.build_archive_plan(
-                    active_text, template_text, archive.now_local(), force=False
-                )
-                with mock.patch.object(
-                    archive, "atomic_replace", side_effect=OSError("injected")
-                ):
-                    with self.assertRaises(archive.ArchiveFailure) as raised:
-                        archive.execute_archive_plan(plan)
-                self.assertEqual("PD_ARCHIVE_IO_ERROR", raised.exception.code)
-                self.assertEqual(active_text, archive.read_utf8_text(active))
-                self.assertTrue(plan.target.exists())
+                with self.assertRaises(task_service.ArchiveFailure) as raised:
+                    task_service.execute_archive_plan(plan)
+            self.assertEqual("PD_ARCHIVE_IO_ERROR", raised.exception.code)
+            self.assertEqual(active_text, active.read_text(encoding="utf-8"))
+            self.assertTrue(plan.target.exists())
 
-                recovery = archive.build_archive_plan(
-                    active_text, template_text, archive.now_local(), force=False
-                )
-                self.assertFalse(recovery.create_archive)
-                self.assertEqual(plan.target, recovery.target)
-                archive.execute_archive_plan(recovery)
+            recovery = task_service.build_archive_plan(
+                root, task_service.datetime.now().astimezone(), force=False
+            )
+            self.assertFalse(recovery.create_archive)
+            self.assertEqual(plan.target, recovery.target)
+            task_service.execute_archive_plan(recovery)
 
-                self.assertIn("\n\npending\n", archive.read_utf8_text(active))
-                self.assertEqual(1, len(list(progress.glob("*.md"))))
+            self.assertIn("\n\npending\n", active.read_text(encoding="utf-8"))
+            self.assertEqual(1, len(list(progress.glob("*.md"))))
 
     def test_archive_cli_rejects_unknown_status_with_stable_code(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -315,40 +316,23 @@ pending
             self.assertFalse((root / "memory-bank" / "logs" / "progress").exists())
 
     def test_archive_plan_rejects_source_change_before_any_mutation(self) -> None:
-        archive = load_tool("pd-archive-task.py")
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             self.make_archive_repository(root)
             active = root / "memory-bank" / "runtime" / "active-task.md"
-            template = (
-                root
-                / "memory-bank-template"
-                / "runtime"
-                / "active-task.template.md"
-            )
             progress = root / "memory-bank" / "logs" / "progress"
-            with mock.patch.multiple(
-                archive,
-                ROOT=root,
-                ACTIVE_TASK=active,
-                ACTIVE_TASK_TEMPLATE=template,
-                PROGRESS_ROOT=progress,
-            ):
-                plan = archive.build_archive_plan(
-                    archive.read_utf8_text(active),
-                    archive.read_utf8_text(template),
-                    archive.now_local(),
-                    force=False,
-                )
-                active.write_text(
-                    archive.read_utf8_text(active) + "\nuser edit\n",
-                    encoding="utf-8",
-                )
-                with self.assertRaises(archive.ArchiveFailure) as raised:
-                    archive.execute_archive_plan(plan)
+            plan = task_service.build_archive_plan(
+                root, task_service.datetime.now().astimezone(), force=False
+            )
+            active.write_text(
+                active.read_text(encoding="utf-8") + "\nuser edit\n",
+                encoding="utf-8",
+            )
+            with self.assertRaises(task_service.ArchiveFailure) as raised:
+                task_service.execute_archive_plan(plan)
 
-                self.assertEqual("PD_ARCHIVE_SOURCE_CHANGED", raised.exception.code)
-                self.assertFalse(progress.exists())
+            self.assertEqual("PD_ARCHIVE_SOURCE_CHANGED", raised.exception.code)
+            self.assertFalse(progress.exists())
 
     def test_compact_write_preserves_source_logs(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -357,6 +341,7 @@ pending
             tools.mkdir(parents=True)
             shutil.copy2(TOOLS / "pd-compact-progress.py", tools)
             shutil.copy2(TOOLS / "_paradigma_yaml.py", tools)
+            copy_package_runtime(root, tools)
             progress = root / "memory-bank" / "logs" / "progress"
             progress.mkdir(parents=True)
             source = progress / "2026-07-22-session.md"
@@ -424,16 +409,10 @@ paradigma:
                 'paradigma_harness_version: "0.4.2"\n', encoding="utf-8"
             )
             self.assertEqual("0.4.2", diagnose._detect_version(root))
-            report = diagnose.DiagnoseResult(
-                project_path=root,
-                upstream_path=ROOT,
-                detected_version="0.4.2",
-                upstream_version="0.5.0",
-                version_match=False,
-            )
-            diagnose._check_config(root, ROOT, report)
+            report = diagnose_outcome(root, ROOT)
             self.assertTrue(
-                any(gap.kind == "deprecated" for gap in report.gaps), report.gaps
+                any(gap["kind"] == "deprecated" for gap in report.data["gaps"]),
+                report.data["gaps"],
             )
 
     def test_version_check_rejects_distribution_drift(self) -> None:
@@ -446,6 +425,7 @@ paradigma:
             shutil.copy2(TOOLS / "_paradigma_yaml.py", tools)
             shutil.copy2(TOOLS / "_version.py", tools)
             shutil.copy2(TOOLS / "pd-version.py", tools)
+            copy_package_runtime(root, tools)
             (root / "VERSION").write_text("0.5.0\n", encoding="utf-8")
             (root / ".paradigma" / "config.yaml").write_text(
                 """config_schema_version: "0.2"
@@ -502,25 +482,29 @@ installed_distribution_version: "0.4.2"
             archive.parse_status("## Current Status\n\nCompleted.\n")
 
     def test_hot_size_gate_rejects_unknown_active_task_status(self) -> None:
-        hot_size = load_tool("pd-check-hot-size.py")
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            active = root / "active-task.md"
+            config = root / ".paradigma"
+            config.mkdir()
+            (config / "config.yaml").write_text(
+                """config_schema_version: "0.3"
+okf_version: "0.1"
+installed_distribution_version: "0.5.1"
+knowledge_roots: [memory-bank/knowledge]
+reserved_filenames: [index.md, log.md]
+machine_index_path: .paradigma/cache/knowledge-index.json
+""",
+                encoding="utf-8",
+            )
+            active = root / "memory-bank" / "runtime" / "active-task.md"
+            active.parent.mkdir(parents=True)
             active.write_text(
                 "## Current Status\n\nIn progress.\n", encoding="utf-8"
             )
-            with mock.patch.multiple(
-                hot_size,
-                ROOT=root,
-                ACTIVE_TASK=active,
-                KNOWLEDGE_ROOT=root / "knowledge",
-                PROGRESS_INDEX=root / "progress" / "index.md",
-            ):
-                with self.assertRaises(hot_size.TaskStateFailure):
-                    hot_size.collect_checks()
+            outcome = hot_size_outcome(root)
+            self.assertEqual("PD_TASK_INVALID_STATUS", outcome.diagnostics[0].code)
 
     def test_link_checker_strips_code_regions(self) -> None:
-        links = load_tool("pd-check-links.py")
         source = """Visible [link](missing.md).
 
 ```markdown
@@ -529,7 +513,7 @@ installed_distribution_version: "0.4.2"
 
 Inline `[ignored](inline.md)`.
 """
-        stripped = links.strip_code_content(source)
+        stripped = _strip_code_content(source)
         self.assertIn("[link](missing.md)", stripped)
         self.assertNotIn("inside-fence.md", stripped)
         self.assertNotIn("inline.md", stripped)
@@ -602,13 +586,12 @@ class SharedYamlParserTests(unittest.TestCase):
             )
 
     def test_linter_preserves_parser_diagnostic_from_schema_validation(self) -> None:
-        lint = load_tool("pd-lint-okf.py")
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "broken.md"
             path.write_text("---\ntitle: [broken\n---\n", encoding="utf-8")
-            issues = lint.validate_document(path, {}, "strict")
-            self.assertEqual(1, len(issues))
-            self.assertIn("[YAML_SYNTAX_ERROR]", issues[0].message)
+            with self.assertRaises(ParseFailure) as raised:
+                parse_flat_frontmatter(path)
+            self.assertEqual("YAML_SYNTAX_ERROR", raised.exception.diagnostic.code)
 
     def test_every_yaml_consumer_routes_through_shared_parser(self) -> None:
         consumers = {
@@ -624,7 +607,10 @@ class SharedYamlParserTests(unittest.TestCase):
         for script in sorted(consumers):
             with self.subTest(script=script):
                 source = (TOOLS / script).read_text(encoding="utf-8")
-                self.assertIn("from _paradigma_yaml import", source)
+                self.assertTrue(
+                    "from paradigma" in source or "from _paradigma_yaml import" in source
+                )
+                self.assertNotIn("import yaml", source)
                 self.assertNotIn("def parse_yaml_subset", source)
 
 
@@ -633,7 +619,10 @@ class DerivedIndexBoundaryTests(unittest.TestCase):
         config = root / ".paradigma"
         config.mkdir(parents=True)
         (config / "config.yaml").write_text(
-            """knowledge_roots:
+            """config_schema_version: "0.3"
+okf_version: "0.1"
+installed_distribution_version: "0.5.1"
+knowledge_roots:
   - memory-bank/knowledge
 reserved_filenames:
   - index.md

@@ -43,7 +43,7 @@ paradigma:
 
 # Responsibility
 
-The tooling domain covers the L4 Deterministic Tooling Layer of Paradigma. Reusable core modules now live under `src/paradigma/`; `.paradigma/tools/` remains the compatibility surface during Phase 1. Both validate, generate, and maintain Memory-Bank artifacts without LLM interpretation.
+The tooling domain covers the L4 Deterministic Tooling Layer of Paradigma. Reusable core and application services live under `src/paradigma/`; `.paradigma/tools/` is a deprecated v0.5.x compatibility surface with no independent business logic.
 
 # Public Interfaces
 
@@ -77,9 +77,9 @@ The tooling domain covers the L4 Deterministic Tooling Layer of Paradigma. Reusa
 
 # Internal Flow
 
-Package modules expose structured config, parsing, Schema validation, atomic write, validation, diagnosis, index and task-archive services without CLI side effects. The `pd` adapter performs argument parsing, text/JSON rendering and exit-code mapping. Legacy tools still use adjacent private modules until Batch 1.3, when they become thin package-backed wrappers. Configuration comes from `.paradigma/config.yaml`, type rules come from `.paradigma/schemas/paradigma-types.schema.yaml`, and dry-run (no `--write`) remains the default for mutation tools.
+Package modules expose structured config, parsing, Schema validation, atomic write, validation, diagnosis, index, progress and task-archive services without CLI side effects. The `pd` adapter performs argument parsing, text/JSON rendering and exit-code mapping. Legacy tools and private helpers import these package services and contain only bootstrap, argument and presentation adapters. Configuration comes from `.paradigma/config.yaml`, type rules come from `.paradigma/schemas/paradigma-types.schema.yaml`, and dry-run (no `--write`) remains the default for mutation tools.
 
-Current behavior is preserved by `tests/characterization/`. Repository smoke tests cover all public tools; failure baselines cover validation and exit behavior; archive, compact, and index failure injection runs only inside temporary repositories. A relocated temporary workspace rebuilds its derived index and passes `pd-check-all.py`, protecting the pre-package deployment model.
+Current behavior is preserved by `tests/characterization/`, while `tests/integration/test_cli_equivalence.py` compares old and new entrypoints. A relocated Unicode/space-containing workspace is exercised on Windows locally and on both Windows/POSIX CI runners.
 
 # Dependencies
 
@@ -97,6 +97,6 @@ Current behavior is preserved by `tests/characterization/`. Repository smoke tes
 
 # Known Risks
 
-- Standalone tools depend on adjacent shared modules (`_paradigma_yaml.py`, `_task_state.py`, or `_version.py` as imported); partial tool copies must include them and `requirements.txt` dependencies.
+- Legacy scripts require either an installed `paradigma` distribution or the matching `src/paradigma/` source tree; copying one script by itself is unsupported.
 - Adding a new tool requires manually updating this document, the repository contract, and the testing guide.
 - Cross-file archive/reset is recoverable rather than globally atomic: after archive creation but before reset, the archive remains and the next invocation completes the reset using the same `archive_id`.

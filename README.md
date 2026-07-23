@@ -196,7 +196,9 @@ paradigma/
 ├── pyproject.toml                    ← Python package metadata，版本读取根 VERSION
 ├── requirements.txt                  ← PyYAML 运行时依赖
 ├── src/
-│   └── paradigma/                    ← 可复用应用内核（无 CLI 打印副作用）
+│   └── paradigma/
+│       ├── application/              ← 返回结构化结果的应用服务
+│       └── cli/                      ← `pd` 参数与输出适配层
 ├── DESIGN.md                         ← 可选，前端视觉设计规范
 ├── docs/
 │   └── rfc/
@@ -211,6 +213,7 @@ paradigma/
 │   ├── schemas/
 │   │   └── paradigma-types.schema.yaml
 │   └── tools/
+│       ├── _bootstrap.py             ← source-tree/package 定位
 │       ├── _paradigma_yaml.py
 │       ├── _task_state.py
 │       ├── _index.py
@@ -287,7 +290,7 @@ paradigma/
 3. **三层计划**：vision（project-brief）→ 中期计划（plans/）→ 当前执行（active-task）。Plan 完成后将 temperature 从 warm 切换到 cold。
 4. **OKF 严格合规**：knowledge 与 RFC concept 文档应通过 `pd-lint-okf.py --strict`。
 5. **关系可检查**：Markdown links、frontmatter relations、index entries 应通过 `pd-check-links.py`。
-6. **索引职责分离**：根 index 人工维护高层导航；子目录 block 和机器 cache 由 `pd-index.py` 维护。
+6. **索引职责分离**：根 index 人工维护高层导航；子目录 block 和机器 cache 由 `pd index rebuild` 维护。
 7. **版本管理**：模板库结构、协议、路径、规则变更按 `conventions.md` 评估 SemVer。
 8. **版本诊断**：衍生项目可用 `pd-diagnose.py --check-version` 快速检查是否需要更新 Harness。
 9. **严格任务状态**：active-task 只使用 `pending`、`active`、`blocked`、`completed`、`aborted`；归档必须先 dry-run。

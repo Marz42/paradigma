@@ -1,131 +1,39 @@
 #!/usr/bin/env python3
-"""Create a compact progress summary without deleting raw session logs."""
+"""Compatibility adapter for package-backed progress compaction."""
 
 from __future__ import annotations
 
-from datetime import datetime
-from pathlib import Path
 import argparse
-import os
-import re
 import sys
-import tempfile
 
-from _paradigma_yaml import ParseFailure, flatten_mapping, parse_markdown_text, read_utf8_text
+from _bootstrap import ensure_package
 
+ROOT = ensure_package()
 
-ROOT = Path(__file__).resolve().parents[2]
-PROGRESS_ROOT = ROOT / "memory-bank" / "logs" / "progress"
-SUMMARY_PATH = PROGRESS_ROOT / "summary.md"
-EXCLUDED = {"index.md", "summary.md"}
-
-
-class CompactFailure(RuntimeError):
-    def __init__(self, code: str, message: str):
-        self.code = code
-        super().__init__(message)
-
-    def format(self) -> str:
-        return f"[{self.code}] {self}"
-
-
-def title_for(path: Path, text: str) -> str:
-    if text.splitlines()[:1] == ["---"]:
-        metadata = flatten_mapping(parse_markdown_text(text, source=str(path)).metadata)
-        title = metadata.get("title")
-        if isinstance(title, str) and title.strip():
-            return title.strip()
-    heading_match = re.search(r"^#\s+(.+)$", text, re.MULTILINE)
-    if heading_match:
-        return heading_match.group(1).strip()
-    return path.stem
-
-
-def first_nonempty_bullet(text: str) -> str:
-    for line in text.splitlines():
-        stripped = line.strip()
-        if stripped.startswith("- "):
-            return stripped[2:].strip()
-    return "No bullet summary recorded."
-
-
-def collect_logs() -> list[tuple[Path, str, str]]:
-    logs: list[tuple[Path, str, str]] = []
-    if not PROGRESS_ROOT.exists():
-        return logs
-    for path in sorted(PROGRESS_ROOT.glob("*.md")):
-        if path.name in EXCLUDED:
-            continue
-        text = read_utf8_text(path)
-        logs.append((path, title_for(path, text), first_nonempty_bullet(text)))
-    return logs
-
-
-def render_summary(logs: list[tuple[Path, str, str]]) -> str:
-    current_time = datetime.now().astimezone()
-    lines = [
-        "# Progress Summary",
-        "",
-        f"Generated at: {current_time:%Y-%m-%d %H:%M}",
-        "",
-        "This file summarizes progress logs without deleting or rewriting the source session logs.",
-        "",
-        "| Log | Title | First Signal |",
-        "|-----|-------|--------------|",
-    ]
-    for path, title, signal in logs:
-        rel = path.relative_to(PROGRESS_ROOT).as_posix()
-        escaped_signal = signal.replace("|", "\\|")
-        lines.append(f"| [{rel}]({rel}) | {title} | {escaped_signal} |")
-    lines.append("")
-    return "\n".join(lines)
-
-
-def atomic_write_text(path: Path, content: str) -> None:
-    """Replace a summary atomically without exposing partial content."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, temporary_name = tempfile.mkstemp(
-        prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
-    )
-    temporary_path = Path(temporary_name)
-    try:
-        with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as handle:
-            handle.write(content)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temporary_path, path)
-    except OSError as error:
-        raise CompactFailure(
-            "PD_COMPACT_IO_ERROR", f"failed to write {path}: {error}"
-        ) from error
-    finally:
-        temporary_path.unlink(missing_ok=True)
+from paradigma.application.progress import CompactFailure, compact_outcome
+from paradigma.errors import ParseFailure
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--write", action="store_true", help="write memory-bank/logs/progress/summary.md")
+    parser.add_argument("--write", action="store_true")
     args = parser.parse_args()
-
     try:
-        logs = collect_logs()
+        outcome = compact_outcome(ROOT, dry_run=not args.write)
     except ParseFailure as error:
         print(f"ERROR: {error.diagnostic.format()}", file=sys.stderr)
         return 1
-    summary = render_summary(logs)
-    try:
-        if args.write:
-            atomic_write_text(SUMMARY_PATH, summary)
-            print(
-                f"Wrote {SUMMARY_PATH.relative_to(ROOT)} with "
-                f"{len(logs)} source log(s)."
-            )
-        else:
-            print(summary)
-        return 0
     except CompactFailure as error:
         print(f"ERROR: {error.format()}", file=sys.stderr)
         return 1
+    if args.write:
+        print(
+            f"Wrote {outcome.data['summary_path']} with "
+            f"{outcome.data['source_log_count']} source log(s)."
+        )
+    else:
+        print(outcome.data["summary"])
+    return 0
 
 
 if __name__ == "__main__":

@@ -76,9 +76,9 @@ Avoid pinyin, ambiguous abbreviations, and generic names such as `data`, `info`,
 - Keep pre-package tool behavior baselines under `tests/characterization/`; mutation tests must operate in temporary repositories.
 - Characterization coverage must include each public tool's repository success path plus its material validation, exit-code, compatibility, or write-failure behavior.
 - Put pure package behavior in `tests/unit/`, legacy/package equivalence in `tests/integration/`, and dependency direction checks in `tests/architecture/`.
-- Run `python .paradigma/tools/pd-check-all.py` after knowledge/RFC edits (aggregates version, lint, links, index, hot-size, and optional design checks).
-- Run `python .paradigma/tools/pd-index.py rebuild` after adding/removing concepts or changing retrieval metadata, then run `pd-index.py verify`.
-- Run `python .paradigma/tools/pd-check-hot-size.py` before ending substantial sessions.
+- Run `pd check --dry-run` after knowledge/RFC edits (aggregates version, lint, links, index, hot-size, and optional design checks).
+- Run `pd index rebuild` after adding/removing concepts or changing retrieval metadata, then run `pd index verify`.
+- Use `.paradigma/tools/` commands only for v0.5.x compatibility verification; new automation must use `pd`.
 - Compile Python tools with `python -m py_compile` when tool code changes, then remove or ignore `__pycache__` outputs.
 
 # Documentation Conventions
@@ -104,7 +104,7 @@ Version fields have distinct responsibilities:
 | OKF version | `.paradigma/config.yaml` | External OKF format compatibility target |
 | Document schema version | `.paradigma/schemas/paradigma-types.schema.yaml` | Paradigma concept-document registry version |
 
-Run `python .paradigma/tools/pd-version.py --check` after changing any version field. The legacy `paradigma_harness_version` and ambiguous top-level config `schema_version` are migration inputs only and must not be written by current tooling.
+Run `pd version --format text` after changing any version field. The legacy `paradigma_harness_version` and ambiguous top-level config `schema_version` are migration inputs only and must not be written by current tooling.
 
 | Change type | Version action |
 |-------------|----------------|

@@ -289,5 +289,7 @@ def diagnose_outcome(
         ),
         diagnostics=diagnostics,
         dry_run=dry_run,
-        exit_code_override=(2 if detected == "unknown" else 1 if gaps else 0),
+        exit_code_override=(
+            2 if detected == "unknown" else 1 if errors or warnings else 0
+        ),
     )

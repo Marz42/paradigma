@@ -18,6 +18,10 @@ SEMVER_PATTERN = re.compile(
 )
 
 
+class VersionModelError(ValueError):
+    """Raised when required distribution metadata cannot be read."""
+
+
 @dataclass(frozen=True)
 class VersionInfo:
     distribution_version: str
@@ -38,7 +42,7 @@ class VersionInfo:
         }
 
 
-def _top_level_scalars(path: Path) -> dict[str, str]:
+def read_top_level_scalars(path: Path) -> dict[str, str]:
     flattened = load_flat_yaml_file(path, missing_ok=True)
     return {
         key: value
@@ -47,20 +51,35 @@ def _top_level_scalars(path: Path) -> dict[str, str]:
     }
 
 
+def read_distribution_version(repository_root: Path) -> str:
+    version_path = repository_root.resolve() / "VERSION"
+    if not version_path.exists():
+        raise VersionModelError("missing root VERSION")
+    version = version_path.read_text(encoding="utf-8-sig").strip()
+    if not version:
+        raise VersionModelError("root VERSION is empty")
+    return version
+
+
+def read_installed_distribution_version(
+    repository_root: Path,
+) -> tuple[str, str | None]:
+    config = read_top_level_scalars(
+        repository_root.resolve() / ".paradigma" / "config.yaml"
+    )
+    installed = config.get("installed_distribution_version", "")
+    legacy = config.get("paradigma_harness_version", "") or None
+    return installed or legacy or "", legacy
+
+
 def read_version_info(repository_root: Path) -> VersionInfo:
     root = repository_root.resolve()
-    version_path = root / "VERSION"
-    distribution = (
-        version_path.read_text(encoding="utf-8-sig").strip()
-        if version_path.exists()
-        else ""
-    )
-    config = _top_level_scalars(root / ".paradigma" / "config.yaml")
-    schema = _top_level_scalars(
+    distribution = read_distribution_version(root)
+    config = read_top_level_scalars(root / ".paradigma" / "config.yaml")
+    schema = read_top_level_scalars(
         root / ".paradigma" / "schemas" / "paradigma-types.schema.yaml"
     )
-    legacy_harness = config.get("paradigma_harness_version") or None
-    installed = config.get("installed_distribution_version") or legacy_harness or ""
+    installed, legacy_harness = read_installed_distribution_version(root)
     return VersionInfo(
         distribution_version=distribution,
         installed_distribution_version=installed,
@@ -71,6 +90,43 @@ def read_version_info(repository_root: Path) -> VersionInfo:
         legacy_config_schema_version=config.get("schema_version") or None,
         legacy_document_schema_version=schema.get("schema_version") or None,
     )
+
+
+def validate_version_messages(info: VersionInfo) -> list[str]:
+    """Return the stable v0.5.1 compatibility error strings."""
+    errors: list[str] = []
+    for field_name, value in info.public_dict().items():
+        if not value:
+            errors.append(f"missing {field_name}")
+    for field_name in ("distribution_version", "installed_distribution_version"):
+        value = getattr(info, field_name)
+        if value and not SEMVER_PATTERN.fullmatch(value):
+            errors.append(f"{field_name} is not SemVer: {value}")
+    if (
+        info.distribution_version
+        and info.installed_distribution_version
+        and info.distribution_version != info.installed_distribution_version
+    ):
+        errors.append(
+            "installed_distribution_version does not match root VERSION: "
+            f"{info.installed_distribution_version} != {info.distribution_version}"
+        )
+    if info.legacy_harness_version is not None:
+        errors.append(
+            "legacy paradigma_harness_version is present; migrate to "
+            "installed_distribution_version"
+        )
+    if info.legacy_config_schema_version is not None:
+        errors.append(
+            "legacy config schema_version is present; migrate to "
+            "config_schema_version"
+        )
+    if info.legacy_document_schema_version is not None:
+        errors.append(
+            "legacy registry schema_version is present; migrate to "
+            "document_schema_version"
+        )
+    return errors
 
 
 def validate_version_info(info: VersionInfo) -> tuple[Diagnostic, ...]:
@@ -132,7 +188,20 @@ def validate_version_info(info: VersionInfo) -> tuple[Diagnostic, ...]:
 def version_outcome(
     repository_root: Path, *, dry_run: bool = False
 ) -> CommandOutcome:
-    info = read_version_info(repository_root)
+    try:
+        info = read_version_info(repository_root)
+    except VersionModelError as error:
+        return CommandOutcome(
+            command="version",
+            diagnostics=(
+                Diagnostic(
+                    "PD_VERSION_READ_ERROR",
+                    str(error),
+                    str(repository_root.resolve()),
+                ),
+            ),
+            dry_run=dry_run,
+        )
     diagnostics = validate_version_info(info)
     return CommandOutcome(
         command="version",
@@ -140,9 +209,8 @@ def version_outcome(
         messages=(
             "Version metadata is consistent."
             if not diagnostics
-            else "Version metadata validation failed."
-        ,),
+            else "Version metadata validation failed.",
+        ),
         diagnostics=diagnostics,
         dry_run=dry_run,
     )
-

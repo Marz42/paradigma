@@ -13,6 +13,13 @@
 - 新增 package unit、legacy parser equivalence、repository schema integration 和 architecture boundary tests；CI 安装本地 package 后再运行门禁。
 - 新增可安装的 `pd` 统一 CLI，覆盖 version、config validate、check、diagnose、index rebuild/verify 和 task archive。
 - 新增 adapter-neutral Application Service 与 `CommandOutcome`，统一 text/JSON、dry-run、diagnostics 和退出码契约。
+- 新增旧/new CLI 等价测试、Unicode/space 路径集成测试和 Windows/POSIX CI matrix。
+
+### Changed
+- `.paradigma/tools/` 全部收敛为 package-backed 兼容适配器；parser、task state、index、validation、diagnosis、archive 和 progress compaction 不再保留脚本侧独立实现。
+
+### Deprecated
+- v0.5.x 继续接受 `.paradigma/tools/pd-*.py` 调用，但新文档和 CI 以安装后的 `pd` 为主入口。
 
 ## [0.5.1] - 2026-07-23
 

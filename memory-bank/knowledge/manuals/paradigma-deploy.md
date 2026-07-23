@@ -58,11 +58,12 @@ For v0.5.1, the release dimensions are:
 # Verification
 
 ```powershell
-python .paradigma/tools/pd-index.py rebuild
+pd index rebuild
 python -m unittest discover -s tests -p "test_*.py" -v
-python .paradigma/tools/pd-version.py --verbose --check
+pd version --format json
+pd check --dry-run
+pd diagnose --project . --upstream . --format json
 python .paradigma/tools/pd-check-all.py --keep-going
-python .paradigma/tools/pd-diagnose.py --project . --upstream . --json
 git diff --check
 git status --short --branch
 ```
@@ -80,7 +81,7 @@ If a release preparation step produces incorrect generated content, restore the 
 | Strict lint fails | Missing frontmatter field or section | Add the required field/section according to schema |
 | Link check fails | Moved document or stale relation | Update the link or relation target |
 | Index check fails | Concept changed after index generation | Run `pd-index.py rebuild`, then `pd-index.py verify` |
-| Derived 0.5.0 project cannot import version/diagnose tools | PyYAML or `_paradigma_yaml.py` was not copied | Install `requirements.txt` and copy the full `.paradigma/tools/` set |
+| Legacy wrapper cannot import `paradigma` | Package was not installed and matching `src/` was not copied | Install the project with `python -m pip install .`, or copy the full package source tree during migration |
 
 # Citations
 

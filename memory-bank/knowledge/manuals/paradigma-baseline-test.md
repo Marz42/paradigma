@@ -70,9 +70,9 @@ Recommended command sequence:
 ```powershell
 python -m pip install -r requirements.txt
 python -m pip install --no-deps .
-python .paradigma/tools/pd-index.py rebuild
+pd index rebuild
 python -m unittest discover -s tests -p "test_*.py" -v
-python .paradigma/tools/pd-check-all.py
+pd check --dry-run
 ```
 
 Individual tools can also be run separately:
@@ -80,9 +80,10 @@ Individual tools can also be run separately:
 ```powershell
 python -m unittest tests.characterization.test_tools -v
 python -m unittest tests.characterization.test_failure_baselines -v
-python .paradigma/tools/pd-version.py --verbose --check
-python .paradigma/tools/pd-index.py verify
-python .paradigma/tools/pd-diagnose.py --project . --upstream . --json
+pd version --format json
+pd index verify --format json
+pd diagnose --project . --upstream . --format json
+python .paradigma/tools/pd-check-all.py --keep-going  # compatibility only
 ```
 
 # Rollback

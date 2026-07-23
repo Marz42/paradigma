@@ -4,7 +4,7 @@
 * [ADR-002 Adopt OKF-Compatible Memory Runtime Structure](adr-002-okf-compatible-memory-runtime.md) - Adopts runtime/logs/knowledge and OKF-compatible knowledge.
 
 <!-- BEGIN PARADIGMA AUTO-INDEX -->
-<!-- checksum: 9d5a206e929e345a -->
+<!-- checksum: 0a4ef159f66f6afa -->
 <!-- generated_by: pd-index.py -->
 
 | Path | Type | Title | Hints | Symbols | Relations |
@@ -17,5 +17,6 @@
 | [adr-006-transactional-task-archive.md](adr-006-transactional-task-archive.md) | `paradigma-decision` | ADR-006 Make Task Status Strict and Archive Recovery Idempotent | 严格任务状态<br>安全归档<br>原子写入 ... | TaskStatus<br>_task_state.py<br>ArchivePlan ... | constrains:/architecture.md<br>constrains:/conventions.md<br>constrains:/contracts/repository-contract.md<br>constrains:/domains/tooling.md ... |
 | [adr-007-separate-index-boundaries.md](adr-007-separate-index-boundaries.md) | `paradigma-decision` | ADR-007 Separate Human Navigation from Derived Machine Indexes | 索引边界<br>根导航<br>机器索引缓存 ... | pd-index.py<br>_index.py<br>knowledge-index.json ... | constrains:/architecture.md<br>constrains:/conventions.md<br>constrains:/contracts/repository-contract.md<br>constrains:/domains/tooling.md ... |
 | [adr-008-package-core-boundary.md](adr-008-package-core-boundary.md) | `paradigma-decision` | ADR-008 Establish the Installable Package Core Boundary | Python Package 边界<br>应用内核<br>兼容包装器 ... | pyproject.toml<br>src/paradigma<br>OperationResult ... | constrains:/architecture.md<br>constrains:/conventions.md<br>constrains:/contracts/repository-contract.md<br>constrains:/domains/tooling.md ... |
+| [adr-009-unified-cli-compatibility-window.md](adr-009-unified-cli-compatibility-window.md) | `paradigma-decision` | ADR-009 Adopt One Unified CLI with a Time-Bounded Compatibility Layer | 统一 CLI<br>兼容窗口<br>旧脚本弃用 ... | pd<br>CommandOutcome<br>.paradigma/tools | constrains:/architecture.md<br>constrains:/conventions.md<br>constrains:/contracts/repository-contract.md<br>constrains:/domains/tooling.md ... |
 
 <!-- END PARADIGMA AUTO-INDEX -->

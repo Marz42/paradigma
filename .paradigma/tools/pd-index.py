@@ -14,6 +14,7 @@ from _index import (
     verify_indexes,
 )
 from _paradigma_yaml import ParseFailure
+from paradigma.errors import ParadigmaError
 
 
 def display_path(settings, path) -> str:
@@ -60,6 +61,9 @@ def main() -> int:
         print(f"ERROR: {error.diagnostic.format()}")
         return 1
     except IndexFailure as error:
+        print(f"ERROR: {error.format()}")
+        return 1
+    except ParadigmaError as error:
         print(f"ERROR: {error.format()}")
         return 1
 

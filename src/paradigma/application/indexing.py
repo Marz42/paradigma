@@ -25,6 +25,29 @@ class IndexFailure(ParadigmaError, ValueError):
 
 
 @dataclass(frozen=True)
+class IndexSettings:
+    """Compatibility view of repository index configuration."""
+
+    repository_root: Path
+    knowledge_roots: tuple[Path, ...]
+    cache_path: Path
+    reserved_filenames: frozenset[str]
+
+    @property
+    def machine_index_path(self) -> Path:
+        return self.cache_path
+
+
+@dataclass(frozen=True)
+class RebuildResult:
+    concept_count: int
+    root_navigation_count: int
+    local_index_count: int
+    updated_markdown_count: int
+    cache_path: Path
+
+
+@dataclass(frozen=True)
 class Concept:
     path: Path
     document_type: str
@@ -40,6 +63,19 @@ class IndexChange:
     label: str
     path: Path
     current: bool
+
+
+VerificationItem = IndexChange
+
+
+def load_settings(repository_root: Path) -> IndexSettings:
+    config = require_valid_config(repository_root)
+    return IndexSettings(
+        repository_root=config.repository_root,
+        knowledge_roots=config.knowledge_roots,
+        cache_path=config.machine_index_path,
+        reserved_filenames=frozenset(config.reserved_filenames),
+    )
 
 
 def _get_list(data: dict[str, FlatValue], key: str) -> tuple[str, ...]:
@@ -303,6 +339,78 @@ def inspect_indexes(config: ParadigmaConfig) -> tuple[IndexChange, ...]:
     return tuple(changes)
 
 
+def normalize_newlines(text: str) -> str:
+    return _normalize_newlines(text)
+
+
+def root_navigation_targets(config: ParadigmaConfig | IndexSettings) -> list[Path]:
+    return [
+        knowledge_root / "index.md"
+        for knowledge_root in config.knowledge_roots
+        if knowledge_root.exists()
+    ]
+
+
+def local_index_targets(
+    config: ParadigmaConfig | IndexSettings,
+) -> list[tuple[Path, Path]]:
+    return _local_targets(config)  # type: ignore[arg-type]
+
+
+def desired_root_navigation(index_path: Path) -> str:
+    return _desired_root(index_path)
+
+
+def desired_local_index(
+    config: ParadigmaConfig | IndexSettings, scope: Path, index_path: Path
+) -> str:
+    return _desired_local(config, scope, index_path)  # type: ignore[arg-type]
+
+
+def atomic_write_text(path: Path, content: str) -> None:
+    atomic_replace_text(path, content)
+
+
+def rebuild_indexes(settings: IndexSettings) -> RebuildResult:
+    updated_markdown = 0
+    roots = root_navigation_targets(settings)
+    for index_path in roots:
+        desired = desired_root_navigation(index_path)
+        if read_utf8_text(index_path) != desired:
+            atomic_replace_text(index_path, desired)
+            updated_markdown += 1
+    locals_ = local_index_targets(settings)
+    for scope, index_path in locals_:
+        desired = desired_local_index(settings, scope, index_path)
+        current = read_utf8_text(index_path) if index_path.exists() else ""
+        if current != desired:
+            atomic_replace_text(index_path, desired)
+            updated_markdown += 1
+    atomic_replace_text(settings.cache_path, render_machine_index(settings))
+    return RebuildResult(
+        concept_count=len(all_concepts(settings)),  # type: ignore[arg-type]
+        root_navigation_count=len(roots),
+        local_index_count=len(locals_),
+        updated_markdown_count=updated_markdown,
+        cache_path=settings.cache_path,
+    )
+
+
+def verify_indexes(settings: IndexSettings) -> list[VerificationItem]:
+    return list(inspect_indexes(settings))  # type: ignore[arg-type]
+
+
+def inventory_lines(settings: IndexSettings) -> list[str]:
+    lines: list[str] = []
+    for knowledge_root, concept in all_concepts(settings):  # type: ignore[arg-type]
+        relative = concept.path.relative_to(knowledge_root).as_posix()
+        lines.append(
+            f"{knowledge_root.name}/{relative}\t{concept.document_type}\t"
+            f"{concept.title}\t{_summarize(concept.hints)}"
+        )
+    return lines
+
+
 def index_verify_outcome(
     repository_root: Path, *, dry_run: bool = False
 ) -> CommandOutcome:
@@ -371,4 +479,3 @@ def index_rebuild_outcome(
         changed=bool(updates) and not dry_run,
         dry_run=dry_run,
     )
-

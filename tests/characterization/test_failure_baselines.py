@@ -15,8 +15,23 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
 TOOLS = ROOT / ".paradigma" / "tools"
+SRC = ROOT / "src"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+from paradigma.application.outcomes import CommandOutcome
+from paradigma.application.indexing import BEGIN_MARKER, END_MARKER
+from paradigma.application.validation import link_outcome
+from paradigma.diagnostics import Diagnostic
+from paradigma.parser import parse_flat_frontmatter
+from paradigma.schema import (
+    DocumentType,
+    SchemaRegistry,
+    validate_concept,
+    validate_generated_index,
+)
 
 
 def load_tool(script: str):
@@ -42,14 +57,13 @@ def run_tool(script: str, *args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
+def copy_package_runtime(project: Path, tools: Path) -> None:
+    shutil.copy2(TOOLS / "_bootstrap.py", tools / "_bootstrap.py")
+    shutil.copytree(SRC / "paradigma", project / "src" / "paradigma")
+
+
 class LintAndLinkFailureBaselines(unittest.TestCase):
     def test_strict_lint_rejects_schema_and_checksum_drift(self) -> None:
-        lint = load_tool("pd-lint-okf.py")
-        schema = {
-            "required_frontmatter": ["type", "title", "timestamp"],
-            "required_paradigma_fields": ["temperature"],
-            "types.test-concept.required_sections": ["Purpose"],
-        }
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             document = root / "concept.md"
@@ -61,12 +75,30 @@ timestamp: yesterday
 ---
 
 # Wrong Section
-""",
+                """,
                 encoding="utf-8",
+            )
+            metadata, body = parse_flat_frontmatter(document)
+            registry = SchemaRegistry(
+                source=root / "schema.yaml",
+                document_schema_version="0.2",
+                required_frontmatter=("type", "title", "timestamp"),
+                required_paradigma_fields=("temperature",),
+                allowed_update_policies=(),
+                allowed_epistemic_statuses=(),
+                allowed_temperatures=(),
+                allowed_lifecycles=(),
+                document_types={
+                    "test-concept": DocumentType(
+                        "test-concept", "knowledge", "warm", ("Purpose",)
+                    )
+                },
             )
             messages = [
                 issue.message
-                for issue in lint.validate_document(document, schema, "strict")
+                for issue in validate_concept(
+                    metadata, body, registry, source=str(document), strict=True
+                )
             ]
             self.assertTrue(any("not ISO 8601" in message for message in messages))
             self.assertIn(
@@ -78,23 +110,39 @@ timestamp: yesterday
             index_path.write_text(
                 f"""# Index
 
-{lint.BEGIN_MARKER}
+{BEGIN_MARKER}
 <!-- checksum: 0000000000000000 -->
 generated content
-{lint.END_MARKER}
+{END_MARKER}
 """,
                 encoding="utf-8",
             )
-            index_issues = lint.validate_index(index_path, "strict")
+            index_issues = validate_generated_index(
+                index_path.read_text(encoding="utf-8"),
+                source=str(index_path),
+                strict=True,
+            )
             self.assertTrue(
                 any("checksum is stale" in issue.message for issue in index_issues)
             )
 
     def test_link_checker_distinguishes_errors_from_planned_warnings(self) -> None:
-        links = load_tool("pd-check-links.py")
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            document = root / "concept.md"
+            config_root = root / ".paradigma"
+            config_root.mkdir()
+            (config_root / "config.yaml").write_text(
+                """config_schema_version: "0.3"
+okf_version: "0.1"
+installed_distribution_version: "0.5.1"
+knowledge_roots: [knowledge]
+reserved_filenames: [index.md, log.md]
+machine_index_path: .paradigma/cache/knowledge-index.json
+""",
+                encoding="utf-8",
+            )
+            document = root / "knowledge" / "concept.md"
+            document.parent.mkdir()
             document.write_text(
                 """---
 type: test-concept
@@ -105,13 +153,13 @@ paradigma:
 ---
 
 [Missing](missing.md)
-""",
+                """,
                 encoding="utf-8",
             )
-            issues = links.check_file(document, [root])
+            issues = link_outcome(root).diagnostics
             self.assertEqual(
-                [("ERROR", "markdown"), ("WARN", "planned")],
-                [(issue.level, issue.message.split()[1]) for issue in issues],
+                [("error", "markdown"), ("warning", "planned")],
+                [(issue.severity.value, issue.message.split()[1]) for issue in issues],
             )
 
 
@@ -120,16 +168,22 @@ class HotSizeAndVersionFailureBaselines(unittest.TestCase):
         hot_size = load_tool("pd-check-hot-size.py")
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            progress = root / "progress" / "index.md"
+            config_root = root / ".paradigma"
+            config_root.mkdir()
+            (config_root / "config.yaml").write_text(
+                """config_schema_version: "0.3"
+okf_version: "0.1"
+installed_distribution_version: "0.5.1"
+knowledge_roots: [memory-bank/knowledge]
+reserved_filenames: [index.md, log.md]
+machine_index_path: .paradigma/cache/knowledge-index.json
+""",
+                encoding="utf-8",
+            )
+            progress = root / "memory-bank" / "logs" / "progress" / "index.md"
             progress.parent.mkdir(parents=True)
             progress.write_text("line\n" * 161, encoding="utf-8")
-            with mock.patch.multiple(
-                hot_size,
-                ROOT=root,
-                ACTIVE_TASK=root / "missing-active-task.md",
-                KNOWLEDGE_ROOT=root / "missing-knowledge",
-                PROGRESS_INDEX=progress,
-            ):
+            with mock.patch.object(hot_size, "ROOT", root):
                 with mock.patch.object(sys, "argv", ["pd-check-hot-size.py"]):
                     with redirect_stdout(StringIO()):
                         self.assertEqual(0, hot_size.main())
@@ -138,9 +192,6 @@ class HotSizeAndVersionFailureBaselines(unittest.TestCase):
                 ):
                     with redirect_stdout(StringIO()):
                         self.assertEqual(1, hot_size.main())
-
-            error = hot_size.SizeCheck(progress, 261, 160, 260, "test")
-            self.assertEqual("ERROR", error.level)
 
     def test_version_cli_rejects_invalid_semver(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -151,6 +202,7 @@ class HotSizeAndVersionFailureBaselines(unittest.TestCase):
             schemas.mkdir(parents=True)
             for name in ("_paradigma_yaml.py", "_version.py", "pd-version.py"):
                 shutil.copy2(TOOLS / name, tools / name)
+            copy_package_runtime(root, tools)
             (root / "VERSION").write_text("release-next\n", encoding="utf-8")
             (root / ".paradigma" / "config.yaml").write_text(
                 """config_schema_version: "0.3"
@@ -193,8 +245,18 @@ class DiagnoseAndCheckAllFailureBaselines(unittest.TestCase):
 
     def test_check_all_stops_on_first_failure_by_default(self) -> None:
         check_all = load_tool("pd-check-all.py")
-        failure = subprocess.CompletedProcess([], 1)
-        with mock.patch.object(check_all.subprocess, "run", return_value=failure) as run:
+        outcome = CommandOutcome(
+            command="check",
+            data={
+                "total": 2,
+                "steps": [
+                    {"name": "version", "ok": False, "diagnostics": []},
+                    {"name": "lint", "ok": True, "diagnostics": []},
+                ],
+            },
+            diagnostics=(Diagnostic("PD_TEST", "failure", "test"),),
+        )
+        with mock.patch.object(check_all, "check_outcome", return_value=outcome) as run:
             with mock.patch.object(sys, "argv", ["pd-check-all.py"]):
                 with redirect_stdout(StringIO()):
                     self.assertEqual(1, check_all.main())
@@ -202,22 +264,21 @@ class DiagnoseAndCheckAllFailureBaselines(unittest.TestCase):
 
     def test_check_all_keep_going_aggregates_failures(self) -> None:
         check_all = load_tool("pd-check-all.py")
-        results = [
-            subprocess.CompletedProcess([], 1),
-            subprocess.CompletedProcess([], 0),
-            subprocess.CompletedProcess([], 1),
-            subprocess.CompletedProcess([], 0),
-            subprocess.CompletedProcess([], 0),
+        steps = [
+            {"name": f"step-{index}", "ok": index not in (0, 2), "diagnostics": []}
+            for index in range(6)
         ]
+        outcome = CommandOutcome(
+            command="check",
+            data={"total": 6, "steps": steps},
+            diagnostics=(Diagnostic("PD_TEST", "failure", "test"),),
+        )
         output = StringIO()
-        with mock.patch.object(check_all.subprocess, "run", side_effect=results) as run:
-            with mock.patch.object(check_all, "_check_design_md", return_value=True):
-                with mock.patch.object(
-                    sys, "argv", ["pd-check-all.py", "--keep-going"]
-                ):
-                    with redirect_stdout(output):
-                        self.assertEqual(1, check_all.main())
-        self.assertEqual(len(check_all.STEPS), run.call_count)
+        with mock.patch.object(check_all, "check_outcome", return_value=outcome) as run:
+            with mock.patch.object(sys, "argv", ["pd-check-all.py", "--keep-going"]):
+                with redirect_stdout(output):
+                    self.assertEqual(1, check_all.main())
+        self.assertEqual(1, run.call_count)
         self.assertIn("2/6 check(s) failed", output.getvalue())
 
 
@@ -249,13 +310,13 @@ title: Test Session
             summary_before = summary.read_bytes()
             source_before = source.read_bytes()
             stderr = StringIO()
-            with mock.patch.multiple(
-                compact,
-                ROOT=root,
-                PROGRESS_ROOT=progress,
-                SUMMARY_PATH=summary,
-            ):
-                with mock.patch.object(compact.os, "replace", side_effect=OSError("injected")):
+            with mock.patch.object(compact, "ROOT", root):
+                with mock.patch(
+                    "paradigma.application.progress.atomic_replace_text",
+                    side_effect=compact.CompactFailure(
+                        "injected", code="PD_COMPACT_IO_ERROR"
+                    ),
+                ):
                     with mock.patch.object(
                         sys, "argv", ["pd-compact-progress.py", "--write"]
                     ):
@@ -277,12 +338,7 @@ title: Test Session
             summary.write_text("old summary\n", encoding="utf-8")
             summary_before = summary.read_bytes()
             stderr = StringIO()
-            with mock.patch.multiple(
-                compact,
-                ROOT=root,
-                PROGRESS_ROOT=progress,
-                SUMMARY_PATH=summary,
-            ):
+            with mock.patch.object(compact, "ROOT", root):
                 with mock.patch.object(
                     sys, "argv", ["pd-compact-progress.py", "--write"]
                 ):
@@ -295,14 +351,15 @@ title: Test Session
 
 class IndexAtomicityBaselines(unittest.TestCase):
     def test_index_replace_failure_preserves_existing_file(self) -> None:
-        index = load_tool("_index.py")
+        import paradigma.atomic as atomic
+
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "knowledge-index.json"
             path.write_text("old index\n", encoding="utf-8")
             before = path.read_bytes()
-            with mock.patch.object(index.os, "replace", side_effect=OSError("injected")):
+            with mock.patch.object(atomic.os, "replace", side_effect=OSError("injected")):
                 with self.assertRaises(OSError):
-                    index.atomic_write_text(path, "new index\n")
+                    atomic.atomic_replace_text(path, "new index\n")
 
             self.assertEqual(before, path.read_bytes())
             self.assertEqual([], list(path.parent.glob(".knowledge-index.json.*.tmp")))
@@ -324,6 +381,7 @@ class ExternalWorkspaceBaselineTests(unittest.TestCase):
                     project / directory,
                     ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
                 )
+            shutil.copytree(SRC / "paradigma", project / "src" / "paradigma")
             for file_name in (
                 ".paradigma/config.yaml",
                 "VERSION",
@@ -374,6 +432,7 @@ class ReleaseMigrationBaselineTests(unittest.TestCase):
             schemas.mkdir(parents=True)
             for name in ("_paradigma_yaml.py", "_version.py", "pd-version.py"):
                 shutil.copy2(TOOLS / name, tools / name)
+            copy_package_runtime(project, tools)
 
             (project / "VERSION").write_text("0.5.1\n", encoding="utf-8")
             config = project / ".paradigma" / "config.yaml"
