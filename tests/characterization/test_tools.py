@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -135,6 +136,41 @@ class RepositoryCliBaselineTests(unittest.TestCase):
         after = summary.read_bytes() if summary.exists() else None
         self.assertEqual(before, after)
         self.assertIn("# Progress Summary", output)
+
+    def test_compact_progress_forces_utf8_under_cp1252_parent(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "兼容 workspace"
+            tools = root / ".paradigma" / "tools"
+            tools.mkdir(parents=True)
+            shutil.copy2(TOOLS / "pd-compact-progress.py", tools)
+            copy_package_runtime(root, tools)
+            progress = root / "memory-bank" / "logs" / "progress"
+            progress.mkdir(parents=True)
+            (progress / "session.md").write_text(
+                """---
+title: 中文会话
+---
+
+# Session
+
+- 已完成编码回归
+""",
+                encoding="utf-8",
+            )
+            environment = os.environ.copy()
+            environment["PYTHONIOENCODING"] = "cp1252"
+            result = subprocess.run(
+                [sys.executable, str(tools / "pd-compact-progress.py")],
+                cwd=root,
+                env=environment,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                check=False,
+            )
+            self.assertEqual(0, result.returncode, result.stderr)
+            self.assertIn("中文会话", result.stdout)
+            self.assertIn("已完成编码回归", result.stdout)
 
     def test_self_diagnose_reports_current_harness_baseline(self) -> None:
         output = self.assert_tool_passes(

@@ -3,8 +3,22 @@
 from __future__ import annotations
 
 import json
+import sys
 
 from ..application.outcomes import CommandOutcome
+
+
+def configure_utf8_stdio() -> None:
+    """Make redirected CLI output deterministic on every supported platform."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if not callable(reconfigure):
+            continue
+        try:
+            reconfigure(encoding="utf-8")
+        except (OSError, ValueError):
+            # In-memory and already-closed test streams may not be reconfigurable.
+            continue
 
 
 def render_json(outcome: CommandOutcome) -> str:

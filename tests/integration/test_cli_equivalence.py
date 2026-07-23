@@ -3,6 +3,7 @@ from __future__ import annotations
 from contextlib import redirect_stdout
 from io import StringIO
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -40,6 +41,35 @@ def run_legacy(script: str, *args: str, cwd: Path = ROOT) -> subprocess.Complete
 
 
 class CliEquivalenceTests(unittest.TestCase):
+    def test_unified_cli_forces_utf8_for_structured_non_ascii_output(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            project = Path(temporary) / "缺失版本"
+            project.mkdir()
+            environment = os.environ.copy()
+            environment["PYTHONIOENCODING"] = "cp1252"
+            environment["PYTHONPATH"] = str(SRC)
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "paradigma.cli.main",
+                    "version",
+                    "--project",
+                    str(project),
+                    "--format",
+                    "json",
+                ],
+                cwd=ROOT,
+                env=environment,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                check=False,
+            )
+            self.assertEqual(1, result.returncode, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertIn("缺失版本", payload["diagnostics"][0]["source"])
+
     def test_version_and_diagnose_json_preserve_legacy_data(self) -> None:
         legacy_version = run_legacy("pd-version.py", "--json")
         new_version_exit, new_version_text = run_new(

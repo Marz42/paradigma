@@ -3,7 +3,7 @@ type: paradigma-runtime-state
 title: Active Task
 description: Current active task state for the Agent session.
 tags: [runtime, active-task]
-timestamp: 2026-07-23T23:04:58+08:00
+timestamp: 2026-07-23T23:35:41+08:00
 paradigma:
   layer: runtime
   temperature: hot
@@ -53,4 +53,4 @@ None.
 
 ## Notes
 
-Phase 1 三个 Batch 的实现已完成：package 可构建/隔离安装，统一 CLI 与 Application Service 已接通，legacy scripts 已删除独立业务实现。70 项本地 Windows 测试覆盖等价、结构化失败、恢复、架构边界和 Unicode/space 路径；最终退出只待本提交的 Windows/POSIX CI matrix 确认。
+Phase 1 三个 Batch 的实现已完成：package 可构建/隔离安装，统一 CLI 与 Application Service 已接通，legacy scripts 已删除独立业务实现。首次 CI 暴露 Windows redirected stdout 的 `cp1252` 编码问题，现已由统一 UTF-8 stdio adapter 修复；72 项测试包含强制 `cp1252` 回归。最终退出待修复提交的 Windows/POSIX CI matrix 确认。

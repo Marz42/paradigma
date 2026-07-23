@@ -21,6 +21,9 @@
 ### Deprecated
 - v0.5.x 继续接受 `.paradigma/tools/pd-*.py` 调用，但新文档和 CI 以安装后的 `pd` 为主入口。
 
+### Fixed
+- CLI adapter 显式将 stdout/stderr 配置为 UTF-8，避免 Windows CI 重定向输出使用 `cp1252` 时无法打印中文 progress metadata。
+
 ## [0.5.1] - 2026-07-23
 
 ### Added

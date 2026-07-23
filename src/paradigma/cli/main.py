@@ -16,7 +16,7 @@ from ..diagnostics import Diagnostic
 from ..errors import DiagnosticError, ParadigmaError
 from ..parser import ParseFailure
 from ..application.outcomes import CommandOutcome
-from .output import render
+from .output import configure_utf8_stdio, render
 
 
 def _leaf_options(parser: argparse.ArgumentParser) -> None:
@@ -103,6 +103,7 @@ def _error_outcome(command: str, error: Exception) -> CommandOutcome:
 
 
 def main(argv: list[str] | None = None) -> int:
+    configure_utf8_stdio()
     args = build_parser().parse_args(argv)
     command = " ".join(
         str(value)

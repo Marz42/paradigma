@@ -87,7 +87,9 @@ Package core methods return values, `OperationResult`, or structured exceptions/
 
 JSON responses expose `command`, `ok`, `changed`, `dry_run`, `data`, `messages`,
 and `diagnostics`. Diagnostics provide stable codes and severities. Text rendering
-is an adapter concern and does not change the underlying outcome.
+is an adapter concern and does not change the underlying outcome. Unified and
+legacy CLI adapters configure stdout/stderr as UTF-8 so redirected Windows output
+has the same encoding contract as POSIX output.
 
 # Response Schema
 
