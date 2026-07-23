@@ -3,7 +3,7 @@ type: paradigma-runtime-state
 title: Active Task
 description: Current active task state for the Agent session.
 tags: [runtime, active-task]
-timestamp: 2026-07-23T22:11:32+08:00
+timestamp: 2026-07-23T22:31:40+08:00
 paradigma:
   layer: runtime
   temperature: hot
@@ -17,24 +17,24 @@ paradigma:
 
 ## Task ID
 
-2026-07-23-v0-5-1-release-preparation
+2026-07-23-phase1-python-package-cli
 
 ## User Request
 
-准备 Paradigma v0.5.1 发布候选：统一版本、冻结 release notes、验证 0.5.0 升级路径并完成 tag 前检查；不实际创建 tag 或推送。
+执行正式计划 Phase 1（目标 v0.5.2）：建立 Python Package、统一 `pd` CLI，并将旧脚本收敛为无独立业务逻辑的兼容包装器。
 
 ## Current Status
 
-completed
+active
 
 ## Checklist
 
-- [x] 将 distribution 与 installed distribution 统一 bump 到 0.5.1
-- [x] 冻结 0.5.1 changelog/release notes 并更新 README
-- [x] 补全 0.5.0 → 0.5.1 衍生 Workspace 升级说明
-- [x] 更新版本相关 characterization expectations
-- [x] 运行 tag 前完整回归、迁移验证和仓库审查
-- [x] 记录发布准备结果并提交 release-prep commit
+- [x] Batch 1.1：建立 `pyproject.toml`、`src/paradigma/` 和 package unit tests
+- [x] 提取 errors、results、config、parser、schema validator、atomic writer、diagnostics
+- [ ] Batch 1.2：实现统一 `pd` CLI 及 text/JSON/dry-run 输出契约
+- [ ] Batch 1.3：将现有脚本改为调用 package/Application Service 的薄包装器
+- [ ] 验证 package 安装、新旧 CLI 等价和 Windows/POSIX 行为
+- [ ] 同步 ADR、契约、手册、changelog 和 Phase 1 退出结论
 
 ## Relevant Knowledge
 
@@ -53,4 +53,4 @@ None.
 
 ## Notes
 
-v0.5.1 release candidate 已准备完成：48/48 tests、6/6 quality gates、版本五维一致、self-diagnose 0 gaps、0.5.0 元数据迁移可重复通过。仓库当前没有 `v0.5.1` tag；annotated tag、push 和 GitHub Release 等外部发布动作留待用户确认。
+Batch 1.1 已完成：wheel 可构建并隔离安装，package version 与根 `VERSION` 一致；59/59 tests 通过。下一步 Batch 1.2 建立统一 `pd` CLI 和 Application Service，现有脚本继续作为等价基线。

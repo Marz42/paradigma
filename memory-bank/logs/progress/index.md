@@ -12,3 +12,4 @@
 - [2026-07-23 Phase 0 Index Boundaries](2026-07-23-phase0-index-boundaries.md)
 - [2026-07-23 Phase 0 Characterization Tests](2026-07-23-phase0-characterization-tests.md)
 - [2026-07-23 v0.5.1 Release Preparation](2026-07-23-v0-5-1-release-preparation.md)
+- [2026-07-23 Phase 1 Package Skeleton](2026-07-23-phase1-package-skeleton.md)

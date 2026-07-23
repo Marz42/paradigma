@@ -3,7 +3,7 @@ type: paradigma-domain
 title: Tooling Domain
 description: Deterministic tooling layer for OKF lint, link checking, index sync, and runtime maintenance.
 tags: [domain, tooling]
-timestamp: 2026-07-23T21:55:59+08:00
+timestamp: 2026-07-23T22:31:40+08:00
 paradigma:
   schema_version: "0.1"
   temperature: warm
@@ -43,7 +43,7 @@ paradigma:
 
 # Responsibility
 
-The tooling domain covers the L4 Deterministic Tooling Layer of Paradigma. Tools live under `.paradigma/tools/`, use a shared PyYAML-backed parser, and validate, generate, and maintain Memory-Bank artifacts without LLM interpretation.
+The tooling domain covers the L4 Deterministic Tooling Layer of Paradigma. Reusable core modules now live under `src/paradigma/`; `.paradigma/tools/` remains the compatibility surface during Phase 1. Both validate, generate, and maintain Memory-Bank artifacts without LLM interpretation.
 
 # Public Interfaces
 
@@ -62,14 +62,14 @@ The tooling domain covers the L4 Deterministic Tooling Layer of Paradigma. Tools
 
 # Internal Flow
 
-All tools share a common root resolution pattern (`Path(__file__).resolve().parents[2]`) and operate on the repository root. YAML and Markdown frontmatter consumers use `_paradigma_yaml.py`, active-task consumers use `_task_state.py`, index commands use `_index.py`, and version-aware tools use `_version.py`. Configuration comes from `.paradigma/config.yaml`, type rules come from `.paradigma/schemas/paradigma-types.schema.yaml`, and dry-run (no `--write`) is the default for mutation tools.
+Package modules expose structured config, parsing, Schema validation, atomic write, diagnostic, error, and result APIs without CLI side effects. Legacy tools still use adjacent private modules until Batch 1.3, when they become thin package-backed wrappers. Configuration comes from `.paradigma/config.yaml`, type rules come from `.paradigma/schemas/paradigma-types.schema.yaml`, and dry-run (no `--write`) remains the default for mutation tools.
 
 Current behavior is preserved by `tests/characterization/`. Repository smoke tests cover all public tools; failure baselines cover validation and exit behavior; archive, compact, and index failure injection runs only inside temporary repositories. A relocated temporary workspace rebuilds its derived index and passes `pd-check-all.py`, protecting the pre-package deployment model.
 
 # Dependencies
 
 - Python 3.11+.
-- PyYAML 6.x, declared in root `requirements.txt`.
+- PyYAML 6.x, declared in both `pyproject.toml` and legacy bootstrap `requirements.txt`.
 - `.paradigma/config.yaml` for knowledge roots, reserved filenames, and generated block markers.
 - `.paradigma/cache/knowledge-index.json` as a disposable, ignored machine inventory generated from canonical Markdown.
 - `.paradigma/schemas/paradigma-types.schema.yaml` for type registry, required sections, and field validation.

@@ -3,7 +3,7 @@ type: paradigma-contract
 title: Repository Contract
 description: Current repository-level contract boundaries for APIs, databases, tools, and versioning.
 tags: [contract, repository, tooling]
-timestamp: 2026-07-23T21:55:59+08:00
+timestamp: 2026-07-23T22:31:40+08:00
 paradigma:
   schema_version: "0.1"
   temperature: hot
@@ -32,7 +32,7 @@ paradigma:
 
 # Scope
 
-This contract defines the externally meaningful repository boundaries for Project Paradigma. The project is currently a documentation/template/tooling repository, not an application runtime.
+This contract defines the externally meaningful repository boundaries for Project Paradigma. Phase 1 introduces an installable application core while preserving the documentation/template and legacy script surfaces.
 
 # Contract
 
@@ -46,16 +46,19 @@ This contract defines the externally meaningful repository boundaries for Projec
 | `docs/rfc/` | OKF-compatible proposal/RFC documents |
 | `memory-bank-template/` | Blank templates for derived projects |
 | `.paradigma/tools/` | Deterministic local tooling |
+| `pyproject.toml` + `src/paradigma/` | Installable Python distribution and value-returning application core |
 | `.paradigma/tools/_paradigma_yaml.py` | Sole YAML/frontmatter parser for tool consumers |
 | `.paradigma/tools/_task_state.py` | Sole active-task status enum/parser for tool consumers |
 | `.paradigma/cache/` | Ignored, disposable machine index artifacts; never canonical knowledge |
 | `tests/characterization/` | Executable baseline for current tool CLI and mutation behavior |
+| `tests/unit/`, `tests/integration/`, `tests/architecture/` | Package behavior, legacy equivalence, and dependency-boundary enforcement |
 
 ## Tool Commands
 
 | Command | Status | Contract |
 |---------|--------|----------|
 | `python -m unittest discover -s tests -p "test_*.py" -v` | Stable | Runs the pre-refactor characterization suite using Python standard-library unittest |
+| `python -m pip install --no-deps .` | Phase 1 | Installs the `paradigma` distribution using root `VERSION` as package version |
 | `python .paradigma/tools/pd-version.py --verbose` | Stable | Reports distribution, installed distribution, config schema, OKF, and document schema versions |
 | `python .paradigma/tools/pd-version.py --check` | Stable | Fails when required version fields are missing, legacy fields remain, or the installed distribution drifts from root `VERSION` |
 | `python .paradigma/tools/pd-check-all.py` | Stable | Aggregates version, lint, link, index, hot-size, and DESIGN.md validation into a single quality gate |
@@ -73,6 +76,8 @@ This contract defines the externally meaningful repository boundaries for Projec
 # Request Schema
 
 No HTTP, SDK, or CLI request schema is currently published. Tool command arguments are intentionally minimal and documented in each script help text.
+
+Package core methods return values, `OperationResult`, or structured exceptions/diagnostics. They do not parse CLI arguments, invoke subprocesses, or print output directly.
 
 # Response Schema
 

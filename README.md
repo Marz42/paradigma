@@ -84,6 +84,7 @@ Copy-Item -Recurse -Force memory-bank-template/knowledge/* memory-bank/knowledge
 
 ```bash
 python -m pip install -r requirements.txt
+python -m pip install --no-deps .
 python .paradigma/tools/pd-index.py rebuild
 python .paradigma/tools/pd-check-all.py
 ```
@@ -152,6 +153,7 @@ flowchart TD
 
 ```bash
 python -m pip install -r requirements.txt
+python -m pip install --no-deps .
 python .paradigma/tools/pd-index.py rebuild
 python -m unittest discover -s tests -p "test_*.py" -v
 python .paradigma/tools/pd-check-all.py
@@ -182,7 +184,10 @@ paradigma/
 ├── AGENT_RULES.md
 ├── INIT_PROMPT.md
 ├── VERSION
+├── pyproject.toml                    ← Python package metadata，版本读取根 VERSION
 ├── requirements.txt                  ← PyYAML 运行时依赖
+├── src/
+│   └── paradigma/                    ← 可复用应用内核（无 CLI 打印副作用）
 ├── DESIGN.md                         ← 可选，前端视觉设计规范
 ├── docs/
 │   └── rfc/
@@ -215,8 +220,10 @@ paradigma/
 │   └── workflows/
 │       └── check.yml
 ├── tests/
+│   ├── unit/
+│   ├── integration/
+│   ├── architecture/
 │   └── characterization/
-│       └── test_tools.py
 ├── memory-bank-template/
 │   ├── DESIGN.md                     ← DESIGN.md 空白模板
 │   ├── runtime/

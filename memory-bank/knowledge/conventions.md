@@ -3,7 +3,7 @@ type: paradigma-convention
 title: Coding and Collaboration Conventions
 description: Coding, naming, testing, documentation, versioning, and prohibited patterns for Project Paradigma.
 tags: [conventions, semver, collaboration, tooling]
-timestamp: 2026-07-23T21:55:59+08:00
+timestamp: 2026-07-23T22:31:40+08:00
 paradigma:
   schema_version: "0.1"
   temperature: hot
@@ -50,6 +50,8 @@ Avoid pinyin, ambiguous abbreviations, and generic names such as `data`, `info`,
 - Route all YAML and Markdown frontmatter reads through `_paradigma_yaml.py`; keep parsing conservative and deterministic.
 - Avoid premature abstractions until duplicated logic proves stable across at least three tools.
 - Use comments only when they explain why a rule exists or why a parser is intentionally limited.
+- Keep `src/paradigma/` value-returning and adapter-neutral: no argv parsing, subprocess execution, direct printing, or imports from `.paradigma/tools/`.
+- Keep CLI formatting and process exit behavior outside package core services.
 
 # Error Handling
 
@@ -73,6 +75,7 @@ Avoid pinyin, ambiguous abbreviations, and generic names such as `data`, `info`,
 - Run `python -m unittest discover -s tests -p "test_*.py" -v` before and after tool refactors.
 - Keep pre-package tool behavior baselines under `tests/characterization/`; mutation tests must operate in temporary repositories.
 - Characterization coverage must include each public tool's repository success path plus its material validation, exit-code, compatibility, or write-failure behavior.
+- Put pure package behavior in `tests/unit/`, legacy/package equivalence in `tests/integration/`, and dependency direction checks in `tests/architecture/`.
 - Run `python .paradigma/tools/pd-check-all.py` after knowledge/RFC edits (aggregates version, lint, links, index, hot-size, and optional design checks).
 - Run `python .paradigma/tools/pd-index.py rebuild` after adding/removing concepts or changing retrieval metadata, then run `pd-index.py verify`.
 - Run `python .paradigma/tools/pd-check-hot-size.py` before ending substantial sessions.

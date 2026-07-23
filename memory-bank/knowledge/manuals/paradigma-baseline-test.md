@@ -3,7 +3,7 @@ type: paradigma-manual
 title: Paradigma Baseline Validation
 description: Baseline validation sequence for Paradigma knowledge quality, deterministic tooling, and release readiness.
 tags: [manual, testing, quality, paradigma]
-timestamp: 2026-07-23T21:55:59+08:00
+timestamp: 2026-07-23T22:31:40+08:00
 paradigma:
   schema_version: "0.1"
   temperature: warm
@@ -32,7 +32,7 @@ This guide defines the local validation sequence for Paradigma changes. It is **
 # Preconditions
 
 - Run commands from the repository root.
-- Use Python 3.11+ and install `requirements.txt` with `python -m pip install -r requirements.txt`.
+- Use Python 3.11+; install `requirements.txt`, then install the local package with `python -m pip install --no-deps .`.
 - Set `PYTHONDONTWRITEBYTECODE=1` when running validation if you want to avoid local `__pycache__` files.
 
 # Steps
@@ -45,6 +45,7 @@ This guide defines the local validation sequence for Paradigma changes. It is **
 6. Run hot-size checks before ending substantial sessions.
 7. Compile Python tools when their implementation changes.
 8. Run archive tests after changing task state, templates, mutation planning, atomic writes, or retry behavior.
+9. Build a wheel and import it from an isolated target after package metadata or `src/paradigma/` changes.
 
 # Characterization Matrix
 
@@ -68,6 +69,7 @@ Recommended command sequence:
 
 ```powershell
 python -m pip install -r requirements.txt
+python -m pip install --no-deps .
 python .paradigma/tools/pd-index.py rebuild
 python -m unittest discover -s tests -p "test_*.py" -v
 python .paradigma/tools/pd-check-all.py
