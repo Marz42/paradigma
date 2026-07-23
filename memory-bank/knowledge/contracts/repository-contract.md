@@ -3,7 +3,7 @@ type: paradigma-contract
 title: Repository Contract
 description: Current repository-level contract boundaries for APIs, databases, tools, and versioning.
 tags: [contract, repository, tooling]
-timestamp: 2026-07-23T21:35:00+08:00
+timestamp: 2026-07-23T21:55:59+08:00
 paradigma:
   schema_version: "0.1"
   temperature: hot
@@ -67,7 +67,7 @@ This contract defines the externally meaningful repository boundaries for Projec
 | `python .paradigma/tools/pd-check-hot-size.py` | Stable | Reports active-task, HOT knowledge, and progress index size status |
 | `python .paradigma/tools/pd-archive-task.py --dry-run` | Stable | Validates exact task state and prints the immutable archive mutation plan without writes |
 | `python .paradigma/tools/pd-archive-task.py --write` | Stable | Atomically creates the content-addressed archive, then atomically resets active task to `pending`; retries recover without duplication |
-| `python .paradigma/tools/pd-compact-progress.py --write` | Stable | Writes a compact progress summary without deleting source logs |
+| `python .paradigma/tools/pd-compact-progress.py --write` | Stable | Atomically replaces the compact progress summary without deleting or rewriting source logs |
 | `python .paradigma/tools/pd-diagnose.py --upstream <path>` | Experimental | Compares project harness against upstream Paradigma; reports gaps across structure, tools, schema, config, and protocol |
 
 # Request Schema
@@ -86,6 +86,8 @@ Tooling uses process exit codes:
 | `3` | Archive source/target concurrency conflict |
 
 Parser failures include a stable code, source, message, and optional line/column. YAML syntax and encoding failures must not be reported as document Schema failures. Supported parser codes are `ENCODING_ERROR`, `FILE_READ_ERROR`, `FRONTMATTER_MISSING`, `FRONTMATTER_UNCLOSED`, `YAML_SYNTAX_ERROR`, `YAML_DUPLICATE_KEY`, and `YAML_ROOT_TYPE_ERROR`.
+
+Generated single-file writes use a same-directory temporary file, flush, `fsync`, and atomic replace. A compact-summary write failure returns `PD_COMPACT_IO_ERROR`, preserves the prior summary and all source logs, and removes its temporary file.
 
 Active-task status is an exact enum: `pending`, `active`, `blocked`, `completed`, `aborted`. Invalid runtime state fails HOT/runtime and aggregate checks with `PD_TASK_INVALID_STATUS`; archive failures expose stable `PD_ARCHIVE_*` diagnostics. The archive mutation plan binds the active-task SHA-256; archive creation precedes reset, and `archive_id` makes recovery and repeated invocation idempotent.
 

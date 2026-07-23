@@ -6,8 +6,10 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 import argparse
+import os
 import re
 import sys
+import tempfile
 
 from _paradigma_yaml import ParseFailure, flatten_mapping, parse_markdown_text, read_utf8_text
 
@@ -16,6 +18,15 @@ ROOT = Path(__file__).resolve().parents[2]
 PROGRESS_ROOT = ROOT / "memory-bank" / "logs" / "progress"
 SUMMARY_PATH = PROGRESS_ROOT / "summary.md"
 EXCLUDED = {"index.md", "summary.md"}
+
+
+class CompactFailure(RuntimeError):
+    def __init__(self, code: str, message: str):
+        self.code = code
+        super().__init__(message)
+
+    def format(self) -> str:
+        return f"[{self.code}] {self}"
 
 
 def title_for(path: Path, text: str) -> str:
@@ -70,6 +81,27 @@ def render_summary(logs: list[tuple[Path, str, str]]) -> str:
     return "\n".join(lines)
 
 
+def atomic_write_text(path: Path, content: str) -> None:
+    """Replace a summary atomically without exposing partial content."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
+    )
+    temporary_path = Path(temporary_name)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary_path, path)
+    except OSError as error:
+        raise CompactFailure(
+            "PD_COMPACT_IO_ERROR", f"failed to write {path}: {error}"
+        ) from error
+    finally:
+        temporary_path.unlink(missing_ok=True)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--write", action="store_true", help="write memory-bank/logs/progress/summary.md")
@@ -78,16 +110,22 @@ def main() -> int:
     try:
         logs = collect_logs()
     except ParseFailure as error:
-        print(f"ERROR: {error.diagnostic.format()}")
+        print(f"ERROR: {error.diagnostic.format()}", file=sys.stderr)
         return 1
     summary = render_summary(logs)
-    if args.write:
-        PROGRESS_ROOT.mkdir(parents=True, exist_ok=True)
-        SUMMARY_PATH.write_text(summary, encoding="utf-8", newline="\n")
-        print(f"Wrote {SUMMARY_PATH.relative_to(ROOT)} with {len(logs)} source log(s).")
-    else:
-        print(summary)
-    return 0
+    try:
+        if args.write:
+            atomic_write_text(SUMMARY_PATH, summary)
+            print(
+                f"Wrote {SUMMARY_PATH.relative_to(ROOT)} with "
+                f"{len(logs)} source log(s)."
+            )
+        else:
+            print(summary)
+        return 0
+    except CompactFailure as error:
+        print(f"ERROR: {error.format()}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":

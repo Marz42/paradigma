@@ -3,7 +3,7 @@ type: paradigma-architecture
 title: System Architecture
 description: Top-level OKF-compatible architecture and protocol boundaries for Project Paradigma.
 tags: [architecture, okf, memory-bank]
-timestamp: 2026-07-23T21:35:00+08:00
+timestamp: 2026-07-23T21:55:59+08:00
 paradigma:
   schema_version: "0.1"
   temperature: hot
@@ -79,6 +79,7 @@ paradigma/
 | User entry prompts | Bootstrap and work-mode prompts | `INIT_PROMPT.md` |
 | Runtime state | Current active task and ephemeral state | `memory-bank/runtime/` |
 | Task archive transaction | Strict state validation, mutation planning, atomic writes, and retry recovery | `.paradigma/tools/pd-archive-task.py` |
+| Progress compaction | Read-only source aggregation and atomic summary replacement | `.paradigma/tools/pd-compact-progress.py` |
 | Mid-term plans | Multi-session, multi-task plans bridging vision and execution | `memory-bank/knowledge/plans/` |
 | Operational logs | Progress sessions and changelog | `memory-bank/logs/` |
 | Knowledge bundle | Long-lived OKF-compatible knowledge | `memory-bank/knowledge/` |
@@ -119,6 +120,7 @@ flowchart TD
 - 根 `VERSION`、`installed_distribution_version`、`config_schema_version`、`okf_version` 与 `document_schema_version` 语义不得混用；`pd-version.py --check` 必须通过。
 - YAML/frontmatter 必须通过共享 parser 读取；重复键、非法 UTF-8、语法错误和边界错误必须显式失败，Schema 错误由 lint 层单独报告。
 - Active task 状态只能是 `pending`、`active`、`blocked`、`completed`、`aborted`；归档计划绑定 source hash，先原子创建 archive 再原子替换 active-task，并通过 archive ID 支持恢复。
+- index cache、局部索引和 progress summary 的单文件发布必须使用同目录临时文件、flush、`fsync` 和 atomic replace；失败不得破坏既有目标或 canonical source。
 
 # Open Questions
 

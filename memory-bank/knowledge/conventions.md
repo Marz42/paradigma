@@ -3,7 +3,7 @@ type: paradigma-convention
 title: Coding and Collaboration Conventions
 description: Coding, naming, testing, documentation, versioning, and prohibited patterns for Project Paradigma.
 tags: [conventions, semver, collaboration, tooling]
-timestamp: 2026-07-23T21:35:00+08:00
+timestamp: 2026-07-23T21:55:59+08:00
 paradigma:
   schema_version: "0.1"
   temperature: hot
@@ -58,6 +58,7 @@ Avoid pinyin, ambiguous abbreviations, and generic names such as `data`, `info`,
 - CLI output should include repository-relative paths.
 - Parser failures must preserve their structured diagnostic code; do not reinterpret syntax or encoding failures as Schema errors.
 - Generated files should be updated only when the user passes an explicit write flag or archive/compact command.
+- Single-file generated writes must use a same-directory temporary file, flush, `fsync`, and atomic replace; failures preserve the previous target and remove the temporary file.
 - Multi-file mutations must publish a dry-run plan, bind the source content hash, use atomic single-file writes, and define a retry-safe recovery path.
 
 ## Active Task Status
@@ -71,6 +72,7 @@ Avoid pinyin, ambiguous abbreviations, and generic names such as `data`, `info`,
 
 - Run `python -m unittest discover -s tests -p "test_*.py" -v` before and after tool refactors.
 - Keep pre-package tool behavior baselines under `tests/characterization/`; mutation tests must operate in temporary repositories.
+- Characterization coverage must include each public tool's repository success path plus its material validation, exit-code, compatibility, or write-failure behavior.
 - Run `python .paradigma/tools/pd-check-all.py` after knowledge/RFC edits (aggregates version, lint, links, index, hot-size, and optional design checks).
 - Run `python .paradigma/tools/pd-index.py rebuild` after adding/removing concepts or changing retrieval metadata, then run `pd-index.py verify`.
 - Run `python .paradigma/tools/pd-check-hot-size.py` before ending substantial sessions.

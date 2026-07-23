@@ -170,7 +170,7 @@ python .paradigma/tools/pd-check-all.py
 | `python .paradigma/tools/pd-diagnose.py --upstream <path>` | 检测衍生项目与上游 Paradigma 的版本差距（结构/工具/Schema/配置/协议） |
 | `python .paradigma/tools/pd-archive-task.py --dry-run` | 为 `completed` active task 生成归档 mutation plan，不写文件 |
 | `python .paradigma/tools/pd-archive-task.py --write` | 原子应用归档计划并将 active-task 重置为 `pending` |
-| `python .paradigma/tools/pd-compact-progress.py --write` | 生成 progress summary，不删除原始 session logs |
+| `python .paradigma/tools/pd-compact-progress.py --write` | 原子替换 progress summary，不删除或改写原始 session logs |
 
 ---
 

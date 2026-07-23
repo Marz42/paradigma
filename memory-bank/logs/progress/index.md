@@ -10,3 +10,4 @@
 - [2026-07-23 Phase 0 Unified YAML Parser](2026-07-23-phase0-unified-yaml-parser.md)
 - [2026-07-23 Phase 0 Strict Task State and Safe Archive](2026-07-23-phase0-safe-task-archive.md)
 - [2026-07-23 Phase 0 Index Boundaries](2026-07-23-phase0-index-boundaries.md)
+- [2026-07-23 Phase 0 Characterization Tests](2026-07-23-phase0-characterization-tests.md)

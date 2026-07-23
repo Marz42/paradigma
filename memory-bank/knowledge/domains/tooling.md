@@ -3,7 +3,7 @@ type: paradigma-domain
 title: Tooling Domain
 description: Deterministic tooling layer for OKF lint, link checking, index sync, and runtime maintenance.
 tags: [domain, tooling]
-timestamp: 2026-07-23T21:35:00+08:00
+timestamp: 2026-07-23T21:55:59+08:00
 paradigma:
   schema_version: "0.1"
   temperature: warm
@@ -57,14 +57,14 @@ The tooling domain covers the L4 Deterministic Tooling Layer of Paradigma. Tools
 | `pd-sync-index.py` | `python .paradigma/tools/pd-sync-index.py --write` | Deprecated v0.5.x compatibility wrapper for index rebuild/verify |
 | `pd-check-hot-size.py` | `python .paradigma/tools/pd-check-hot-size.py` | Reports active-task, HOT knowledge, and progress index size status |
 | `pd-archive-task.py` | `python .paradigma/tools/pd-archive-task.py --dry-run` | Plans or atomically applies a strict, idempotent active-task archive transaction |
-| `pd-compact-progress.py` | `python .paradigma/tools/pd-compact-progress.py --write` | Writes a compact progress summary without deleting source logs |
+| `pd-compact-progress.py` | `python .paradigma/tools/pd-compact-progress.py --write` | Atomically replaces a compact progress summary without deleting source logs |
 | `pd-diagnose.py` | `python .paradigma/tools/pd-diagnose.py --upstream <path>` | Compares project harness against upstream; reports gaps in structure/tools/schema/config/protocol |
 
 # Internal Flow
 
 All tools share a common root resolution pattern (`Path(__file__).resolve().parents[2]`) and operate on the repository root. YAML and Markdown frontmatter consumers use `_paradigma_yaml.py`, active-task consumers use `_task_state.py`, index commands use `_index.py`, and version-aware tools use `_version.py`. Configuration comes from `.paradigma/config.yaml`, type rules come from `.paradigma/schemas/paradigma-types.schema.yaml`, and dry-run (no `--write`) is the default for mutation tools.
 
-Current behavior is preserved by `tests/characterization/`. Read-only CLI tests execute against the repository, while archive and compact write paths execute only inside temporary repository fixtures.
+Current behavior is preserved by `tests/characterization/`. Repository smoke tests cover all public tools; failure baselines cover validation and exit behavior; archive, compact, and index failure injection runs only inside temporary repositories. A relocated temporary workspace rebuilds its derived index and passes `pd-check-all.py`, protecting the pre-package deployment model.
 
 # Dependencies
 

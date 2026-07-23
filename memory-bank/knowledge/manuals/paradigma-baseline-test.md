@@ -3,7 +3,7 @@ type: paradigma-manual
 title: Paradigma Baseline Validation
 description: Baseline validation sequence for Paradigma knowledge quality, deterministic tooling, and release readiness.
 tags: [manual, testing, quality, paradigma]
-timestamp: 2026-07-23T21:35:00+08:00
+timestamp: 2026-07-23T21:55:59+08:00
 paradigma:
   schema_version: "0.1"
   temperature: warm
@@ -46,6 +46,22 @@ This guide defines the local validation sequence for Paradigma changes. It is **
 7. Compile Python tools when their implementation changes.
 8. Run archive tests after changing task state, templates, mutation planning, atomic writes, or retry behavior.
 
+# Characterization Matrix
+
+| Surface | Preserved baseline |
+|---------|--------------------|
+| lint | Repository success; YAML diagnostics; strict timestamp, required-field, required-section, and generated-checksum failures |
+| link check | Repository success; visible missing targets fail; planned relations warn; code-region links are ignored |
+| index | Root/local/cache boundary; deterministic rebuild; corruption detection; atomic replace failure; legacy wrapper compatibility |
+| hot-size | Repository success; exact task state validation; warning/error thresholds; `--fail-on-warn` exit behavior |
+| archive | Default dry-run; strict status; source conflict; atomic create/replace; interruption recovery; idempotent retry |
+| compact | Dry-run does not write; source logs are preserved; invalid YAML and atomic replace failure preserve the old summary |
+| diagnose | Self-diagnosis success; legacy version migration; unknown workspace JSON and exit code 2 |
+| version | Five version dimensions; legacy-field rejection; distribution drift; invalid SemVer |
+| check-all | Repository success; default first-failure stop; `--keep-going` failure aggregation |
+
+The suite also relocates the harness into a temporary derived workspace, rebuilds its cache, and runs the aggregate quality gate there. Mutation and failure-injection tests never write into the working repository.
+
 # Verification
 
 Recommended command sequence:
@@ -58,6 +74,14 @@ python .paradigma/tools/pd-check-all.py
 ```
 
 Individual tools can also be run separately:
+
+```powershell
+python -m unittest tests.characterization.test_tools -v
+python -m unittest tests.characterization.test_failure_baselines -v
+python .paradigma/tools/pd-version.py --verbose --check
+python .paradigma/tools/pd-index.py verify
+python .paradigma/tools/pd-diagnose.py --project . --upstream . --json
+```
 
 # Rollback
 
@@ -77,6 +101,7 @@ Validation tools should not delete source content. If a local or machine index i
 | Archive exists but active-task was not reset | Process stopped between the two atomic writes | Re-run `pd-archive-task.py --write`; it reuses the same `archive_id` |
 | Machine cache missing or stale | Cache was deleted/corrupted or source metadata changed | Run `pd-index.py rebuild`, then `pd-index.py verify` |
 | Root index starts growing with every concept | Recursive generated block was reintroduced | Remove it with rebuild and keep only high-level human navigation |
+| `PD_COMPACT_IO_ERROR` | Summary temp write, flush, or atomic replace failed | Fix the filesystem issue and retry; the prior summary and all source logs remain unchanged |
 | Link check reports a planned relation | The target is intentionally future work | Keep it under `paradigma.relations.planned` |
 
 # Citations
@@ -86,3 +111,5 @@ Validation tools should not delete source content. If a local or machine index i
 - `.paradigma/tools/pd-check-links.py`
 - `.paradigma/tools/pd-index.py`
 - `.paradigma/tools/pd-sync-index.py` (compatibility wrapper)
+- `tests/characterization/test_tools.py`
+- `tests/characterization/test_failure_baselines.py`

@@ -14,6 +14,7 @@
 - 新增 PyYAML 驱动的共享 `_paradigma_yaml.py`、结构化 parser diagnostics 和 ADR-005。
 - 新增共享 `_task_state.py` 严格状态枚举、归档 mutation plan、稳定 `PD_TASK_*` / `PD_ARCHIVE_*` 错误码和 ADR-006。
 - 新增 `pd-index.py rebuild/verify`、共享 `_index.py`、可重建机器 JSON cache 和 ADR-007。
+- 新增覆盖九类公开工具成功、失败、兼容、原子写入和外部临时 Workspace 的 Characterization Tests。
 
 ### Changed
 - `pd-check-all.py` 增加版本一致性门禁。
@@ -23,6 +24,7 @@
 - lint、links、index、HOT size、diagnose、version 和 progress compact 统一使用共享 YAML/frontmatter parser；CI 显式安装 `requirements.txt`。
 - `pd-archive-task.py` 默认 dry-run，使用 source hash、content-addressed archive ID、原子单文件写入和幂等恢复协议。
 - 根 index 改为人工高层导航；子目录 generated block 改为非递归局部视图；全量递归元数据迁移到 ignored `.paradigma/cache/knowledge-index.json`。
+- `pd-compact-progress.py --write` 改为原子替换；写入失败保留旧 summary 和全部 source logs，并返回 `PD_COMPACT_IO_ERROR`。
 
 ### Deprecated
 - `pd-sync-index.py --write/--check` 保留为 v0.5.x 兼容入口，分别映射到 `pd-index.py rebuild/verify`。

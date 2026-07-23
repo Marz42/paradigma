@@ -3,7 +3,7 @@ type: paradigma-rfc
 title: Paradigma OKF-Compatible Agent Memory Runtime
 description: RFC proposal for evolving Project Paradigma into an OKF-compatible Agent Memory Runtime framework.
 tags: [paradigma, okf, rfc, agent-memory, runtime]
-timestamp: 2026-07-23T21:35:00+08:00
+timestamp: 2026-07-23T21:55:59+08:00
 paradigma:
   schema_version: "0.1"
   layer: docs
@@ -1384,7 +1384,8 @@ SUGGESTION:
 
 ```text
 - 原始 session log 保留
-- compact summary 由工具生成
+- compact summary 由工具使用同目录临时文件、flush、fsync 和 atomic replace 生成
+- 写入失败保留原 summary、清理临时文件并返回 `PD_COMPACT_IO_ERROR`
 - compact summary 不替代 decisions 或 known issues
 - 被确认的长期事实必须迁移到 knowledge
 ```
